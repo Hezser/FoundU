@@ -8,7 +8,7 @@ import UIKit
 import Firebase
 
 
-// DO NOT NEED THIS
+// DO NOT NEED THIS. DELETE.
 class NewMessageController: UITableViewController {
     
     let cellId = "cellId"
