@@ -399,7 +399,20 @@ class PostController: UIViewController, UITextFieldDelegate {
         let messagesNavigationController = tabBarController?.selectedViewController as! UINavigationController
         let messagesController = messagesNavigationController.topViewController as! MessagesController
         
-        messagesController.sendRequest(to: user)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "EEE, dd LLL"
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateFormat = "HH:mm"
+        let time = timeFormatter.string(from: datePicker.date)
+        let date = dateFormatter.string(from: datePicker.date)
+        var place: String
+        if placeTextField.text == nil || placeTextField.text == "" {
+            place = placeTextField.placeholder!
+        } else {
+            place = placeTextField.text!
+        }
+        
+        messagesController.sendProposal(to: user, title: post.title, place: place, date: date, time: time)
         
         dismissPopUp()
     }

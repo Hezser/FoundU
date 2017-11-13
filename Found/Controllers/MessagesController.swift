@@ -177,9 +177,10 @@ class MessagesController: UITableViewController {
         showChatControllerForUser(User(id: chatPartnerId, completion: nil))
     }
     
-    func sendRequest(to user: User) {
+    func sendProposal(to user: User, title: String, place: String, date: String, time: String) {
         let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
         chatController.user = user
+        chatController.sendProposal(withTitle: title, place: place, time: time, date: date)
         navigationController?.pushViewController(chatController, animated: true)
     }
     

@@ -26,7 +26,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     var messages = [Message]()
     
-    let cellId = "cellId"
+    let messageCellID = "messageCellID"
+    let proposalCellID = "proposalCellID"
     
     func observeMessages() {
         guard let uid = FIRAuth.auth()?.currentUser?.uid, let toId = user?.id else {
@@ -64,7 +65,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
 //        collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         collectionView?.alwaysBounceVertical = true
         collectionView?.backgroundColor = UIColor.white
-        collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: cellId)
+        collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: messageCellID)
+        collectionView?.register(ProposalCell.self, forCellWithReuseIdentifier: proposalCellID)
         
         collectionView?.keyboardDismissMode = .interactive
         
@@ -249,26 +251,35 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath) as! ChatMessageCell
         
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: messageCellID, for: indexPath) as! ChatMessageCell
         cell.chatController = self
-        
         let message = messages[indexPath.item]
-        
         cell.message = message
-        
         cell.textView.text = message.text
+        cell.bubbleWidthAnchor?.constant = calculateWidth(of: message)
         
-        setupCell(cell, message: message)
+        setupMessageCell(cell, message: message)
         
-        if let text = message.text {
-            //a text message
-            cell.bubbleWidthAnchor?.constant = estimateFrameForText(text).width + 32
+        // Text message
+        if message.text != nil {
             cell.textView.isHidden = false
-        } else if message.imageUrl != nil {
-            //fall in here if its an image message
-            cell.bubbleWidthAnchor?.constant = 200
+        }
+            
+        // Image
+        else if message.imageUrl != nil {
             cell.textView.isHidden = true
+        }
+        
+        // Proposal
+        else if message.date != nil {
+            let proposalCell = collectionView.dequeueReusableCell(withReuseIdentifier: proposalCellID, for: indexPath) as! ProposalCell
+            proposalCell.decision = message.decision
+            proposalCell.titleLabel.text = message.title
+            proposalCell.placeLabel.text = message.place
+            proposalCell.timeLabel.text = message.time
+            proposalCell.dateLabel.text = message.date
+            return proposalCell
         }
         
         cell.playButton.isHidden = message.videoUrl == nil
@@ -276,7 +287,22 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         return cell
     }
     
-    fileprivate func setupCell(_ cell: ChatMessageCell, message: Message) {
+    func calculateWidth(of message: Message) -> CGFloat {
+        
+        // Text message
+        if let text = message.text {
+            return estimateFrameForText(text).width + 32
+        }
+        
+        // Image
+        else if message.imageUrl != nil {
+            return 200
+        }
+        
+        return 200
+    }
+    
+    fileprivate func setupMessageCell(_ cell: ChatMessageCell, message: Message) {
         if let profileImageUrl = self.user?.profileImageURL {
             cell.profileImageView.loadImageUsingCacheWithURLString(profileImageUrl)
         }
@@ -292,7 +318,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             
         } else {
             //incoming gray
-            cell.bubbleView.backgroundColor = UIColor(red: 240, green: 240, blue: 240, alpha: 1)
+            cell.bubbleView.backgroundColor = .lightGray
             cell.textView.textColor = UIColor.black
             cell.profileImageView.isHidden = false
             
@@ -341,10 +367,24 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     @objc func handleSend() {
-        if inputContainerView.inputTextField.text! != "" {
+        if textIsValid(inputContainerView.inputTextField.text!) {
             let properties = ["text": inputContainerView.inputTextField.text!]
             sendMessageWithProperties(properties as [String : AnyObject])
         }
+    }
+    
+    func textIsValid(_ text: String) -> Bool {
+        for char in text {
+            if char != " " {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func sendProposal(withTitle title: String, place: String, time: String, date: String) {
+        let properties: [String:AnyObject] = [ "decision" : "" as AnyObject, "title" : title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
+        sendMessageWithProperties(properties)
     }
     
     fileprivate func sendMessageWithImageUrl(_ imageUrl: String, image: UIImage) {
@@ -361,7 +401,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         
         var values: [String: AnyObject] = ["toId": toId as AnyObject, "fromId": fromId as AnyObject, "timestamp": timestamp as AnyObject]
         
-        //append properties dictionary onto values somehow??
+        //append properties dictionary onto values
         //key $0, value $1
         properties.forEach({values[$0] = $1})
         
