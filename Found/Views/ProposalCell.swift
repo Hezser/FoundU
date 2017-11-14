@@ -12,6 +12,16 @@ class ProposalCell: UICollectionViewCell {
     
     var decision: String!
     
+    let containerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 16
+        view.layer.borderColor = UIColor.black.cgColor
+        view.layer.borderWidth = 1/2
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
     let titleLabel: UILabel = {
         let label = UILabel()
         label.lineBreakMode = .byWordWrapping
@@ -107,31 +117,54 @@ class ProposalCell: UICollectionViewCell {
     
     func setUpUI(for decision: String?) {
         
-        let margins = layoutMarginsGuide
+        // Container View constraints
+        containerView.topAnchor.constraint(equalTo: self.topAnchor).isActive = true
+        containerView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
+        containerView.widthAnchor.constraint(equalTo: self.widthAnchor, multiplier: 3/4).isActive = true
+        containerView.heightAnchor.constraint(equalTo: self.heightAnchor).isActive = true
+        
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(placeLabel)
+        containerView.addSubview(dateLabel)
+        containerView.addSubview(timeLabel)
+        if decision == "" {
+            print("\nAdding Buttons\n")
+            containerView.addSubview(acceptButton)
+            containerView.addSubview(counterButton)
+            containerView.addSubview(declineButton)
+        }
+        
+        setUpContainer()
+    
+    }
+    
+    func setUpContainer() {
+        
+        let margins = containerView.layoutMarginsGuide
         
         // Title Label Constraints
         titleLabel.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
         titleLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        titleLabel.heightAnchor.constraint(equalToConstant: 70).isActive = true // Ideally the height changes with the length of the litle (as well as the cell's height changing depending on the content) (same for place label)
+        titleLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true // Ideally the height changes with the length of the litle (as well as the cell's height changing depending on the content) (same for place label)
         titleLabel.topAnchor.constraint(equalTo: margins.topAnchor).isActive = true
         
         // Place Label Constraints
         placeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
         placeLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        placeLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        placeLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
         placeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
         
         // Date Label Constraints
         dateLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/2).isActive = true
         dateLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dateLabel.topAnchor.constraint(equalTo: placeLabel.bottomAnchor).isActive = true
-        dateLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         // Time Label Constraints
         timeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/2).isActive = true
         timeLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         timeLabel.topAnchor.constraint(equalTo: placeLabel.bottomAnchor).isActive = true
-        timeLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         if decision == "" {
             
@@ -152,29 +185,15 @@ class ProposalCell: UICollectionViewCell {
             declineButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
             declineButton.heightAnchor.constraint(equalTo: declineButton.widthAnchor, multiplier: 1/1.618034).isActive = true
             declineButton.leftAnchor.constraint(equalTo: counterButton.leftAnchor).isActive = true
-            
         }
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        layer.cornerRadius = 16
-        layer.borderColor = UIColor.black.cgColor
-        layer.borderWidth = 1
-        
         setBackgroundColor(for: decision)
         
-        addSubview(titleLabel)
-        addSubview(placeLabel)
-        addSubview(dateLabel)
-        addSubview(timeLabel)
-        if decision == "" {
-            print("\nAdding Buttons\n")
-            addSubview(acceptButton)
-            addSubview(counterButton)
-            addSubview(declineButton)
-        }
+        addSubview(containerView)
         
         setUpUI(for: decision)
     }

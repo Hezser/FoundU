@@ -68,6 +68,10 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: messageCellID)
         collectionView?.register(ProposalCell.self, forCellWithReuseIdentifier: proposalCellID)
         
+        if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
+        }
+        
         collectionView?.keyboardDismissMode = .interactive
         
         setupKeyboardObservers()

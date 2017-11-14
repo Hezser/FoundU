@@ -136,7 +136,7 @@ class PostCell: BaseCell {
         // Name Label Constraints
         nameLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        nameLabel.leftAnchor.constraint(equalTo: self.layoutMarginsGuide.leftAnchor).isActive = true // center of the cell, not of the containerView
+        nameLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         nameLabel.topAnchor.constraint(equalTo: margins.topAnchor).isActive = true
         
         // Title Label Constraints
