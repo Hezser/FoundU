@@ -8,15 +8,11 @@ import Firebase
 import MobileCoreServices
 import AVFoundation
 
-class ChatController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChatController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PopUpController {
     
-    var user: User? {
-        didSet {
-            navigationItem.title = user?.name
-            
-            observeMessages()
-        }
-    }
+    var popUpView: PopUpView!
+    var user: User!
+    var post: Post! // Different proposals may represent different posts, so this variable is updated right before an action which requires the post (such as presenting the PopUpView) with the post of the proposal currently being used. This variable is kind of a wildcard: it represents different posts at different times as it is convenient
     
     var startingFrame: CGRect?
     var blackBackgroundView: UIView?
@@ -29,7 +25,30 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     let messageCellID = "messageCellID"
     let proposalCellID = "proposalCellID"
     
+    typealias FinishedDownload = () -> ()
+    
+    var blurEffectView: UIVisualEffectView = {
+        let blurEffect = UIBlurEffect(style: .dark)
+        let effectView = UIVisualEffectView(effect: blurEffect)
+        effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return effectView
+    }()
+    
+    var vibrancyEffectView: UIVisualEffectView = {
+        let vibrancyEffect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: .dark))
+        let effectView = UIVisualEffectView(effect: vibrancyEffect)
+        effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        return effectView
+    }()
+    
+    lazy var inputContainerView: ChatInputContainerView = {
+        let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
+        chatInputContainerView.chatController = self
+        return chatInputContainerView
+    }()
+    
     func observeMessages() {
+        
         guard let uid = FIRAuth.auth()?.currentUser?.uid, let toId = user?.id else {
             return
         }
@@ -37,15 +56,15 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         let userMessagesRef = FIRDatabase.database().reference().child("user-messages").child(uid).child(toId)
         userMessagesRef.observe(.childAdded, with: { (snapshot) in
             
-            let messageId = snapshot.key
-            let messagesRef = FIRDatabase.database().reference().child("messages").child(messageId)
+            let messageID = snapshot.key
+            let messagesRef = FIRDatabase.database().reference().child("messages").child(messageID)
             messagesRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 guard let dictionary = snapshot.value as? [String: AnyObject] else {
                     return
                 }
                 
-                self.messages.append(Message(dictionary: dictionary))
+                self.messages.append(Message(ID: messageID, dictionary: dictionary))
                 DispatchQueue.main.async(execute: {
                     self.collectionView?.reloadData()
                     //scroll to the last index
@@ -61,16 +80,13 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.setToolbarHidden(true, animated: false)
+        
         collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
-//        collectionView?.scrollIndicatorInsets = UIEdgeInsets(top: 0, left: 0, bottom: 50, right: 0)
         collectionView?.alwaysBounceVertical = true
         collectionView?.backgroundColor = UIColor.white
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: messageCellID)
         collectionView?.register(ProposalCell.self, forCellWithReuseIdentifier: proposalCellID)
-        
-        if let flowLayout = collectionView?.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
-        }
         
         collectionView?.keyboardDismissMode = .interactive
         
@@ -79,16 +95,158 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        navigationItem.title = user?.name
         navigationItem.largeTitleDisplayMode = .never
+        observeMessages()
     }
     
-    lazy var inputContainerView: ChatInputContainerView = {
-        let chatInputContainerView = ChatInputContainerView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 50))
-        chatInputContainerView.chatController = self
-        return chatInputContainerView
-    }()
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 10
+    }
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+        return CGSize(width: view.frame.width , height: 64)
+    }
+    
+    func setUpBlurAndVibrancy() {
+        
+        navigationController?.isNavigationBarHidden = true
+        
+        // Blur and vibrancy effects
+        vibrancyEffectView.frame = view.bounds
+        blurEffectView.frame = view.bounds
+        view.addSubview(blurEffectView)
+        view.addSubview(vibrancyEffectView)
+        blurEffectView.contentView.addSubview(vibrancyEffectView)
+        vibrancyEffectView.contentView.addSubview(popUpView)
+        blurEffectView.isHidden = true
+        vibrancyEffectView.isHidden = true
+        
+        // PopUp View Constraints
+        let margins = vibrancyEffectView.layoutMarginsGuide
+        popUpView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        popUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
+        popUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
+        popUpView.heightAnchor.constraint(equalTo: popUpView.widthAnchor).isActive = true
+        
+    }
+    
+    func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
+        
+        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID).child("postID").key
+        FIRDatabase.database().reference().child("posts").child(postID).observeSingleEvent(of: .value, with: { (snapshot) in
+        
+            if snapshot.value as? [String : String] == nil {
+                // The post has been removed. Notify the user about this.
+                print("\nThe post you are trying to access has been removed from the database\n")
+                completed()
+                return
+            }
+            
+            self.post = Post(snapshot.value as! FIRDataSnapshot)
+            print("\nPOST SETUP COMPLETED\n")
+            completed()
+            
+        })
+    }
+    
+    func presentPopUp(forCell proposalCell: ProposalCell) {
+        
+        // Hide inputContainerView
+        inputContainerView.isHidden = true
+        
+        // Set up popup
+        popUpView = PopUpView()
+        popUpView.popUpController = self
+        popUpView.proposalCell = proposalCell
+        setUpBlurAndVibrancy()
+        popUpView.addButtonFunctionality()
+        popUpView.configurePopUp()
+        
+        // Animate PopUp View
+        popUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
+        popUpView.alpha = 0
+        UIView.animate(withDuration: 0.4) {
+            self.blurEffectView.isHidden = false
+            self.vibrancyEffectView.isHidden = false
+            self.popUpView.alpha = 1
+            self.popUpView.transform = CGAffineTransform.identity
+        }
+        
+        navigationController?.isNavigationBarHidden = true
+    }
+    
+    func dismissPopUp() {
+        
+        print("\nDismissing popup\n")
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            self.popUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            self.popUpView.alpha = 0
+        }) { (success: Bool) in
+            self.blurEffectView.isHidden = true
+            self.vibrancyEffectView.isHidden = true
+            self.navigationController?.isNavigationBarHidden = false
+            self.inputContainerView.isHidden = false
+            self.view.endEditing(true)
+        }
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        let touch: UITouch? = touches.first
+        if (touch?.view != popUpView) && (blurEffectView.isHidden == false) {
+            dismissPopUp()
+        } else if (touch?.view == popUpView) && (blurEffectView.isHidden == false) {
+            self.view.endEditing(true)
+        }
+    }
+    
+    func sendProposal(forPost post: Post, time: String, date: String, place: String) {
+
+        let properties: [String:AnyObject] = [ "postID" : post.id as AnyObject, "decision" : "" as AnyObject, "title" : post.title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
+        sendMessageWithProperties(properties)
+    }
+    
+    func deleteConversationByDeclining() {
+        
+        // Present the alert to confirm
+        let alert = UIAlertController(title: "Delete Conversation", message: "When you decline a proposal, the conversation will be deleted. If you want to keep the conversation then accept the proposal, counter it, or don't answer it yet. Do you still want to decline?", preferredStyle: .alert)
+        let clearAction = UIAlertAction(title: "Yes", style: .destructive) { (alert: UIAlertAction!) -> Void in
+            self.deleteConversation()
+        }
+        let cancelAction = UIAlertAction(title: "No", style: .cancel) { (alert: UIAlertAction!) -> Void in
+            // Nothing is done
+        }
+        
+        alert.addAction(clearAction)
+        alert.addAction(cancelAction)
+        
+        present(alert, animated: true, completion:nil)
+    }
+    
+    func deleteConversation() {
+        
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        
+        // Remove the conversation in the database
+        if let chatPartnerID = messages[0].chatPartnerID() {
+            FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
+                
+                if error != nil {
+                    print("Failed to delete message:", error!)
+                    return
+                }
+                
+                self.navigationController?.popViewController(animated: true)
+            })
+        }
+    }
     
     @objc func handleUploadTap() {
+        
         let imagePickerController = UIImagePickerController()
         
         imagePickerController.allowsEditing = true
@@ -112,6 +270,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     fileprivate func handleVideoSelectedForUrl(_ url: URL) {
+        
         let filename = UUID().uuidString + ".mov"
         let uploadTask = FIRStorage.storage().reference().child("message_movies").child(filename).putFile(url, metadata: nil, completion: { (metadata, error) in
             
@@ -144,6 +303,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     fileprivate func thumbnailImageForFileUrl(_ fileUrl: URL) -> UIImage? {
+        
         let asset = AVAsset(url: fileUrl)
         let imageGenerator = AVAssetImageGenerator(asset: asset)
         
@@ -160,6 +320,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     fileprivate func handleImageSelectedForInfo(_ info: [String: AnyObject]) {
+        
         var selectedImageFromPicker: UIImage?
         
         if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
@@ -177,6 +338,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     fileprivate func uploadToFirebaseStorageUsingImage(_ image: UIImage, completion: @escaping (_ imageUrl: String) -> ()) {
+        
         let imageName = UUID().uuidString
         let ref = FIRStorage.storage().reference().child("message_images").child(imageName)
         
@@ -197,6 +359,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        
         dismiss(animated: true, completion: nil)
     }
     
@@ -211,6 +374,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     func setupKeyboardObservers() {
+        
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
         
 //        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(handleKeyboardWillShow), name: UIKeyboardWillShowNotification, object: nil)
@@ -219,6 +383,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     @objc func handleKeyboardDidShow() {
+        
         if messages.count > 0 {
             let indexPath = IndexPath(item: messages.count - 1, section: 0)
             collectionView?.scrollToItem(at: indexPath, at: .top, animated: true)
@@ -232,6 +397,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     @objc func handleKeyboardWillShow(_ notification: Notification) {
+        
         let keyboardFrame = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as AnyObject).cgRectValue
         let keyboardDuration = (notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         
@@ -242,6 +408,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     @objc func handleKeyboardWillHide(_ notification: Notification) {
+        
         let keyboardDuration = (notification.userInfo?[UIKeyboardAnimationDurationUserInfoKey] as AnyObject).doubleValue
         
         containerViewBottomAnchor?.constant = 0
@@ -271,22 +438,23 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         }
             
         // Image
-        else if message.imageUrl != nil {
+        else if message.imageURL != nil {
             cell.textView.isHidden = true
         }
         
         // Proposal
         else if message.date != nil {
             let proposalCell = collectionView.dequeueReusableCell(withReuseIdentifier: proposalCellID, for: indexPath) as! ProposalCell
-            proposalCell.decision = message.decision
-            proposalCell.titleLabel.text = message.title
-            proposalCell.placeLabel.text = message.place
-            proposalCell.timeLabel.text = message.time
-            proposalCell.dateLabel.text = message.date
+            proposalCell.message = message
+            proposalCell.chatController = self
+            proposalCell.configure()
+            proposalCell.acceptButton.tag = indexPath.row
+            proposalCell.counterButton.tag = indexPath.row
+            proposalCell.declineButton.tag = indexPath.row
             return proposalCell
         }
         
-        cell.playButton.isHidden = message.videoUrl == nil
+        cell.playButton.isHidden = message.videoURL == nil
         
         return cell
     }
@@ -299,7 +467,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         }
         
         // Image
-        else if message.imageUrl != nil {
+        else if message.imageURL != nil {
             return 200
         }
         
@@ -307,11 +475,12 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     fileprivate func setupMessageCell(_ cell: ChatMessageCell, message: Message) {
+        
         if let profileImageUrl = self.user?.profileImageURL {
             cell.profileImageView.loadImageUsingCacheWithURLString(profileImageUrl)
         }
         
-        if message.fromId == FIRAuth.auth()?.currentUser?.uid {
+        if message.fromID == FIRAuth.auth()?.currentUser?.uid {
             //outgoing blue
             cell.bubbleView.backgroundColor = .blue
             cell.textView.textColor = .white
@@ -330,7 +499,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             cell.bubbleViewLeftAnchor?.isActive = true
         }
         
-        if let messageImageUrl = message.imageUrl {
+        if let messageImageUrl = message.imageURL {
             cell.messageImageView.loadImageUsingCacheWithURLString(messageImageUrl)
             cell.messageImageView.isHidden = false
             cell.bubbleView.backgroundColor = UIColor.clear
@@ -345,6 +514,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        
         var height: CGFloat = 80
         
         let message = messages[indexPath.item]
@@ -358,6 +529,11 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             
             height = CGFloat(imageHeight / imageWidth * 200)
             
+        } else if let date = message.date, let title = message.title, let place = message.place {
+            height = estimateFrameForText(date).height + estimateFrameForText(title).height + estimateFrameForText(place).height + 20
+            if message.decision == "" && message.toID == uid {
+                height += 40 // Account for the buttons
+            }
         }
         
         let width = UIScreen.main.bounds.width
@@ -386,17 +562,13 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         return false
     }
     
-    func sendProposal(withTitle title: String, place: String, time: String, date: String) {
-        let properties: [String:AnyObject] = [ "decision" : "" as AnyObject, "title" : title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
-        sendMessageWithProperties(properties)
-    }
-    
     fileprivate func sendMessageWithImageUrl(_ imageUrl: String, image: UIImage) {
         let properties: [String: AnyObject] = ["imageUrl": imageUrl as AnyObject, "imageWidth": image.size.width as AnyObject, "imageHeight": image.size.height as AnyObject]
         sendMessageWithProperties(properties)
     }
     
     fileprivate func sendMessageWithProperties(_ properties: [String: AnyObject]) {
+        
         let ref = FIRDatabase.database().reference().child("messages")
         let childRef = ref.childByAutoId()
         let toId = user!.id!

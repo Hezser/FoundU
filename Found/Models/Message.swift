@@ -8,37 +8,42 @@ import Firebase
 
 class Message: NSObject {
 
-    var fromId: String?
+    var messageID: String!
+    var fromID: String!
     var text: String?
-    var timestamp: NSNumber?
-    var toId: String?
-    var imageUrl: String?
-    var videoUrl: String?
+    var timestamp: NSNumber!
+    var toID: String!
+    var imageURL: String?
+    var videoURL: String?
     var imageWidth: NSNumber?
     var imageHeight: NSNumber?
+    var postID: String?
     var decision: String?
     var title: String?
     var place: String?
     var time: String?
     var date: String?
     
-    init(dictionary: [String: Any]) {
-        self.fromId = dictionary["fromId"] as? String
-        self.toId = dictionary["toId"] as? String
+    init(ID: String, dictionary: [String: Any]) {
+        
+        self.messageID = ID
+        self.fromID = dictionary["fromId"] as? String
+        self.toID = dictionary["toId"] as? String
         self.timestamp = dictionary["timestamp"] as? NSNumber
         
         // Normal message
         self.text = dictionary["text"] as? String
         
         // Image
-        self.imageUrl = dictionary["imageUrl"] as? String
+        self.imageURL = dictionary["imageUrl"] as? String
         self.imageWidth = dictionary["imageWidth"] as? NSNumber
         self.imageHeight = dictionary["imageHeight"] as? NSNumber
         
         // Video
-        self.videoUrl = dictionary["videoUrl"] as? String
+        self.videoURL = dictionary["videoUrl"] as? String
         
         // Proposal
+        self.postID = dictionary["postID"] as? String
         self.decision = dictionary["decision"] as? String
         self.title = dictionary["title"] as? String
         self.place = dictionary["place"] as? String
@@ -46,8 +51,8 @@ class Message: NSObject {
         self.date = dictionary["date"] as? String
     }
     
-    func chatPartnerId() -> String? {
-        return fromId == FIRAuth.auth()?.currentUser?.uid ? toId : fromId
+    func chatPartnerID() -> String? {
+        return fromID == FIRAuth.auth()?.currentUser?.uid ? toID : fromID
     }
     
 }

@@ -30,7 +30,7 @@ class Post: NSObject {
     init(_ post: FIRDataSnapshot) {
         super.init()
         
-        id = post.value as? String
+        id = post.key
         userID = post.childSnapshot(forPath: "userID").value as? String
         title = post.childSnapshot(forPath: "title").value as? String
         place = post.childSnapshot(forPath: "place").value as? String

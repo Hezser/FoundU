@@ -34,6 +34,8 @@ class ProfileController: UIViewController {
         if mainProfile {
             let logOutButton = UIBarButtonItem(title: "Sign Out", style: .done, target: self, action: #selector(handleLogOut))
             navigationItem.rightBarButtonItem = logOutButton
+            let editButton = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEdit))
+            navigationItem.leftBarButtonItem = editButton
         }
         
         // Set info
@@ -44,33 +46,11 @@ class ProfileController: UIViewController {
         super.viewWillAppear(true)
         if mainProfile {
             title = "You"
-//            navigationController?.isNavigationBarHidden = true
         } else {
             title = user.name
-//            navigationController?.isNavigationBarHidden = false
         }
         navigationController?.navigationBar.prefersLargeTitles = true
     }
-    
-//    func makeLogoutButton() {
-//
-//        let logoutButton = UIButton()
-//        logoutButton.backgroundColor = #colorLiteral(red: 0.9331143498, green: 0.134441793, blue: 0, alpha: 1)
-//        logoutButton.setTitle("Log Out", for: .normal)
-//        logoutButton.layer.cornerRadius = 5
-//        logoutButton.clipsToBounds = true
-//        logoutButton.translatesAutoresizingMaskIntoConstraints = false
-//        logoutButton.addTarget(self, action: #selector(handleLogOut), for: .touchUpInside)
-//
-//        view.addSubview(logoutButton)
-//
-//        let margins = view.layoutMarginsGuide
-//
-//        logoutButton.widthAnchor.constraint(equalToConstant: 70).isActive = true
-//        logoutButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
-//        logoutButton.topAnchor.constraint(equalTo: margins.topAnchor, constant: 10).isActive = true
-//        logoutButton.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-//    }
     
     func setUserData() {
         
@@ -189,7 +169,7 @@ class ProfileController: UIViewController {
         
     }
     
-    @objc func handleLogOut() {
+    @objc func handleLogOut(_ sender: UIButton) {
         do {
             try FIRAuth.auth()?.signOut()
         } catch let logoutError {
@@ -199,4 +179,9 @@ class ProfileController: UIViewController {
         let loginController = LoginController()
         present(loginController, animated: true, completion: nil)
     }
+    
+    @objc func handleEdit(_ sender: UIButton) {
+        
+    }
+    
 }

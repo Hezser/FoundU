@@ -27,7 +27,7 @@ class UserCell: UITableViewCell {
     
     fileprivate func setupNameAndProfileImage() {
         
-        if let id = message?.chatPartnerId() {
+        if let id = message?.chatPartnerID() {
             let ref = FIRDatabase.database().reference().child("users").child(id)
             ref.observeSingleEvent(of: .value, with: { (snapshot) in
                 

@@ -8,10 +8,12 @@
 
 import UIKit
 
-class PostController: UIViewController, UITextFieldDelegate {
+class PostController: UIViewController, PopUpController {
     
-    var post: Post!
     var user: User!
+    var post: Post!
+    
+    var popUpView: PopUpView!
     
     typealias FinishedDownload = () -> ()
     
@@ -29,48 +31,12 @@ class PostController: UIViewController, UITextFieldDelegate {
         return effectView
     }()
     
-    var popUpView: UIView = {
-        let popup = UIView()
-        popup.translatesAutoresizingMaskIntoConstraints = false
-        popup.backgroundColor = .lightGray
-        popup.layer.cornerRadius = 10
-        return popup
-    }()
-    
-    var placeTextField: UITextField = {
-        let tf = UITextField()
-        tf.textAlignment = .center
-        tf.returnKeyType = .done
-        tf.font = UIFont(name: (tf.font?.fontName)!, size: 20)
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        return tf
-    }()
-    
-    var datePicker: UIDatePicker = {
-        let picker = UIDatePicker()
-        picker.datePickerMode = .dateAndTime
-        picker.minuteInterval = 15
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        return picker
-    }()
-    
     var meetButton: UIButton = {
        let button = UIButton()
         button.setTitle("Let's Meet!", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(26)
         button.addTarget(self, action: #selector(handleMeetSetUp), for: .touchUpInside)
         button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    var sendButton: UIButton = {
-        let button = UIButton()
-        button.setTitle("Send", for: .normal)
-        button.titleLabel?.font = button.titleLabel?.font.withSize(26)
-        button.addTarget(self, action: #selector(handleSendRequest), for: .touchUpInside)
-        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-        button.layer.cornerRadius = 10
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -178,6 +144,13 @@ class PostController: UIViewController, UITextFieldDelegate {
         
         setUpViews()
         
+        // Set up popup
+        print("\nCREATING POPUP WITHIN POSTCONTROLLER\n")
+        popUpView = PopUpView()
+        popUpView.popUpController = self
+        setUpBlurAndVibrancy()
+        popUpView.configurePopUp()
+        
         // Set up text
         titleLabel.text = post.title
         placeLabel.text = post.place
@@ -201,7 +174,6 @@ class PostController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        title = "Post"
         navigationItem.largeTitleDisplayMode = .never
         navigationController?.setToolbarHidden(true, animated: false)
     }
@@ -264,8 +236,6 @@ class PostController: UIViewController, UITextFieldDelegate {
         meetButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         meetButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
         
-        setUpBlurAndVibrancy()
-        
     }
     
     func setUpBlurAndVibrancy() {
@@ -288,8 +258,7 @@ class PostController: UIViewController, UITextFieldDelegate {
         popUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
         popUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
         popUpView.heightAnchor.constraint(equalTo: popUpView.widthAnchor).isActive = true
-        
-        configurePopUp()
+
     }
     
     func setUpUserSectionView() {
@@ -339,8 +308,23 @@ class PostController: UIViewController, UITextFieldDelegate {
         self.navigationController?.pushViewController(profile, animated: true)
     }
     
+    func sendProposal(forPost post: Post, time: String, date: String, place: String) {
+        
+        // We have to push the ChatController from the MessagesController in order to preserve the logical navigation of the app
+        tabBarController?.selectedIndex = 1
+        
+        let messagesNavigationController = tabBarController?.selectedViewController as! UINavigationController
+        let messagesController = messagesNavigationController.topViewController as! MessagesController
+        
+        messagesController.sendProposal(to: user, post: post, title: post.title, place: place, date: date, time: time)
+        
+        dismissPopUp()
+    }
+    
     @objc func handleMeetSetUp(sender: UIButton) {
         
+        popUpView.addButtonFunctionality()
+
         // Animate PopUp View
         popUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
         popUpView.alpha = 0
@@ -354,74 +338,13 @@ class PostController: UIViewController, UITextFieldDelegate {
         navigationController?.isNavigationBarHidden = true
     }
     
-    func configurePopUp() {
-        
-        popUpView.addSubview(datePicker)
-        popUpView.addSubview(placeTextField)
-        popUpView.addSubview(sendButton)
-        
-        let margins = popUpView.layoutMarginsGuide
-        
-        // Date Picker Constraints & Date Settings
-        datePicker.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        datePicker.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
-        datePicker.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
-        datePicker.heightAnchor.constraint(equalTo: datePicker.widthAnchor, multiplier: 1/2).isActive = true
-        
-        if post.time != "Anytime" {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE dd MMM, hh:mm"
-            datePicker.date = dateFormatter.date(from: post.time)!
-        }
-        
-        // Place Text Field Constraints & Settings
-        placeTextField.bottomAnchor.constraint(equalTo: datePicker.topAnchor, constant: -5).isActive = true
-        placeTextField.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        placeTextField.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
-        placeTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-        placeTextField.placeholder = post.place
-        placeTextField.delegate = self
-        
-        // Send Button Constraints
-        sendButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        sendButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 5).isActive = true
-        sendButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034).isActive = true
-        
-        
-    }
-    
-    @objc func handleSendRequest(sender: UIButton) {
-        
-        tabBarController?.selectedIndex = 1
-        
-        let messagesNavigationController = tabBarController?.selectedViewController as! UINavigationController
-        let messagesController = messagesNavigationController.topViewController as! MessagesController
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "EEE, dd LLL"
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "HH:mm"
-        let time = timeFormatter.string(from: datePicker.date)
-        let date = dateFormatter.string(from: datePicker.date)
-        var place: String
-        if placeTextField.text == nil || placeTextField.text == "" {
-            place = placeTextField.placeholder!
-        } else {
-            place = placeTextField.text!
-        }
-        
-        messagesController.sendProposal(to: user, title: post.title, place: place, date: date, time: time)
-        
-        dismissPopUp()
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         let touch: UITouch? = touches.first
-        if touch?.view != popUpView {
+        if (touch?.view != popUpView) && (blurEffectView.isHidden == false) {
             dismissPopUp()
+        } else if (touch?.view == popUpView) && (blurEffectView.isHidden == false) {
+            self.view.endEditing(true)
         }
     }
     
@@ -435,10 +358,5 @@ class PostController: UIViewController, UITextFieldDelegate {
             self.navigationController?.isNavigationBarHidden = false
             self.view.endEditing(true)
         }
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        view.endEditing(true)
-        return false
     }
 }

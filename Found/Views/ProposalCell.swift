@@ -7,16 +7,19 @@
 //
 
 import UIKit
+import Firebase
 
 class ProposalCell: UICollectionViewCell {
     
-    var decision: String!
+    var message: Message!
+    var chatController: ChatController!
     
     let containerView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.isUserInteractionEnabled = true
         view.layer.cornerRadius = 16
-        view.layer.borderColor = UIColor.black.cgColor
+        view.layer.borderColor = UIColor.lightGray.cgColor
         view.layer.borderWidth = 1/2
         view.layer.masksToBounds = true
         return view
@@ -71,45 +74,99 @@ class ProposalCell: UICollectionViewCell {
     
     let acceptButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .green
-        button.addTarget(self, action: #selector(handleAcceptance), for: .touchUpInside)
+        button.setTitle("Accept", for: .normal)
+        button.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     let counterButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .orange
-        button.addTarget(self, action: #selector(handleCountering), for: .touchUpInside)
+        button.setTitle("Counter", for: .normal)
+        button.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     let declineButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .red
-        button.addTarget(self, action: #selector(handleDeclination), for: .touchUpInside)
+        button.setTitle("Decline", for: .normal)
+        button.backgroundColor = #colorLiteral(red: 0.9492980647, green: 0.6576105266, blue: 0.677450324, alpha: 1)
+        button.isUserInteractionEnabled = true
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    @objc func handleAcceptance() {
-        
+    func changeDecisionStatus(to decision: String) {
+        let ref = FIRDatabase.database().reference().child("messages").child(message.messageID)
+        ref.updateChildValues(["decision" : decision])
     }
     
-    @objc func handleCountering() {
+    @objc func handleAcceptance(_ sender: UIButton) {
         
+        print("\nProposal Accepted\n")
+        
+        // Notification actions (send event by email or something)
+        
+        // Set image of messagescontroller cell to acceptance one (white tick on green background with circle shape)
+        
+        containerView.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
+        acceptButton.isHidden = true
+        counterButton.isHidden = true
+        declineButton.isHidden = true
+        
+        frame.size.height = frame.size.height - acceptButton.frame.height
+        
+        changeDecisionStatus(to: "Accepted") // Posibly do this with uploading time accounting (the app wouldn't crash, but if the user goes back to messages and then back to the conversation quicker than the data is uplaoded, the decision wouldn't have changed
     }
     
-    @objc func handleDeclination() {
+    @objc func handleCountering(_ sender: UIButton) {
         
+        chatController.setPost(forProposal: message, completion: { () -> () in
+            self.chatController.presentPopUp(forCell: self)
+        })
+    }
+    
+    func counteringSuccessful() {
+        
+        print("\nProposal Countered\n")
+        
+        // Notification actions
+        
+        // Set image of messagescontroller cell to countering one (whatever white symbol on orange background with circle shape)
+        
+        containerView.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
+        acceptButton.isHidden = true
+        counterButton.isHidden = true
+        declineButton.isHidden = true
+        
+        frame.size.height = frame.size.height - acceptButton.frame.height
+        
+        changeDecisionStatus(to: "Countered") // Posibly do this with uploading time accounting (the app wouldn't crash, but if the user goes back to messages and then back to the conversation quicker than the data is uplaoded, the decision wouldn't have changed
+    }
+    
+    @objc func handleDeclination(_ sender: UIButton) {
+        
+        print("\nProposal Declined\n")
+        
+        // Notification actions
+        
+        changeDecisionStatus(to: "Declined")
+        
+        // Delete conversation upon confirming (a confirmation PopUp comes up to confirm you understand the consecuences of declining -> deleting the conversation, if you want to keep talking don't decline yet)
+        chatController.deleteConversationByDeclining()
     }
     
     func setBackgroundColor(for decision: String?) {
         
         if decision == "Accepted" {
-            backgroundColor = .green
+            containerView.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
         } else if decision == "Countered" {
-            backgroundColor = .orange
+            containerView.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
         } else if decision == "Declined" {
-            backgroundColor = .red
+            containerView.backgroundColor = #colorLiteral(red: 0.9492980647, green: 0.6576105266, blue: 0.677450324, alpha: 1)
         } else {
             // As of now, we keep the background color on default
         }
@@ -127,12 +184,22 @@ class ProposalCell: UICollectionViewCell {
         containerView.addSubview(placeLabel)
         containerView.addSubview(dateLabel)
         containerView.addSubview(timeLabel)
-        if decision == "" {
-            print("\nAdding Buttons\n")
+        
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        if message.decision == "" && message.toID == uid {
+
             containerView.addSubview(acceptButton)
             containerView.addSubview(counterButton)
             containerView.addSubview(declineButton)
+            bringSubview(toFront: acceptButton)
+            bringSubview(toFront: counterButton)
+            bringSubview(toFront: declineButton)
+            acceptButton.addTarget(self, action: #selector(handleAcceptance), for: .touchUpInside)
+            counterButton.addTarget(self, action: #selector(handleCountering), for: .touchUpInside)
+            declineButton.addTarget(self, action: #selector(handleDeclination), for: .touchUpInside)
         }
+    
+        print("\nDecision is \(decision!)\n")
         
         setUpContainer()
     
@@ -155,47 +222,66 @@ class ProposalCell: UICollectionViewCell {
         placeLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor).isActive = true
         
         // Date Label Constraints
-        dateLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/2).isActive = true
-        dateLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
+        dateLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
+        dateLabel.rightAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         dateLabel.topAnchor.constraint(equalTo: placeLabel.bottomAnchor).isActive = true
         dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         // Time Label Constraints
-        timeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/2).isActive = true
-        timeLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        timeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
+        timeLabel.leftAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         timeLabel.topAnchor.constraint(equalTo: placeLabel.bottomAnchor).isActive = true
         timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
-        if decision == "" {
-            
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        if message.decision == "" && message.toID == uid {
+        
             // Accept Button Constraints
-            acceptButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-            acceptButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-            acceptButton.heightAnchor.constraint(equalTo: acceptButton.widthAnchor, multiplier: 1/1.618034).isActive = true
-            acceptButton.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-            
+            acceptButton.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1/3).isActive = true
+            acceptButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
+            acceptButton.heightAnchor.constraint(equalTo: acceptButton.widthAnchor, multiplier: 1/(1.618034*1.5)).isActive = true
+            acceptButton.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
+
             // Counter Button Constraints
-            counterButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-            counterButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-            counterButton.heightAnchor.constraint(equalTo: counterButton.widthAnchor, multiplier: 1/1.618034).isActive = true
-            counterButton.leftAnchor.constraint(equalTo: acceptButton.leftAnchor).isActive = true
-            
+            counterButton.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1/3).isActive = true
+            counterButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
+            counterButton.heightAnchor.constraint(equalTo: counterButton.widthAnchor, multiplier: 1/(1.618034*1.5)).isActive = true
+            counterButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+
             // Decline Button Constraints
-            declineButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-            declineButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-            declineButton.heightAnchor.constraint(equalTo: declineButton.widthAnchor, multiplier: 1/1.618034).isActive = true
-            declineButton.leftAnchor.constraint(equalTo: counterButton.leftAnchor).isActive = true
+            declineButton.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1/3).isActive = true
+            declineButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor).isActive = true
+            declineButton.heightAnchor.constraint(equalTo: declineButton.widthAnchor, multiplier: 1/(1.618034*1.5)).isActive = true
+            declineButton.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
         }
+    }
+    
+    func configure() {
+        
+        titleLabel.text = message.title
+        placeLabel.text = message.place
+        timeLabel.text = message.time
+        dateLabel.text = message.date
+        
+        setBackgroundColor(for: message.decision)
+        
+        addSubview(containerView)
+        
+        setUpUI(for: message.decision)
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        acceptButton.removeTarget(nil, action: nil, for: .allEvents)
+        counterButton.removeTarget(nil, action: nil, for: .allEvents)
+        declineButton.removeTarget(nil, action: nil, for: .allEvents)
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        setBackgroundColor(for: decision)
-        
-        addSubview(containerView)
-        
-        setUpUI(for: decision)
+        isUserInteractionEnabled = true
     }
     
     required init?(coder aDecoder: NSCoder) {

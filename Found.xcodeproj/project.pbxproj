@@ -18,6 +18,8 @@
 		D62624E31F73F69F0075F5FC /* QARegularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E21F73F69F0075F5FC /* QARegularView.swift */; };
 		D62624E51F73F6C10075F5FC /* QAMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E41F73F6C10075F5FC /* QAMapView.swift */; };
 		D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E61F73F6CD0075F5FC /* QAPickView.swift */; };
+		D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */; };
+		D64FCA711FBC9761005CE655 /* PopUpProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */; };
 		D658ED421F8527F100A1407D /* QAImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D658ED411F8527F100A1407D /* QAImageView.swift */; };
 		D66A04CE1F951C7F00C991C0 /* PostListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CD1F951C7F00C991C0 /* PostListController.swift */; };
 		D66A04D01F95256500C991C0 /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CF1F95256500C991C0 /* PostCell.swift */; };
@@ -58,6 +60,8 @@
 		D62624E21F73F69F0075F5FC /* QARegularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QARegularView.swift; sourceTree = "<group>"; };
 		D62624E41F73F6C10075F5FC /* QAMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAMapView.swift; sourceTree = "<group>"; };
 		D62624E61F73F6CD0075F5FC /* QAPickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAPickView.swift; sourceTree = "<group>"; };
+		D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
+		D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpProtocol.swift; sourceTree = "<group>"; };
 		D658ED411F8527F100A1407D /* QAImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAImageView.swift; sourceTree = "<group>"; };
 		D66A04CD1F951C7F00C991C0 /* PostListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListController.swift; sourceTree = "<group>"; };
 		D66A04CF1F95256500C991C0 /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
@@ -144,9 +148,9 @@
 				D6E2E7021F7C294D0069C608 /* ProfileController.swift */,
 				D61C46761F752BFD00A2AE8B /* NewPostController.swift */,
 				D66A04CD1F951C7F00C991C0 /* PostListController.swift */,
-				D6F5DDA21F9C093700633A0F /* PostController.swift */,
 				D6C875F71FB48800004C3C57 /* MessagesController.swift */,
 				D6C875F91FB48806004C3C57 /* NewMessageController.swift */,
+				D6F5DDA21F9C093700633A0F /* PostController.swift */,
 				D6C875FB1FB4880C004C3C57 /* ChatController.swift */,
 			);
 			path = Controllers;
@@ -168,6 +172,7 @@
 				D62624E61F73F6CD0075F5FC /* QAPickView.swift */,
 				D61C467A1F75352C00A2AE8B /* QADatePickView.swift */,
 				D658ED411F8527F100A1407D /* QAImageView.swift */,
+				D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 			isa = PBXGroup;
 			children = (
 				D6C875FE1FB48903004C3C57 /* Extensions.swift */,
+				D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -333,6 +339,7 @@
 				D66A04D01F95256500C991C0 /* PostCell.swift in Sources */,
 				D6C875F21FB487D3004C3C57 /* ChatMessageCell.swift in Sources */,
 				D61C46791F752EE200A2AE8B /* QAView.swift in Sources */,
+				D64FCA711FBC9761005CE655 /* PopUpProtocol.swift in Sources */,
 				D6E2E6FF1F7C1FC80069C608 /* MenuController.swift in Sources */,
 				D61C467B1F75352C00A2AE8B /* QADatePickView.swift in Sources */,
 				D60AE3AC1F7D5FD500D0CC37 /* QAIntroView.swift in Sources */,
@@ -351,6 +358,7 @@
 				D6CE84F21FBA2BF600ABAD77 /* ProposalCell.swift in Sources */,
 				D6C875F61FB487F5004C3C57 /* Message.swift in Sources */,
 				D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */,
+				D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */,
 				D6C875FC1FB4880C004C3C57 /* ChatController.swift in Sources */,
 				D6C875FF1FB48903004C3C57 /* Extensions.swift in Sources */,
 				D6C875F81FB48800004C3C57 /* MessagesController.swift in Sources */,

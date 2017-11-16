@@ -5,6 +5,7 @@
 
 import UIKit
 import Firebase
+
 // FIXME: comparison operators with optionals were removed from the Swift Standard Libary.
 // Consider refactoring the code to use the non-optional operators.
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
@@ -67,15 +68,15 @@ class MessagesController: UITableViewController {
         
         let message = self.messages[indexPath.row]
         
-        if let chatPartnerId = message.chatPartnerId() {
-            FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerId).removeValue(completionBlock: { (error, ref) in
+        if let chatPartnerID = message.chatPartnerID() {
+            FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
                 
                 if error != nil {
                     print("Failed to delete message:", error!)
                     return
                 }
                 
-                self.messagesDictionary.removeValue(forKey: chatPartnerId)
+                self.messagesDictionary.removeValue(forKey: chatPartnerID)
                 self.attemptReloadOfTable()
                 
 //                //this is one way of updating the table, but its actually not that safe..
@@ -94,11 +95,11 @@ class MessagesController: UITableViewController {
         let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
         ref.observe(.childAdded, with: { (snapshot) in
             
-            let userId = snapshot.key
-            FIRDatabase.database().reference().child("user-messages").child(uid).child(userId).observe(.childAdded, with: { (snapshot) in
+            let userID = snapshot.key
+            FIRDatabase.database().reference().child("user-messages").child(uid).child(userID).observe(.childAdded, with: { (snapshot) in
                 
-                let messageId = snapshot.key
-                self.fetchMessageWithMessageId(messageId)
+                let messageID = snapshot.key
+                self.fetchMessageWithMessageID(messageID)
                 
                 }, withCancel: nil)
             
@@ -114,15 +115,16 @@ class MessagesController: UITableViewController {
             }, withCancel: nil)
     }                            
     
-    fileprivate func fetchMessageWithMessageId(_ messageId: String) {
-        let messagesReference = FIRDatabase.database().reference().child("messages").child(messageId)
+    fileprivate func fetchMessageWithMessageID(_ messageID: String) {
+        
+        let messagesReference = FIRDatabase.database().reference().child("messages").child(messageID)
         
         messagesReference.observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let dictionary = snapshot.value as? [String: AnyObject] {
-                let message = Message(dictionary: dictionary)
+                let message = Message(ID: messageID, dictionary: dictionary)
                 
-                if let chatPartnerId = message.chatPartnerId() {
+                if let chatPartnerId = message.chatPartnerID() {
                     self.messagesDictionary[chatPartnerId] = message
                 }
                 
@@ -170,17 +172,18 @@ class MessagesController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let message = messages[indexPath.row]
         
-        guard let chatPartnerId = message.chatPartnerId() else {
+        guard let chatPartnerId = message.chatPartnerID() else {
             return
         }
         
-        showChatControllerForUser(User(id: chatPartnerId, completion: nil))
+        showChatController(forUser: User(id: chatPartnerId, completion: nil))
     }
     
-    func sendProposal(to user: User, title: String, place: String, date: String, time: String) {
+    func sendProposal(to user: User, post: Post, title: String, place: String, date: String, time: String) {
         let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
         chatController.user = user
-        chatController.sendProposal(withTitle: title, place: place, time: time, date: date)
+        chatController.post = post
+        chatController.sendProposal(forPost: post, time: time, date: date, place: place)
         navigationController?.pushViewController(chatController, animated: true)
     }
     
@@ -243,7 +246,7 @@ class MessagesController: UITableViewController {
 //        titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
     }
     
-    func showChatControllerForUser(_ user: User) {
+    func showChatController(forUser user: User) {
         let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
         chatController.user = user
         navigationController?.pushViewController(chatController, animated: true)
