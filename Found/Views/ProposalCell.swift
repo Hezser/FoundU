@@ -151,9 +151,7 @@ class ProposalCell: UICollectionViewCell {
         
         print("\nProposal Declined\n")
         
-        // Notification actions
-        
-        changeDecisionStatus(to: "Declined")
+        // Notification actions (but only if user clicks yes on alert, of course)
         
         // Delete conversation upon confirming (a confirmation PopUp comes up to confirm you understand the consecuences of declining -> deleting the conversation, if you want to keep talking don't decline yet)
         chatController.deleteConversationByDeclining()

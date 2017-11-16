@@ -133,7 +133,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
         
-        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID).child("postID").key
+        print("\nMESSAGE ID IS: \(proposal.messageID)\n")
+        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID!).child("postID").key
         FIRDatabase.database().reference().child("posts").child(postID).observeSingleEvent(of: .value, with: { (snapshot) in
         
             if snapshot.value as? [String : String] == nil {
@@ -231,8 +232,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             return
         }
         
-        // Remove the conversation in the database
         if let chatPartnerID = messages[0].chatPartnerID() {
+            // Remove user-messages part of the current user
             FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
                 
                 if error != nil {
@@ -241,6 +242,28 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
                 }
                 
                 self.navigationController?.popViewController(animated: true)
+            })
+            
+            // Remove user-messages part of the partner user
+            FIRDatabase.database().reference().child("user-messages").child(chatPartnerID).child(uid).removeValue(completionBlock: { (error, ref) in
+                
+                if error != nil {
+                    print("Failed to delete message:", error!)
+                    return
+                }
+            })
+            
+            // Remove each message involving both users
+            FIRDatabase.database().reference().child("messages").observeSingleEvent(of: .value, with: { (snapshot) in
+                if let messages = snapshot.children.allObjects as? [FIRDataSnapshot] {
+                    for message in messages {
+                        let fromID = message.childSnapshot(forPath: "fromId").value as! String
+                        let toID = message.childSnapshot(forPath: "toId").value as! String
+                        if (fromID == uid && toID == chatPartnerID) || (fromID == chatPartnerID && toID == uid) {
+                            FIRDatabase.database().reference().child("messages").child(message.key).removeValue()
+                        }
+                    }
+                }
             })
         }
     }

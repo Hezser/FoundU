@@ -69,6 +69,7 @@ class MessagesController: UITableViewController {
         let message = self.messages[indexPath.row]
         
         if let chatPartnerID = message.chatPartnerID() {
+            // Remove user-messages part of the current user
             FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
                 
                 if error != nil {
@@ -78,11 +79,28 @@ class MessagesController: UITableViewController {
                 
                 self.messagesDictionary.removeValue(forKey: chatPartnerID)
                 self.attemptReloadOfTable()
+            })
+            
+            // Remove user-messages part of the partner user
+            FIRDatabase.database().reference().child("user-messages").child(chatPartnerID).child(uid).removeValue(completionBlock: { (error, ref) in
                 
-//                //this is one way of updating the table, but its actually not that safe..
-//                self.messages.removeAtIndex(indexPath.row)
-//                self.tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-                
+                if error != nil {
+                    print("Failed to delete message:", error!)
+                    return
+                }
+            })
+            
+            // Remove each message involving both users
+            FIRDatabase.database().reference().child("messages").observeSingleEvent(of: .value, with: { (snapshot) in
+                if let messages = snapshot.children.allObjects as? [FIRDataSnapshot] {
+                    for message in messages {
+                        let fromID = message.childSnapshot(forPath: "fromId").value as! String
+                        let toID = message.childSnapshot(forPath: "toId").value as! String
+                        if (fromID == uid && toID == chatPartnerID) || (fromID == chatPartnerID && toID == uid) {
+                            FIRDatabase.database().reference().child("messages").child(message.key).removeValue()
+                        }
+                    }
+                }
             })
         }
     }
