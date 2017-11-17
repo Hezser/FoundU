@@ -22,9 +22,6 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
         // Create Image View
         picture = UIImageView(frame: CGRect(x: 0, y: 0, width: 300, height: 300))
         picture.center = view.center
-//        picture.translatesAutoresizingMaskIntoConstraints = false
-//        picture.contentMode = .scaleAspectFill
-//        picture.clipsToBounds = true
         picture.backgroundColor = .gray
         picture.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleChangeOfPicture)))
         picture.isUserInteractionEnabled = true
@@ -62,6 +59,7 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
     }
     
     override func nextPressed(sender: UIButton!) {
+        
         // Note that this QAView is currently only used for profile creation
         let group = DispatchGroup()
         group.enter()
@@ -69,6 +67,7 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
         DispatchQueue.main.async {
             self.uploadPictureToFirebaseStorage(picture: self.picture.image!, group: group)
         }
+        
         // Wait to write the pictureURL in the database until the picture upload to storage has finished
         group.notify(queue: .main) {
             self.writeProfileInfoToFirebaseDatabase(data: self.pictureURL)
@@ -77,8 +76,10 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
     }
     
     func uploadPictureToFirebaseStorage(picture: UIImage?, group: DispatchGroup) {
+        
         let imageName = UUID().uuidString
         let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(imageName).jpg")
+        
         // To change the quality of picture after compression change 0.1 for a value closer to 1
         if let profileImage = picture, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
             storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in

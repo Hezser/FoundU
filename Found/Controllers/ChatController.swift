@@ -233,6 +233,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         }
         
         if let chatPartnerID = messages[0].chatPartnerID() {
+            
             // Remove user-messages part of the current user
             FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
                 

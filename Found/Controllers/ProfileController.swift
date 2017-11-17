@@ -13,24 +13,69 @@ import Firebase
 class ProfileController: UIViewController {
     
     var user: User!
+    var mainProfile: Bool! // Tells if the profile is the user's one (main, as part of the menu), or a profile of some other user
     
-    // Tells if the profile is the user's one (main, as part of the menu), or a profile of some other user
-    var mainProfile: Bool!
+    var pictureView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        view.layer.cornerRadius = 10
+        view.clipsToBounds = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
-    var nameLabel: UILabel!
-    var ageLabel: UILabel!
-    var placeLabel: UILabel!
-    var shortDescriptionLabel: UILabel!
-    var longDescriptionLabel: UILabel!
-    var picture: UIImageView!
+    var nameLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var ageLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var placeLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var shortDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .white
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var longDescriptionLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = .white
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     override func viewDidLoad() {
          super.viewDidLoad()
         
-        // Creates UI fields were the profile data will be displayed (need to migrate all the text field storyboard connections to programmatic code in this function)
-        makeUIViews()
+        view.addSubview(pictureView)
+        view.addSubview(nameLabel)
+        view.addSubview(ageLabel)
+        view.addSubview(placeLabel)
+        view.addSubview(shortDescriptionLabel)
+        view.addSubview(longDescriptionLabel)
         
-        // If this is the main profile, create a logout button
+        makeUIConstraints()
+        
         if mainProfile {
             let logOutButton = UIBarButtonItem(title: "Sign Out", style: .done, target: self, action: #selector(handleLogOut))
             navigationItem.rightBarButtonItem = logOutButton
@@ -38,17 +83,16 @@ class ProfileController: UIViewController {
             navigationItem.leftBarButtonItem = editButton
         }
         
-        // Set info
         setUserData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        if mainProfile {
-            title = "You"
-        } else {
+        
+        if !mainProfile {
             title = user.name
         }
+        
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
@@ -63,7 +107,7 @@ class ProfileController: UIViewController {
         
         let url = URL(string: user.profileImageURL!)
         let data = try? Data(contentsOf: url!)
-        picture.image = UIImage(data: data!)
+        pictureView.image = UIImage(data: data!)
         
     }
     
@@ -76,54 +120,10 @@ class ProfileController: UIViewController {
             }
             
             DispatchQueue.main.async {
-                self.picture.image = UIImage(data: data!)
+                self.pictureView.image = UIImage(data: data!)
             }
             
         }).resume()
-    }
-    
-    func makeUIViews() {
-        // Image View for the profile picture
-        picture = UIImageView()
-        picture.contentMode = .scaleAspectFill
-        picture.layer.cornerRadius = 10
-        picture.clipsToBounds = true
-        picture.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Labels
-        nameLabel = UILabel()
-        ageLabel = UILabel()
-        placeLabel = UILabel()
-        shortDescriptionLabel = UILabel()
-        longDescriptionLabel = UILabel()
-        
-        shortDescriptionLabel.lineBreakMode = .byWordWrapping
-        shortDescriptionLabel.numberOfLines = 0
-        shortDescriptionLabel.textAlignment = .center
-        longDescriptionLabel.lineBreakMode = .byWordWrapping
-        longDescriptionLabel.numberOfLines = 0
-        
-        nameLabel.backgroundColor = .white
-        ageLabel.backgroundColor = .white
-        placeLabel.backgroundColor = .white
-        shortDescriptionLabel.backgroundColor = .white
-        longDescriptionLabel.backgroundColor = .white
-        
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        ageLabel.translatesAutoresizingMaskIntoConstraints = false
-        placeLabel.translatesAutoresizingMaskIntoConstraints = false
-        shortDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        longDescriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(picture)
-        view.addSubview(nameLabel)
-        view.addSubview(ageLabel)
-        view.addSubview(placeLabel)
-        view.addSubview(shortDescriptionLabel)
-        view.addSubview(longDescriptionLabel)
-        
-        makeUIConstraints()
-        
     }
     
     func makeUIConstraints() {
@@ -131,32 +131,32 @@ class ProfileController: UIViewController {
         let margins = view.layoutMarginsGuide
         
         // Picture
-        picture.topAnchor.constraint(equalTo: margins.topAnchor, constant: 50).isActive = true
-        picture.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        picture.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        picture.heightAnchor.constraint(equalTo: picture.widthAnchor).isActive = true
+        pictureView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 50).isActive = true
+        pictureView.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        pictureView.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
+        pictureView.heightAnchor.constraint(equalTo: pictureView.widthAnchor).isActive = true
         
         // Name Label
-        nameLabel.topAnchor.constraint(equalTo: picture.topAnchor).isActive = true
-        nameLabel.leftAnchor.constraint(equalTo: picture.rightAnchor, constant: 20).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: pictureView.topAnchor).isActive = true
+        nameLabel.leftAnchor.constraint(equalTo: pictureView.rightAnchor, constant: 20).isActive = true
         nameLabel.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: 10).isActive = true
         nameLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         // Age Label
-        ageLabel.centerYAnchor.constraint(equalTo: picture.centerYAnchor).isActive = true
-        ageLabel.leftAnchor.constraint(equalTo: picture.rightAnchor, constant: 20).isActive = true
+        ageLabel.centerYAnchor.constraint(equalTo: pictureView.centerYAnchor).isActive = true
+        ageLabel.leftAnchor.constraint(equalTo: pictureView.rightAnchor, constant: 20).isActive = true
         ageLabel.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: 10).isActive = true
         ageLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         // Place Label
-        placeLabel.bottomAnchor.constraint(equalTo: picture.bottomAnchor).isActive = true
-        placeLabel.leftAnchor.constraint(equalTo: picture.rightAnchor, constant: 20).isActive = true
+        placeLabel.bottomAnchor.constraint(equalTo: pictureView.bottomAnchor).isActive = true
+        placeLabel.leftAnchor.constraint(equalTo: pictureView.rightAnchor, constant: 20).isActive = true
         placeLabel.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: 10).isActive = true
         placeLabel.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         // Short Description
         shortDescriptionLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        shortDescriptionLabel.topAnchor.constraint(equalTo: picture.bottomAnchor, constant: 30).isActive = true
+        shortDescriptionLabel.topAnchor.constraint(equalTo: pictureView.bottomAnchor, constant: 30).isActive = true
         shortDescriptionLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -20).isActive = true
         shortDescriptionLabel.heightAnchor.constraint(equalToConstant: 90).isActive = true
         

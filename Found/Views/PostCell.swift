@@ -22,13 +22,6 @@ class PostCell: BaseCell {
         return imageView
     }()
     
-    let dividerLineView: UIView = {
-        let view = UIView()
-        view.backgroundColor = UIColor(white: 0.5, alpha: 0.5)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-    
     var titleLabel: UILabel = {
         let label = UILabel()
         label.lineBreakMode = .byWordWrapping
@@ -89,8 +82,10 @@ class PostCell: BaseCell {
     
     override func setupViews() {
         
+        let dividerLine = DividerLine()
+        
         addSubview(userImageView)
-        addSubview(dividerLineView)
+        addSubview(dividerLine)
         
         setupContainerView()
 
@@ -103,14 +98,15 @@ class PostCell: BaseCell {
         userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
         
         // Divider Line View Constraints
-        dividerLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        dividerLineView.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        dividerLineView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        dividerLineView.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+        dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
+        dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        dividerLine.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
         
     }
     
     private func setupContainerView() {
+        
         containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(containerView)

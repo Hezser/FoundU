@@ -58,7 +58,7 @@ class MenuController: UITabBarController {
         profileNavigationController.navigationBar.isTranslucent = true
         profile.user = user
         profile.mainProfile = true
-        profile.title = "Profile"
+        profile.title = "You"
         profile.tabBarItem = UITabBarItem(title: "Profile", image: nil, tag: 4)
             
         self.retrievePosts { () -> () in
