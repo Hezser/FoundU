@@ -112,6 +112,7 @@ class ProfileController: UIViewController {
     }
     
     func transformURLIntoImage(urlString: String) {
+        
         let url = URL(string: urlString)
         URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
             if error != nil {
@@ -181,7 +182,9 @@ class ProfileController: UIViewController {
     }
     
     @objc func handleEdit(_ sender: UIButton) {
-        
+        let editProfileController = EditProfileController()
+        editProfileController.user = user
+        navigationController?.pushViewController(editProfileController, animated: true)
     }
     
 }

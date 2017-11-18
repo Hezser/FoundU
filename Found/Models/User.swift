@@ -14,10 +14,11 @@ class User: NSObject {
     typealias FinishedDownload = () -> ()
     
     var id: String?
+    var email: String?
+    var password: String?
     var name: String?
     var age: Int?
     var place: String?
-    var email: String?
     var profileImageURL: String?
     var shortDescription: String?
     var longDescription: String?
@@ -38,6 +39,8 @@ class User: NSObject {
         ref.child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
             
             let value = snapshot.value as? NSDictionary
+            self.email = value?["email"] as? String
+            self.password = value?["password"] as? String
             self.name = value?["name"] as? String ?? "nameless"
             self.age = Int(value?["age"] as? String ?? "-1")
             self.place = value?["place"] as? String ?? "homeless"

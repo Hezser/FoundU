@@ -40,6 +40,7 @@
 		D6E2E7031F7C294D0069C608 /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E2E7021F7C294D0069C608 /* ProfileController.swift */; };
 		D6E6B7571F82A35E005BE722 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7561F82A35D005BE722 /* Post.swift */; };
 		D6E6B7591F82A52F005BE722 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7581F82A52F005BE722 /* User.swift */; };
+		D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */; };
 		D6F5DDA31F9C093700633A0F /* PostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F5DDA21F9C093700633A0F /* PostController.swift */; };
 		D6FD816E1F7ABA9C00C86F6B /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FD816D1F7ABA9C00C86F6B /* LoginController.swift */; };
 		F5DC538BD360EC7E8D3249A0 /* Pods_Found.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EA91CD667AD761FA0EFE23E /* Pods_Found.framework */; };
@@ -84,6 +85,7 @@
 		D6E2E7021F7C294D0069C608 /* ProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
 		D6E6B7561F82A35D005BE722 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		D6E6B7581F82A52F005BE722 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordController.swift; sourceTree = "<group>"; };
 		D6F5DDA21F9C093700633A0F /* PostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostController.swift; sourceTree = "<group>"; };
 		D6FD816D1F7ABA9C00C86F6B /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -156,6 +158,7 @@
 				D6C875F71FB48800004C3C57 /* MessagesController.swift */,
 				D6F5DDA21F9C093700633A0F /* PostController.swift */,
 				D6C875FB1FB4880C004C3C57 /* ChatController.swift */,
+				D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -364,6 +367,7 @@
 				D6FD816E1F7ABA9C00C86F6B /* LoginController.swift in Sources */,
 				D6CE84F21FBA2BF600ABAD77 /* ProposalCell.swift in Sources */,
 				D6C875F61FB487F5004C3C57 /* Message.swift in Sources */,
+				D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */,
 				D6AA1A061FBDFAE2005D041E /* DataStructures.swift in Sources */,
 				D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */,
 				D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */,
