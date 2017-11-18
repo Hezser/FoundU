@@ -8,8 +8,9 @@
 
 import UIKit
 import Firebase
+import Photos
 
-class EditProfileController: UIViewController, UITextFieldDelegate {
+class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var user: User!
     
@@ -32,8 +33,17 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         view.contentMode = .scaleAspectFill
         view.layer.cornerRadius = 10
         view.clipsToBounds = true
+        view.isUserInteractionEnabled = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+    
+    var changePictureButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Change your profile picture", for: .normal)
+        button.contentHorizontalAlignment = .center
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     var privateInformationLabel: UILabel = {
@@ -66,7 +76,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let button = UIButton(type: .system)
         button.setTitle("Change your password", for: .normal)
         button.contentHorizontalAlignment = .left
-        button.addTarget(self, action: #selector(handleChangePassword), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -83,6 +92,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -99,6 +109,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -108,9 +119,16 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         label.text = "Date Of Birth"
         label.backgroundColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleDateOfBirthPickerAppearance))
-        label.addGestureRecognizer(tapRecognizer)
         return label
+    }()
+    
+    var dateOfBirthButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .white
+        button.setTitleColor(.black, for: .normal)
+        button.contentHorizontalAlignment = .left
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     var dateOfBirthPicker: UIDatePicker = {
@@ -132,6 +150,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -148,6 +167,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -164,12 +184,90 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    @objc func handleDateOfBirthPickerAppearance() {
+    @objc func handleChangeProfilePicture() {
         
+        let picker = UIImagePickerController()
+        picker.delegate = self
+        picker.allowsEditing = true
+        PHPhotoLibrary.requestAuthorization({ (status: PHAuthorizationStatus) -> Void in
+            ()
+            
+            if PHPhotoLibrary.authorizationStatus() == PHAuthorizationStatus.authorized {
+                self.present(picker, animated: true, completion: nil)
+            }
+            
+        })
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        
+        var selectedImageFromImagePicker: UIImage?
+        
+        if let editedImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
+            selectedImageFromImagePicker = editedImage
+        } else if let originalImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
+            selectedImageFromImagePicker = originalImage
+        }
+        
+        if let selectedImage = selectedImageFromImagePicker {
+            pictureView.image = selectedImage
+        }
+        
+        dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        print("Change of picture was canceled")
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @objc func handleDateOfBirthPickerAppearance() {
+        // Animate Date Of Birth Picker
+        dateOfBirthPicker.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
+        dateOfBirthPicker.alpha = 0
+        UIView.animate(withDuration: 0.4) {
+            self.blurEffectView.isHidden = false
+            self.vibrancyEffectView.isHidden = false
+            self.dateOfBirthPicker.alpha = 1
+            self.dateOfBirthPicker.transform = CGAffineTransform.identity
+        }
+        
+        navigationController?.isNavigationBarHidden = true
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        let touch: UITouch? = touches.first
+        if (touch?.view != dateOfBirthPicker) && (blurEffectView.isHidden == false) {
+            dismissDateOfBirthPicker()
+        } else if (touch?.view == dateOfBirthPicker) && (blurEffectView.isHidden == false) {
+            self.view.endEditing(true)
+        }
+    }
+    
+    func dismissDateOfBirthPicker() {
+        
+        // Set date of interactive date of birth picker label
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMMM, yyyy"
+        let dateOfBirth = dateFormatter.string(from: dateOfBirthPicker.date)
+        dateOfBirthButton.setTitle(dateOfBirth, for: .normal)
+        
+        // Animate dismissal
+        UIView.animate(withDuration: 0.3, animations: {
+            self.dateOfBirthPicker.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            self.dateOfBirthPicker.alpha = 0
+        }) { (success: Bool) in
+            self.blurEffectView.isHidden = true
+            self.vibrancyEffectView.isHidden = true
+            self.navigationController?.isNavigationBarHidden = false
+            self.view.endEditing(true)
+        }
     }
     
     @objc func handleChangePassword(_ sender: UIButton) {
@@ -179,9 +277,10 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
     }
     
     @objc func handleSave(_ sender: UIButton) {
+        
         if dataIsValid() {
             let age = String(dateOfBirthPicker.date.age)
-            let data = ["email" : emailTextField.text!, "name" : nameTextField.text!, "age" : age, "place" : homePlaceTextField.text!, "short self description" : shortDescriptionTextField.text!, "long self description" : longDescriptionTextField.text!]
+            let data = ["email" : emailTextField.text!, "name" : nameTextField.text!, "age" : age, "date of birth" : dateOfBirthButton.currentTitle!, "place" : homePlaceTextField.text!, "short self description" : shortDescriptionTextField.text!, "long self description" : longDescriptionTextField.text!]
             FIRDatabase.database().reference().child("users").child(user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
                 // Assuming the EditProfileController is presented and not pushed
                 // Otherwise do: dismiss(animated: true, completion: nil)
@@ -226,6 +325,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         homePlaceTextField.text = user.place
         shortDescriptionTextField.text = user.shortDescription
         longDescriptionTextField.text = user.longDescription
+        dateOfBirthButton.setTitle(user.dateOfBirth, for: .normal)
+        dateOfBirthButton.titleLabel?.font = nameLabel.font
         
         // Delegates
         emailTextField.delegate = self
@@ -246,6 +347,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let dividerLine8 = DividerLine()
         
         view.addSubview(pictureView)
+        view.addSubview(changePictureButton)
         view.addSubview(privateInformationLabel)
         view.addSubview(publicInformationLabel)
         view.addSubview(nameLabel)
@@ -259,6 +361,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         view.addSubview(emailTextField)
         view.addSubview(changePasswordButton)
         view.addSubview(homePlaceTextField)
+        view.addSubview(dateOfBirthButton)
         view.addSubview(shortDescriptionTextField)
         view.addSubview(longDescriptionTextField)
         view.addSubview(dividerLine1)
@@ -277,8 +380,14 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         pictureView.widthAnchor.constraint(equalToConstant: view.frame.size.width/2).isActive = true
         pictureView.heightAnchor.constraint(equalTo: pictureView.widthAnchor).isActive = true
         
+        // Change Picture Button Constraints
+        changePictureButton.topAnchor.constraint(equalTo: pictureView.bottomAnchor, constant: 10).isActive = true
+        changePictureButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        changePictureButton.widthAnchor.constraint(equalTo: pictureView.widthAnchor).isActive = true
+        changePictureButton.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
         // Private Information Label Constraints
-        privateInformationLabel.topAnchor.constraint(equalTo: pictureView.bottomAnchor, constant: 30).isActive = true
+        privateInformationLabel.topAnchor.constraint(equalTo: changePictureButton.bottomAnchor, constant: 15).isActive = true
         privateInformationLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         privateInformationLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         privateInformationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -356,10 +465,10 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         dateOfBirthLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Date Of Birth Text Field Constraints
-        nameTextField.topAnchor.constraint(equalTo: dividerLine5.bottomAnchor).isActive = true
-        nameTextField.leftAnchor.constraint(equalTo: dateOfBirthLabel.rightAnchor, constant: 5).isActive = true
-        nameTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        nameTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        dateOfBirthButton.topAnchor.constraint(equalTo: dividerLine5.bottomAnchor).isActive = true
+        dateOfBirthButton.leftAnchor.constraint(equalTo: dateOfBirthLabel.rightAnchor, constant: 5).isActive = true
+        dateOfBirthButton.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        dateOfBirthButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Short Divider Line After Date Of Birth Constraints
         dividerLine6.topAnchor.constraint(equalTo: dateOfBirthLabel.bottomAnchor).isActive = true
@@ -417,6 +526,39 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
 
     }
     
+    func setUpBlurAndVibrancy() {
+        
+        // Blur and vibrancy effects
+        vibrancyEffectView.frame = view.bounds
+        blurEffectView.frame = view.bounds
+        view.addSubview(blurEffectView)
+        view.addSubview(vibrancyEffectView)
+        blurEffectView.contentView.addSubview(vibrancyEffectView)
+        vibrancyEffectView.contentView.addSubview(dateOfBirthPicker)
+        blurEffectView.isHidden = true
+        vibrancyEffectView.isHidden = true
+        
+        // PopUp View Constraints
+        let margins = vibrancyEffectView.layoutMarginsGuide
+        dateOfBirthPicker.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        dateOfBirthPicker.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
+        dateOfBirthPicker.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
+        dateOfBirthPicker.heightAnchor.constraint(equalTo: dateOfBirthPicker.widthAnchor).isActive = true
+        
+    }
+    
+    func setUpButtons() {
+        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleChangeProfilePicture))
+        pictureView.addGestureRecognizer(tapRecognizer)
+        
+        changePictureButton.addTarget(self, action: #selector(handleChangeProfilePicture), for: .touchUpInside)
+        
+        changePasswordButton.addTarget(self, action: #selector(handleChangePassword), for: .touchUpInside)
+
+        dateOfBirthButton.addTarget(self, action: #selector(handleDateOfBirthPickerAppearance), for: .touchUpInside)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -427,14 +569,19 @@ class EditProfileController: UIViewController, UITextFieldDelegate {
         let cancelButton = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
         navigationItem.leftBarButtonItem = cancelButton
         
+        setUpButtons()
+        
         setUpTextFields()
         
         setUpUI()
+        
+        setUpBlurAndVibrancy()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         navigationItem.title = "Edit Profile"
+        tabBarController?.tabBar.isHidden = true
         navigationItem.largeTitleDisplayMode = .never
     }
     

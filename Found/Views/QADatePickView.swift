@@ -15,8 +15,14 @@ class QADatePickView: QAView {
     override func nextPressed(sender: UIButton!) {
         let age = datePicker.date.age
         let ageString = String(age)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd MMMM, yyyy"
+        let dateOfBirth = dateFormatter.string(from: datePicker.date)
         if situation == .profileCreation {
-            writeProfileInfoToFirebaseDatabase(data: ageString)
+            writeProfileInfoToFirebaseDatabase(data: ageString, completion: {
+                self.variable = .dateOfBirth
+                self.writeProfileInfoToFirebaseDatabase(data: dateOfBirth, completion: nil)
+            })
         }
         else if situation == .postCreation {
             addDataToPost(value: datePicker.date, type: variable!)

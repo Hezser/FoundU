@@ -83,10 +83,12 @@ class QAView: UIViewController {
     }
     
     // Should use @escaping completion, just in case profile is trying to be retrieved before uploading to Firebase
-    func writeProfileInfoToFirebaseDatabase(data: Any) {
+    func writeProfileInfoToFirebaseDatabase(data: Any, completion completed: FinishedDownload?) {
+        
         let ref = FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/")
         guard let id = FIRAuth.auth()?.currentUser?.uid else {
             print("The user id is not valid in the database")
+            completed?()
             return
         }
         let userRef = ref.child("users").child(id)
@@ -94,18 +96,24 @@ class QAView: UIViewController {
         userRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
             if err != nil {
                 print(err!)
+                completed?()
                 return
             }
+            completed?()
             print("Data was saved succesfully into the Firebase Database")
         })
     }
     
     // Determines the type of data a QAView is providing when creating a profile, and returns the key-value pair which will go in the Firebase Database
     func createDataForProfile(value: Any, type: Variable) -> Dictionary<String, Any> {
+        
         if type == .age {
             return ["age":value]
         }
-        if type == .picture {
+        else if type == .dateOfBirth {
+            return ["date of birth":value]
+        }
+        else if type == .picture {
             return ["pictureURL":value]
         }
         else if type == .place {
@@ -129,6 +137,7 @@ class QAView: UIViewController {
     
     // Determines the type of data a QAView is providing when creating a post, and updates the post with that data
     func addDataToPost(value: Any?, type: Variable) {
+        
         if type == .title {
             newPost.title = value as? String
         }

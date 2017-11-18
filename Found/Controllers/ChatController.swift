@@ -80,8 +80,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.setToolbarHidden(true, animated: false)
-        
         collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         collectionView?.alwaysBounceVertical = true
         collectionView?.backgroundColor = UIColor.white
@@ -95,7 +93,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        navigationItem.title = user?.name
+        navigationController?.setToolbarHidden(true, animated: false)
         navigationItem.largeTitleDisplayMode = .never
         observeMessages()
     }

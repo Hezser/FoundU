@@ -10,12 +10,21 @@ import UIKit
 
 class QARegularView: QAView, UITextFieldDelegate {
     
-    var answer: UITextField!
+    var answer: UITextField = {
+        var textField = UITextField()
+        textField = UITextField()
+        textField.layer.sublayerTransform = CATransform3DMakeTranslation(10, 0, 0)
+        textField.placeholder = "Answer"
+        textField.returnKeyType = .done
+        textField.backgroundColor = #colorLiteral(red: 1, green: 0.9372548461, blue: 0.8588235378, alpha: 1)
+        return textField
+    }()
+    
     var answerSize: Int!
     
     override func nextPressed(sender: UIButton!) {
         if situation == .profileCreation {
-            writeProfileInfoToFirebaseDatabase(data: answer.text ?? "nil")
+            writeProfileInfoToFirebaseDatabase(data: answer.text ?? "nil", completion: nil)
         }
         else if situation == .postCreation {
             addDataToPost(value: answer.text, type: variable!)
@@ -25,13 +34,10 @@ class QARegularView: QAView, UITextFieldDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Create text field for answer
-        answer = UITextField(frame: CGRect(x: 0, y: 0, width: Int(view.bounds.width), height: answerSize ?? 75))
+        
+        // Setup text field for answer
         answer.center = view.center
-        answer.layer.sublayerTransform = CATransform3DMakeTranslation(10, 0, 0)
-        answer.placeholder = "Answer"
-        answer.returnKeyType = .done
-        answer.backgroundColor = #colorLiteral(red: 1, green: 0.9372548461, blue: 0.8588235378, alpha: 1)
+        answer.frame = CGRect(x: 0, y: 0, width: Int(view.bounds.width), height: answerSize ?? 75)
         answer.delegate = self
         view.addSubview(answer)
     }

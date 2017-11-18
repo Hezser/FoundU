@@ -18,6 +18,7 @@ class User: NSObject {
     var password: String?
     var name: String?
     var age: Int?
+    var dateOfBirth: String?
     var place: String?
     var profileImageURL: String?
     var shortDescription: String?
@@ -41,12 +42,13 @@ class User: NSObject {
             let value = snapshot.value as? NSDictionary
             self.email = value?["email"] as? String
             self.password = value?["password"] as? String
-            self.name = value?["name"] as? String ?? "nameless"
-            self.age = Int(value?["age"] as? String ?? "-1")
-            self.place = value?["place"] as? String ?? "homeless"
-            self.profileImageURL = value?["pictureURL"] as? String ?? ""
-            self.shortDescription = value?["short self description"] as? String ?? "shortdescriptionless"
-            self.longDescription = value?["long self description"] as? String ?? "longdescriptionless"
+            self.name = value?["name"] as? String
+            self.age = Int((value?["age"] as? String)!)
+            self.dateOfBirth = value?["date of birth"] as? String
+            self.place = value?["place"] as? String
+            self.profileImageURL = value?["pictureURL"] as? String
+            self.shortDescription = value?["short self description"] as? String
+            self.longDescription = value?["long self description"] as? String
             //            self.work = value?["work"] as? [String] ?? ["pennyless"]
             //            self.studies = value?["studies"] as? [String] ?? ["brainless"]
             

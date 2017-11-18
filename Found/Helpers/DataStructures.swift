@@ -14,6 +14,7 @@ enum Situation {
 }
 
 enum Variable {
+    case dateOfBirth
     case age
     case place
     case work

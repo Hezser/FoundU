@@ -89,11 +89,13 @@ class ProfileController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         
+        tabBarController?.tabBar.isHidden = false
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
         if !mainProfile {
             title = user.name
+            tabBarController?.tabBar.isHidden = true
         }
-        
-        navigationController?.navigationBar.prefersLargeTitles = true
     }
     
     func setUserData() {

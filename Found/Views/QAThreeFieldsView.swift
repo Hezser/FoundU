@@ -63,7 +63,7 @@ class QAThreeFieldsView: QAView, UITextFieldDelegate {
     
     override func nextPressed(sender: UIButton!) {
         if situation == .profileCreation {
-            writeProfileInfoToFirebaseDatabase(data: [textField1.text ?? "nil", textField2.text ?? "nil", textField3.text ?? "nil"])
+            writeProfileInfoToFirebaseDatabase(data: [textField1.text ?? "nil", textField2.text ?? "nil", textField3.text ?? "nil"], completion: nil)
         }
         goToNextView()
     }

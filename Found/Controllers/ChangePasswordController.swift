@@ -105,49 +105,49 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
         let margins = view.layoutMarginsGuide
         
         // Current Password Label Constraints
-        currentPasswordLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
+        currentPasswordLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 30).isActive = true
         currentPasswordLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         currentPasswordLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/2).isActive = true
         currentPasswordLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Current Password Text Field Constraints
-        currentPasswordTextField.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
+        currentPasswordTextField.topAnchor.constraint(equalTo: margins.topAnchor, constant: 30).isActive = true
         currentPasswordTextField.leftAnchor.constraint(equalTo: currentPasswordLabel.rightAnchor, constant: 5).isActive = true
         currentPasswordTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         currentPasswordTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Divider Line After Current Password Text Field Constraints
-        dividerLine1.topAnchor.constraint(equalTo: currentPasswordTextField.bottomAnchor).isActive = true
+        dividerLine1.topAnchor.constraint(equalTo: currentPasswordTextField.bottomAnchor, constant: 10).isActive = true
         dividerLine1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLine1.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
         // Current Password Label Constraints
-        newPasswordLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 20).isActive = true
+        newPasswordLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 10).isActive = true
         newPasswordLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         newPasswordLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/2).isActive = true
         newPasswordLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Current Password Text Field Constraints
-        newPasswordTextField.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 20).isActive = true
+        newPasswordTextField.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 10).isActive = true
         newPasswordTextField.leftAnchor.constraint(equalTo: newPasswordLabel.rightAnchor, constant: 5).isActive = true
         newPasswordTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         newPasswordTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Divider Line After Current Password Text Field Constraints
-        dividerLine2.topAnchor.constraint(equalTo: newPasswordLabel.bottomAnchor).isActive = true
+        dividerLine2.topAnchor.constraint(equalTo: newPasswordLabel.bottomAnchor, constant: 10).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
         // Current Password Label Constraints
-        repeatNewPasswordLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 20).isActive = true
+        repeatNewPasswordLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 10).isActive = true
         repeatNewPasswordLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         repeatNewPasswordLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/2).isActive = true
         repeatNewPasswordLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Current Password Text Field Constraints
-        repeatNewPasswordTextField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 20).isActive = true
+        repeatNewPasswordTextField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 10).isActive = true
         repeatNewPasswordTextField.leftAnchor.constraint(equalTo: currentPasswordLabel.rightAnchor, constant: 5).isActive = true
         repeatNewPasswordTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         repeatNewPasswordTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -170,6 +170,7 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         navigationItem.title = "Change Password"
+        tabBarController?.tabBar.isHidden = true
         navigationItem.largeTitleDisplayMode = .never
     }
 

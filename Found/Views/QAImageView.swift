@@ -70,7 +70,7 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
         
         // Wait to write the pictureURL in the database until the picture upload to storage has finished
         group.notify(queue: .main) {
-            self.writeProfileInfoToFirebaseDatabase(data: self.pictureURL)
+            self.writeProfileInfoToFirebaseDatabase(data: self.pictureURL, completion: nil)
             self.goToNextView()
         }
     }
