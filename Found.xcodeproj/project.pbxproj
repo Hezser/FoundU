@@ -23,6 +23,7 @@
 		D658ED421F8527F100A1407D /* QAImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D658ED411F8527F100A1407D /* QAImageView.swift */; };
 		D66A04CE1F951C7F00C991C0 /* PostListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CD1F951C7F00C991C0 /* PostListController.swift */; };
 		D66A04D01F95256500C991C0 /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CF1F95256500C991C0 /* PostCell.swift */; };
+		D6A61E231FC1D76500240784 /* EditPostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A61E221FC1D76500240784 /* EditPostController.swift */; };
 		D6AA1A041FBDFA50005D041E /* EditProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AA1A031FBDFA50005D041E /* EditProfileController.swift */; };
 		D6AA1A061FBDFAE2005D041E /* DataStructures.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AA1A051FBDFAE2005D041E /* DataStructures.swift */; };
 		D6AA1A081FBE0227005D041E /* DividerLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AA1A071FBE0227005D041E /* DividerLine.swift */; };
@@ -68,6 +69,7 @@
 		D658ED411F8527F100A1407D /* QAImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAImageView.swift; sourceTree = "<group>"; };
 		D66A04CD1F951C7F00C991C0 /* PostListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListController.swift; sourceTree = "<group>"; };
 		D66A04CF1F95256500C991C0 /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
+		D6A61E221FC1D76500240784 /* EditPostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPostController.swift; sourceTree = "<group>"; };
 		D6AA1A031FBDFA50005D041E /* EditProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileController.swift; sourceTree = "<group>"; };
 		D6AA1A051FBDFAE2005D041E /* DataStructures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStructures.swift; sourceTree = "<group>"; };
 		D6AA1A071FBE0227005D041E /* DividerLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DividerLine.swift; sourceTree = "<group>"; };
@@ -153,12 +155,13 @@
 				D6E2E6FE1F7C1FC80069C608 /* MenuController.swift */,
 				D6E2E7021F7C294D0069C608 /* ProfileController.swift */,
 				D6AA1A031FBDFA50005D041E /* EditProfileController.swift */,
+				D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */,
 				D61C46761F752BFD00A2AE8B /* NewPostController.swift */,
 				D66A04CD1F951C7F00C991C0 /* PostListController.swift */,
-				D6C875F71FB48800004C3C57 /* MessagesController.swift */,
 				D6F5DDA21F9C093700633A0F /* PostController.swift */,
+				D6A61E221FC1D76500240784 /* EditPostController.swift */,
+				D6C875F71FB48800004C3C57 /* MessagesController.swift */,
 				D6C875FB1FB4880C004C3C57 /* ChatController.swift */,
-				D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -172,6 +175,7 @@
 				D6C875F11FB487D3004C3C57 /* ChatMessageCell.swift */,
 				D6C875F31FB487DA004C3C57 /* ChatInputContainerView.swift */,
 				D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */,
+				D6AA1A071FBE0227005D041E /* DividerLine.swift */,
 				D61C46781F752EE200A2AE8B /* QAView.swift */,
 				D60AE3AB1F7D5FD500D0CC37 /* QAIntroView.swift */,
 				D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsView.swift */,
@@ -190,7 +194,6 @@
 				D6C875FE1FB48903004C3C57 /* Extensions.swift */,
 				D6AA1A051FBDFAE2005D041E /* DataStructures.swift */,
 				D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */,
-				D6AA1A071FBE0227005D041E /* DividerLine.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -369,6 +372,7 @@
 				D6C875F61FB487F5004C3C57 /* Message.swift in Sources */,
 				D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */,
 				D6AA1A061FBDFAE2005D041E /* DataStructures.swift in Sources */,
+				D6A61E231FC1D76500240784 /* EditPostController.swift in Sources */,
 				D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */,
 				D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */,
 				D6C875FC1FB4880C004C3C57 /* ChatController.swift in Sources */,

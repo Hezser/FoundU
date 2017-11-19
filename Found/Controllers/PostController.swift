@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Firebase
 
 class PostController: UIViewController, PopUpController {
     
@@ -144,12 +145,40 @@ class PostController: UIViewController, PopUpController {
         
         setUpViews()
         
-        // Set up popup
-        print("\nCREATING POPUP WITHIN POSTCONTROLLER\n")
-        popUpView = PopUpView()
-        popUpView.popUpController = self
-        setUpBlurAndVibrancy()
-        popUpView.configurePopUp()
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        if (user.id == uid) {
+            // Set up edit button
+            let editButton = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEdit))
+            navigationItem.rightBarButtonItem = editButton
+            blurEffectView.isHidden = true // Otherwise the app crashes because in touchesBegan() it checks if blurEffectView is hidden to do some actions on popUpView. If the post is from the user, then setUpBlurAndVibrancy() will never be called, so popUpView will not be created and blurEffectView.isHidden will not be true. Hence actions will be made on a nil object
+        } else {
+            // Set up popup
+            popUpView = PopUpView()
+            popUpView.popUpController = self
+            setUpBlurAndVibrancy()
+            popUpView.configurePopUp()
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setUpContent()
+        navigationItem.largeTitleDisplayMode = .never
+        navigationController?.setToolbarHidden(true, animated: false)
+    }
+    
+    @objc func handleEdit(_ sender: UIButton) {
+        let editPostController = EditPostController()
+        editPostController.post = post
+        navigationController?.pushViewController(editPostController, animated: true)
+    }
+    
+    func setUpContent() {
+        
+        // Clear previous text
+        timeLabel.text = ""
+        dateLabel.text = ""
+        anytimeExceptionalLabel.text = ""
         
         // Set up text
         titleLabel.text = post.title
@@ -157,25 +186,23 @@ class PostController: UIViewController, PopUpController {
         if post.time == "Anytime" {
             anytimeExceptionalLabel.text = "Anytime"
         } else {
-            dateLabel.text = post.time[0...9]
-            timeLabel.text = post.time[12...16]
+            let commaIndex = post.time.indexDistance(of: ",")
+            dateLabel.text = post.time[0...commaIndex!-1]
+            timeLabel.text = post.time[commaIndex!+2...post.time.count-1]
         }
-        userNameLabel.text = post.userName
+        
         userDescriptionLabel.text = post.userDescription
         detailsLabel.text = post.details
         
         // Make sure the download of the picture is not so slow that it crashes the app
-        let url = URL(string: post.userPictureURL)
-        let data = try? Data(contentsOf: url!)
-        let image = UIImage(data: data!)
-        
-        userImageView.image = image
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        navigationItem.largeTitleDisplayMode = .never
-        navigationController?.setToolbarHidden(true, animated: false)
+        FIRDatabase.database().reference().child("users").child(post.userID).observeSingleEvent(of: .value, with: { (snapshot) in
+            // Set image
+            let url = URL(string: snapshot.childSnapshot(forPath: "pictureURL").value as! String)
+            let data = try? Data(contentsOf: url!)
+            self.userImageView.image = UIImage(data: data!)
+            // Set name
+            self.userNameLabel.text = (snapshot.childSnapshot(forPath: "name").value as! String)
+        })
     }
     
     func setUpViews() {
@@ -186,7 +213,11 @@ class PostController: UIViewController, PopUpController {
         view.addSubview(dateLabel)
         view.addSubview(anytimeExceptionalLabel)
         view.addSubview(placeLabel)
-        view.addSubview(meetButton)
+        
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        if post.userID != uid {
+            view.addSubview(meetButton)
+        }
         
         let margins = view.layoutMarginsGuide
         
@@ -230,12 +261,13 @@ class PostController: UIViewController, PopUpController {
         detailsLabel.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 40).isActive = true
         detailsLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
-        // Meet Button Constraints
-        meetButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
-        meetButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        meetButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        meetButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-        
+        if post.userID != uid {
+            // Meet Button Constraints
+            meetButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+            meetButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+            meetButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+            meetButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+        }
     }
     
     func setUpBlurAndVibrancy() {

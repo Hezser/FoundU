@@ -17,10 +17,8 @@ class Post: NSObject {
     var place: String!
     var time: String!
     var details: String!
-    var userName: String!
-    var userPictureURL: String!
     var userDescription: String!
-    var userPicture: UIImage?
+    var userPicture: UIImage? // for convinience
     
     required override init() {
         super.init()
@@ -36,8 +34,6 @@ class Post: NSObject {
         place = post.childSnapshot(forPath: "place").value as? String
         time = post.childSnapshot(forPath: "time").value as? String
         details = post.childSnapshot(forPath: "details").value as? String
-        userName = post.childSnapshot(forPath: "userName").value as? String
-        userPictureURL = post.childSnapshot(forPath: "userPictureURL").value as? String
         userDescription = post.childSnapshot(forPath: "userDescription").value as? String
         
     }

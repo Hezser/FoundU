@@ -13,6 +13,8 @@ class MenuController: UITabBarController {
     
     var user: User!
     
+    var numberOfUserPosts = 0
+    var numberOfFeedPosts = 0
     var feedPosts = [Post]()
     var userPosts = [Post]()
     
@@ -60,8 +62,8 @@ class MenuController: UITabBarController {
         profile.mainProfile = true
         profile.title = "You"
         profile.tabBarItem = UITabBarItem(title: "Profile", image: nil, tag: 4)
-            
-        self.retrievePosts { () -> () in
+        
+        retrievePosts { () -> () in
             
             self.downloadPictures { () -> () in
                 
@@ -77,17 +79,40 @@ class MenuController: UITabBarController {
     // This function prevents the app from crashing in low internet speeds if the pictures are retrieved faster than they are downloaded
     func downloadPictures(completed: @escaping FinishedDownload) {
         
-        for post in userPosts {
-            let url = URL(string: post.userPictureURL)
+        var processesCompleted = 0
+        var postsUpdated = 0
+        var userPicture: UIImage!
+        
+        // User Posts
+        FIRDatabase.database().reference().child("users").child(user.id!).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
+            let url = URL(string: snapshot.value as! String)
             let data = try? Data(contentsOf: url!)
-            post.userPicture = UIImage(data: data!)
-        }
+            userPicture = UIImage(data: data!)
+            for post in self.userPosts {
+                post.userPicture = userPicture
+            }
+            processesCompleted += 1
+            if processesCompleted == 2 {
+                completed()
+            }
+        })
+        
+        // Feed Posts
         for post in feedPosts {
-            let url = URL(string: post.userPictureURL)
-            let data = try? Data(contentsOf: url!)
-            post.userPicture = UIImage(data: data!)
+            FIRDatabase.database().reference().child("users").child(post.userID).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
+                let url = URL(string: snapshot.value as! String)
+                let data = try? Data(contentsOf: url!)
+                post.userPicture = UIImage(data: data!)
+                
+                postsUpdated += 1
+                if postsUpdated == self.numberOfFeedPosts {
+                    processesCompleted += 1
+                    if processesCompleted == 2 {
+                        completed()
+                    }
+                }
+            })
         }
-        completed()
     }
     
     // Posts will need to be retrieved using pagination when the scope of the app scalates. If not, the time needed to download all the posts will be too large
@@ -98,8 +123,10 @@ class MenuController: UITabBarController {
             for post in snapshot.children.allObjects as! [FIRDataSnapshot] {
                 if post.childSnapshot(forPath: "userID").value as? String != self.user.id {
                     self.feedPosts.append(Post(post))
+                    self.numberOfFeedPosts += 1
                 } else {
                     self.userPosts.append(Post(post))
+                    self.numberOfUserPosts += 1
                 }
             }
             print("\nFeed posts were successfully downloaded. \(self.feedPosts.count) posts were found.\n")
@@ -108,8 +135,8 @@ class MenuController: UITabBarController {
     }
     
 //    func getNumberOfPosts(completed: @escaping FinishedDownload) {
-//        // Get the number of total posts and then get the number of current user's posts and subtract it to the first one, because we do not want to show the user's posts in the feed
 //
+//        // Get the number of total posts and then get the number of current user's posts and subtract it to the first one, because we do not want to show the user's posts in the feed
 //        let userID = FIRAuth.auth()?.currentUser?.uid
 //        var n: Int!
 //
@@ -125,7 +152,6 @@ class MenuController: UITabBarController {
 //                completed()
 //            })
 //        })
-//
 //    }
     
     func checkIfUserIsLoggedIn() {

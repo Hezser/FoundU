@@ -46,6 +46,8 @@ class QADatePickView: QAView {
         // If the wanted input is date of birth, we only display day, month and year
         if variable == .age {
             datePicker.datePickerMode = .date
+        } else if variable == .time {
+            datePicker.datePickerMode = .dateAndTime
         }
         
         view.addSubview(datePicker)

@@ -10,9 +10,32 @@ import UIKit
 import Firebase
 import Photos
 
-class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    
+    typealias FinishedDownload = () -> ()
     
     var user: User!
+    
+    var imageWasChanged = false
+    
+    var scrollView: UIScrollView = {
+        let screensize: CGRect = UIScreen.main.bounds
+        let screenWidth = screensize.width
+        let screenHeight = screensize.height
+        let view = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)) // y = 20 so that pictureView has some space from the navigationBar
+        view.backgroundColor = .white
+        view.isUserInteractionEnabled = true
+        view.isScrollEnabled = true
+        view.showsVerticalScrollIndicator = true
+        return view
+    }()
+    
+    // Used to provide a space between the top navigation bar and the image view. I HATE SCROLL VIEWS
+    var spacingView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     var blurEffectView: UIVisualEffectView = {
         let blurEffect = UIBlurEffect(style: .dark)
@@ -50,7 +73,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         let label = UILabel()
         label.text = "Private Information"
         label.backgroundColor = .white
-        label.font = .boldSystemFont(ofSize: 16)
+        label.font = .boldSystemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -59,7 +82,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         let label = UILabel()
         label.text = "Public Information"
         label.backgroundColor = .white
-        label.font = .boldSystemFont(ofSize: 16)
+        label.font = .boldSystemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -157,19 +180,22 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
     
     var shortDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Cool Sentence"
+        label.text = "Intro"
         label.backgroundColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    var shortDescriptionTextField: UITextField = {
-        let textField = UITextField()
-        textField.returnKeyType = .done
-        textField.backgroundColor = .white
-        textField.clearButtonMode = .whileEditing
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+    var shortDescriptionTextView: UITextView = {
+        let textView = UITextView()
+        textView.returnKeyType = .done
+        textView.backgroundColor = .white
+        textView.textContainer.lineFragmentPadding = 0
+//        textView.textContainer.maximumNumberOfLines = 4 // No need for this if we limit the number of chars
+        textView.textContainer.lineBreakMode = .byWordWrapping
+        textView.isScrollEnabled = false // By setting this to false, the text view autoresizes when more lines are needed
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     var longDescriptionLabel: UILabel = {
@@ -180,13 +206,16 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         return label
     }()
     
-    var longDescriptionTextField: UITextField = {
-        let textField = UITextField()
-        textField.returnKeyType = .done
-        textField.backgroundColor = .white
-        textField.clearButtonMode = .whileEditing
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+    var longDescriptionTextView: UITextView = {
+        let textView = UITextView()
+        textView.returnKeyType = .default
+        textView.backgroundColor = .white
+        textView.textContainer.lineFragmentPadding = 0
+//        textView.textContainer.maximumNumberOfLines = 15 // No need for this if we limit the number of chars
+        textView.textContainer.lineBreakMode = .byWordWrapping
+        textView.isScrollEnabled = false // By setting this to false, the text view autoresizes when more lines are needed
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     @objc func handleChangeProfilePicture() {
@@ -218,6 +247,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
             pictureView.image = selectedImage
         }
         
+        imageWasChanged = true
         dismiss(animated: true, completion: nil)
     }
     
@@ -227,6 +257,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     @objc func handleDateOfBirthPickerAppearance() {
+        
         // Animate Date Of Birth Picker
         dateOfBirthPicker.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
         dateOfBirthPicker.alpha = 0
@@ -241,12 +272,9 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
         let touch: UITouch? = touches.first
         if (touch?.view != dateOfBirthPicker) && (blurEffectView.isHidden == false) {
             dismissDateOfBirthPicker()
-        } else if (touch?.view == dateOfBirthPicker) && (blurEffectView.isHidden == false) {
-            self.view.endEditing(true)
         }
     }
     
@@ -276,17 +304,65 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         navigationController?.pushViewController(changePasswordController, animated: true)
     }
     
+    // This method should not execute unless a different image has been chosen. The way I have done it (using the var imageWasChanged) is probaby not the most efficient
+    func saveImage(completion completed: @escaping FinishedDownload) {
+        
+        print("\nimageWasChanged is \(imageWasChanged)\n")
+        if imageWasChanged {
+            // Delete previous image from Firebase Storage
+            FIRStorage.storage().reference(forURL: user.profileImageURL!).delete(completion: { (error) in
+                if error != nil {
+                    print(error!)
+                }
+            })
+
+            // Upload new image to Firebase Storage
+            let imageName = UUID().uuidString
+            let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(imageName).jpg")
+            // To change the quality of picture after compression change 0.1 for a value closer to 1
+            if let profileImage = pictureView.image, let uploadData = UIImageJPEGRepresentation(profileImage, 0.1) {
+                storageRef.put(uploadData, metadata: nil, completion: { (metadata, error) in
+                    if error != nil {
+                        print(error!)
+                        completed()
+                        return
+                    }
+                    
+                    if let profileImageURL = metadata?.downloadURL()?.absoluteString {
+                        self.user.profileImageURL = profileImageURL
+                        completed()
+                    }
+                })
+            }
+        } else {
+            completed()
+        }
+    }
+    
     @objc func handleSave(_ sender: UIButton) {
         
-        if dataIsValid() {
-            let age = String(dateOfBirthPicker.date.age)
-            let data = ["email" : emailTextField.text!, "name" : nameTextField.text!, "age" : age, "date of birth" : dateOfBirthButton.currentTitle!, "place" : homePlaceTextField.text!, "short self description" : shortDescriptionTextField.text!, "long self description" : longDescriptionTextField.text!]
-            FIRDatabase.database().reference().child("users").child(user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                // Assuming the EditProfileController is presented and not pushed
-                // Otherwise do: dismiss(animated: true, completion: nil)
-                self.navigationController?.popViewController(animated: true)
-            })
-        }
+        // Update user
+        user.email = emailTextField.text!
+        user.name = nameTextField.text!
+        user.age = dateOfBirthPicker.date.age
+        user.dateOfBirth = dateOfBirthButton.currentTitle!
+        user.place = homePlaceTextField.text!
+        user.shortDescription = shortDescriptionTextView.text!
+        user.longDescription = longDescriptionTextView.text!
+        
+        // saveImage() is done first because it updates user.profileImageURL, which is used in data to upload to the user's section in Firebase database
+        saveImage(completion: {
+            if self.dataIsValid() {
+                let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.user.email!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "short self description" : self.user.shortDescription!, "long self description" : self.user.longDescription!]
+                FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
+                    let profile = self.navigationController?.viewControllers.first as! ProfileController
+                    profile.user = self.user
+                    // Assuming the EditProfileController is presented and not pushed
+                    // Otherwise do: dismiss(animated: true, completion: nil)
+                    self.navigationController?.popViewController(animated: true)
+                })
+            }
+        })
     }
     
     @objc func handleCancel(_ sender: UIButton) {
@@ -323,20 +399,27 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         emailTextField.text = user.email
         nameTextField.text = user.name
         homePlaceTextField.text = user.place
-        shortDescriptionTextField.text = user.shortDescription
-        longDescriptionTextField.text = user.longDescription
+        shortDescriptionTextView.text = user.shortDescription
+        longDescriptionTextView.text = user.longDescription
         dateOfBirthButton.setTitle(user.dateOfBirth, for: .normal)
         dateOfBirthButton.titleLabel?.font = nameLabel.font
+        shortDescriptionTextView.font = nameLabel.font
+        longDescriptionTextView.font = nameLabel.font
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMMM, yyyy"
+        dateOfBirthPicker.date = formatter.date(from: user.dateOfBirth!)!
         
         // Delegates
         emailTextField.delegate = self
         nameTextField.delegate = self
         homePlaceTextField.delegate = self
-        shortDescriptionTextField.delegate = self
-        longDescriptionTextField.delegate = self
+        shortDescriptionTextView.delegate = self
+        longDescriptionTextView.delegate = self
     }
     
     func setUpUI() {
+        
+        view.addSubview(scrollView)
         
         let dividerLine1 = DividerLine()
         let dividerLine2 = DividerLine()
@@ -346,38 +429,45 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         let dividerLine7 = DividerLine()
         let dividerLine8 = DividerLine()
         
-        view.addSubview(pictureView)
-        view.addSubview(changePictureButton)
-        view.addSubview(privateInformationLabel)
-        view.addSubview(publicInformationLabel)
-        view.addSubview(nameLabel)
-        view.addSubview(emailLabel)
-        view.addSubview(passwordLabel)
-        view.addSubview(homePlaceLabel)
-        view.addSubview(dateOfBirthLabel)
-        view.addSubview(shortDescriptionLabel)
-        view.addSubview(longDescriptionLabel)
-        view.addSubview(nameTextField)
-        view.addSubview(emailTextField)
-        view.addSubview(changePasswordButton)
-        view.addSubview(homePlaceTextField)
-        view.addSubview(dateOfBirthButton)
-        view.addSubview(shortDescriptionTextField)
-        view.addSubview(longDescriptionTextField)
-        view.addSubview(dividerLine1)
-        view.addSubview(dividerLine2)
-        view.addSubview(dividerLine4)
-        view.addSubview(dividerLine5)
-        view.addSubview(dividerLine6)
-        view.addSubview(dividerLine7)
-        view.addSubview(dividerLine8)
+        scrollView.addSubview(spacingView)
+        scrollView.addSubview(pictureView)
+        scrollView.addSubview(changePictureButton)
+        scrollView.addSubview(privateInformationLabel)
+        scrollView.addSubview(publicInformationLabel)
+        scrollView.addSubview(nameLabel)
+        scrollView.addSubview(emailLabel)
+        scrollView.addSubview(passwordLabel)
+        scrollView.addSubview(homePlaceLabel)
+        scrollView.addSubview(dateOfBirthLabel)
+        scrollView.addSubview(shortDescriptionLabel)
+        scrollView.addSubview(longDescriptionLabel)
+        scrollView.addSubview(nameTextField)
+        scrollView.addSubview(emailTextField)
+        scrollView.addSubview(changePasswordButton)
+        scrollView.addSubview(homePlaceTextField)
+        scrollView.addSubview(dateOfBirthButton)
+        scrollView.addSubview(shortDescriptionTextView)
+        scrollView.addSubview(longDescriptionTextView)
+        scrollView.addSubview(dividerLine1)
+        scrollView.addSubview(dividerLine2)
+        scrollView.addSubview(dividerLine4)
+        scrollView.addSubview(dividerLine5)
+        scrollView.addSubview(dividerLine6)
+        scrollView.addSubview(dividerLine7)
+        scrollView.addSubview(dividerLine8)
         
-        let margins = view.layoutMarginsGuide
+        let margins = scrollView.layoutMarginsGuide
+        
+        // Spacing View Constraints
+//        spacingView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true // Can't use it with scroll view, it wouldn't allow scrolling
+        spacingView.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
+        spacingView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        spacingView.heightAnchor.constraint(equalToConstant: 20).isActive = true // 20 is the separation between the tab bar and the image view
         
         // Picture View Constraints
-        pictureView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
+        pictureView.topAnchor.constraint(equalTo: spacingView.bottomAnchor).isActive = true
         pictureView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        pictureView.widthAnchor.constraint(equalToConstant: view.frame.size.width/2).isActive = true
+        pictureView.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/2).isActive = true
         pictureView.heightAnchor.constraint(equalTo: pictureView.widthAnchor).isActive = true
         
         // Change Picture Button Constraints
@@ -394,14 +484,14 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         
         // Long Divider Line After Private Information Label Constraints
         dividerLine1.topAnchor.constraint(equalTo: privateInformationLabel.bottomAnchor).isActive = true
-        dividerLine1.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine1.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        dividerLine1.leftAnchor.constraint(equalTo: scrollView.leftAnchor).isActive = true
+        dividerLine1.rightAnchor.constraint(equalTo: scrollView.rightAnchor).isActive = true
         dividerLine1.heightAnchor.constraint(equalToConstant: 2).isActive = true
         
         // Email Label Constraints
         emailLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 5).isActive = true
         emailLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        emailLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        emailLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         emailLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Email Text Field Constraints
@@ -419,7 +509,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         // Password Label Constraints
         passwordLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
         passwordLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        passwordLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        passwordLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         passwordLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Password Button Constraints
@@ -436,14 +526,14 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         
         // Long Divider Line After Private Information Label Constraints
         dividerLine4.topAnchor.constraint(equalTo: publicInformationLabel.bottomAnchor).isActive = true
-        dividerLine4.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine4.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        dividerLine4.leftAnchor.constraint(equalTo: scrollView.leftAnchor).isActive = true
+        dividerLine4.rightAnchor.constraint(equalTo: scrollView.rightAnchor).isActive = true
         dividerLine4.heightAnchor.constraint(equalToConstant: 2).isActive = true
         
         // Name Label Constraints
         nameLabel.topAnchor.constraint(equalTo: dividerLine4.bottomAnchor, constant: 5).isActive = true
         nameLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        nameLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        nameLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         nameLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Name Text Field Constraints
@@ -461,7 +551,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         // Date Of Birth Label Constraints
         dateOfBirthLabel.topAnchor.constraint(equalTo: dividerLine5.bottomAnchor).isActive = true
         dateOfBirthLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        dateOfBirthLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        dateOfBirthLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         dateOfBirthLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Date Of Birth Text Field Constraints
@@ -479,7 +569,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         // Home Place Label Constraints
         homePlaceLabel.topAnchor.constraint(equalTo: dividerLine6.bottomAnchor).isActive = true
         homePlaceLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        homePlaceLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        homePlaceLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         homePlaceLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Home Place Text Field Constraints
@@ -497,17 +587,16 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         // Short Description Label Constraints
         shortDescriptionLabel.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
         shortDescriptionLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        shortDescriptionLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        shortDescriptionLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         shortDescriptionLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Short Description Text Field Constraints
-        shortDescriptionTextField.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
-        shortDescriptionTextField.leftAnchor.constraint(equalTo: shortDescriptionLabel.rightAnchor, constant: 5).isActive = true
-        shortDescriptionTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        shortDescriptionTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        shortDescriptionTextView.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
+        shortDescriptionTextView.leftAnchor.constraint(equalTo: shortDescriptionLabel.rightAnchor, constant: 5).isActive = true
+        shortDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
         // Short Divider Line After Short Description Constraints
-        dividerLine8.topAnchor.constraint(equalTo: shortDescriptionTextField.bottomAnchor).isActive = true
+        dividerLine8.topAnchor.constraint(equalTo: shortDescriptionTextView.bottomAnchor).isActive = true
         dividerLine8.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine8.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLine8.heightAnchor.constraint(equalToConstant: 1).isActive = true
@@ -515,15 +604,13 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         // Long Description Label Constraints
         longDescriptionLabel.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
         longDescriptionLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        longDescriptionLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
+        longDescriptionLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         longDescriptionLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Long Description Text Field Constraints
-        longDescriptionTextField.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
-        longDescriptionTextField.leftAnchor.constraint(equalTo: longDescriptionLabel.rightAnchor, constant: 5).isActive = true
-        longDescriptionTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        longDescriptionTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
-
+        longDescriptionTextView.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
+        longDescriptionTextView.leftAnchor.constraint(equalTo: longDescriptionLabel.rightAnchor, constant: 5).isActive = true
+        longDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
     }
     
     func setUpBlurAndVibrancy() {
@@ -547,6 +634,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         
     }
     
+    // Done this way because tap gesture recognizers would not work otherwise
     func setUpButtons() {
         
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleChangeProfilePicture))
@@ -563,6 +651,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         super.viewDidLoad()
         
         view.backgroundColor = .white
+        hideKeyboardWhenTappedAround()
         
         let saveButton = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleSave))
         navigationItem.rightBarButtonItem = saveButton
@@ -585,9 +674,49 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UIImagePicke
         navigationItem.largeTitleDisplayMode = .never
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let screensize: CGRect = UIScreen.main.bounds
+        let screenWidth = screensize.width
+        let screenHeight = screensize.height
+        scrollView.contentSize = CGSize(width: screenWidth, height: screenHeight*1.5)
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        view.endEditing(true)
+        scrollView.endEditing(true)
         return true
     }
     
+    func tooManyNewLines(in textView: UITextView, range: NSRange, text: String) -> Bool {
+        let text = (textView.text as NSString).replacingCharacters(in: range, with: text)
+        var numberOfNewLines = 0
+        for char in text {
+            if char == "\n" {
+                numberOfNewLines += 1
+            }
+        }
+        return numberOfNewLines > 5
+    }
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if (text == "\n" && textView == shortDescriptionTextView) {
+            textView.resignFirstResponder()
+            return false
+        }
+        
+        // Check for too many \n, we do not want 600 new lines (since they are counted as chars). We only check this for longDescriptionTextView, since when a new line is trying to be introduced in shortDescriptionTextView, the keyboard returns
+        if tooManyNewLines(in: textView, range: range, text: text) {
+            return false
+        }
+        
+        // Limit the number of maximum chars
+        let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
+        let numberOfChars = newText.count
+        if textView == shortDescriptionTextView {
+            return numberOfChars < 140
+        } else if textView == longDescriptionTextView {
+            return numberOfChars < 600
+        }
+        return true
+    }
 }

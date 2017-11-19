@@ -82,12 +82,12 @@ class ProfileController: UIViewController {
             let editButton = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEdit))
             navigationItem.leftBarButtonItem = editButton
         }
-        
-        setUserData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        
+        setUserData()
         
         tabBarController?.tabBar.isHidden = false
         navigationController?.navigationBar.prefersLargeTitles = true

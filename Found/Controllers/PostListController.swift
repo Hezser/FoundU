@@ -12,6 +12,7 @@ import Firebase
 class PostListController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
         
     private let cellId = "cellId"
+    private var timer: Timer?
     private var collectionview: UICollectionView!
     var posts: [Post]!
     
@@ -37,6 +38,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        attemptReloadOfTable()
         navigationController?.navigationBar.prefersLargeTitles = true
     }
 
@@ -50,23 +52,37 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let cell = collectionview.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! PostCell
 
         cell.titleLabel.text = posts[indexPath.row].title
-        cell.nameLabel.text = posts[indexPath.row].userName
         cell.placeLabel.text = posts[indexPath.row].place
         cell.userImageView.image = posts[indexPath.row].userPicture
         
+    FIRDatabase.database().reference().child("users").child(posts[indexPath.row].userID).child("name").observeSingleEvent(of: .value, with: { (snapshot) in
+            cell.nameLabel.text = (snapshot.value as! String)
+        })
+        
         // Basing us on the format of the date and time, we can divide the string into two
         // If date is "Anytime" we use the Anytime Exceptional Label and leave the time and date labels empty (invisible)
-        let datetime = posts[indexPath.row].time
+        let datetime = posts[indexPath.row].time!
         if datetime == "Anytime" {
             cell.anytimeExceptionalLabel.text = "Anytime"
         } else {
-            let date = datetime![0...9]
-            let time = datetime![12...16]
-            cell.dateLabel.text = date
-            cell.timeLabel.text = time
+            let shortenedDateTime = shortenDateFormat(for: datetime)
+            let commaIndex = shortenedDateTime.indexDistance(of: ",") // We use a shorter format for cells (eg: "Sep" instead of "September")
+            cell.dateLabel.text = shortenedDateTime[0...commaIndex!-1]
+            cell.timeLabel.text = shortenedDateTime[commaIndex!+2...shortenedDateTime.count-1]
         }
         
         return cell
+    }
+    
+    func shortenDateFormat(for string: String) -> String {
+        
+        let longFormatter = DateFormatter()
+        let shortFormatter2 = DateFormatter()
+        longFormatter.dateFormat = "EEE dd LLLL, HH:mm"
+        shortFormatter2.dateFormat = "EEE dd LLL, HH:mm"
+        let date = longFormatter.date(from: string)
+        return shortFormatter2.string(from: date!)
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -80,7 +96,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let postController = PostController()
         postController.user = User(id: post.userID, completion: { () -> () in
             postController.post = post
-            postController.view.backgroundColor = .white // Setting background color is needed, otherwise I get a completely black screen (???)
+            postController.view.backgroundColor = .white
             postController.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(postController, animated: true)
         })
@@ -91,31 +107,18 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         return 0
     }
     
-}
-
-extension UIView {
-    
-    func addConstraintsWithFormat(format: String, views: UIView...) {
+    fileprivate func attemptReloadOfTable() {
+        self.timer?.invalidate()
         
-        var viewsDictionary = [String: UIView]()
-        for (index, view) in views.enumerated() {
-            let key = "v\(index)"
-            viewsDictionary[key] = view
-            view.translatesAutoresizingMaskIntoConstraints = false
-        }
-        
-        addConstraints(NSLayoutConstraint.constraints(withVisualFormat: format, options: NSLayoutFormatOptions(), metrics: nil, views: viewsDictionary))
+        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
     }
     
-}
-
-extension String {
-    
-    subscript (r: CountableClosedRange<Int>) -> String? {
-        get {
-            guard r.lowerBound >= 0, let startIndex = self.index(self.startIndex, offsetBy: r.lowerBound, limitedBy: self.endIndex),
-                let endIndex = self.index(startIndex, offsetBy: r.upperBound - r.lowerBound, limitedBy: self.endIndex) else { return nil }
-            return String(self[startIndex...endIndex])
-        }
+    @objc func handleReloadTable() {
+        
+        // This will crash because of background thread, so lets call this on dispatch_async main thread
+        DispatchQueue.main.async(execute: {
+            self.collectionview.reloadData()
+        })
     }
+    
 }

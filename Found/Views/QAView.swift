@@ -155,7 +155,7 @@ class QAView: UIViewController {
             } else {
                 let time = value as! Date
                 let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "EEE dd MMM, hh:mm"
+                dateFormatter.dateFormat = "EEE dd LLLL, HH:mm"
                 timeString = dateFormatter.string(from: time)
                 newPost.time = timeString
             }
@@ -175,8 +175,6 @@ class QAView: UIViewController {
                     "place": post.place!,
                     "time": post.time!,
                     "details": post.details!,
-                    "userName" : post.userName,
-                    "userPictureURL" : post.userPictureURL,
                     "userDescription" : post.userDescription]
         newPostRef.updateChildValues(data as! [String:String], withCompletionBlock: { (err, ref) in
             if err != nil {

@@ -28,7 +28,6 @@ class PostCell: BaseCell {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
-        label.text = "I'd love hearing from your feedback on this app!"
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -36,7 +35,6 @@ class PostCell: BaseCell {
     
     var nameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Sergio Hernandez"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +59,6 @@ class PostCell: BaseCell {
     
     var placeLabel: UILabel = {
         let label = UILabel()
-        label.text = "Nice Café @ London"
         label.font = UIFont.systemFont(ofSize: 16)
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
@@ -97,7 +94,7 @@ class PostCell: BaseCell {
         userImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
         userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
         
-        // Divider Line View Constraints
+        // Divider Line Constraints
         dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
         dividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true

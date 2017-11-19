@@ -77,7 +77,6 @@ class PopUpView: UIView, UITextFieldDelegate {
     }
     
     @objc func handleCancelProposal(_ sender: UIButton) {
-        print("\nDISMISSING POPUP WITH CONTROLLER \(popUpController)\n")
         sendButton.removeTarget(nil, action: nil, for: .allEvents)
         cancelButton.removeTarget(nil, action: nil, for: .allEvents)
         popUpController.dismissPopUp()
@@ -100,10 +99,9 @@ class PopUpView: UIView, UITextFieldDelegate {
         datePicker.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
         datePicker.heightAnchor.constraint(equalTo: datePicker.widthAnchor, multiplier: 1/2).isActive = true
         
-        print("\nPOST IS: \(popUpController.post)\n")
         if popUpController.post.time != "Anytime" {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "EEE dd MMM, hh:mm"
+            dateFormatter.dateFormat = "EEE dd LLLL, HH:mm"
             datePicker.date = dateFormatter.date(from: popUpController.post.time)!
         }
         
