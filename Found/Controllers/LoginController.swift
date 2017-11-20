@@ -115,7 +115,6 @@ class LoginController: UIViewController {
         let qa7 = QARegularView()
         qa7.situation = .profileCreation
         qa7.variable = .longSelfDescription
-        qa7.answerSize = 180
         qa7.lastView = true
         qa7.question = question7
         qa7.nextView = nil
@@ -131,13 +130,11 @@ class LoginController: UIViewController {
         qa5.nextView = qa6
         let qa4 = QARegularView()
         qa4.situation = .profileCreation
-        qa4.answerSize = 30
         qa4.variable = .place
         qa4.question = question4
         qa4.nextView = qa5
         let qa3 = QARegularView()
         qa3.situation = .profileCreation
-        qa3.answerSize = 90
         qa3.variable = .shortSelfDescription
         qa3.question = question3
         qa3.nextView = qa4

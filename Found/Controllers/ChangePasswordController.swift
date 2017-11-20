@@ -66,10 +66,23 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
     
     @objc func handleSave(_ sender: UIButton) {
         if dataIsValid() {
-            FIRDatabase.database().reference().child("users").child(user.id!).updateChildValues(["password" : newPasswordTextField.text!], withCompletionBlock: { (err, ref) in
-                // Assuming the EditProfileController is presented and not pushed
-                // Otherwise do: dismiss(animated: true, completion: nil)
-                self.navigationController?.popViewController(animated: true)
+            FIRAuth.auth()?.currentUser?.updatePassword(newPasswordTextField.text!, completion: {(error) in
+                if error != nil {
+                    print(error!)
+                    // Alert of the invalidity of password
+                    let alert = UIAlertController(title: "Invalid new password", message: nil, preferredStyle: .alert)
+                    let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                        // Alert is dismissed
+                    }
+                    alert.addAction(alertAction)
+                    self.present(alert, animated: true, completion:nil)
+                } else {
+                    FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(["password" : self.newPasswordTextField.text!], withCompletionBlock: { (err, ref) in
+                        // Assuming the EditProfileController is presented and not pushed
+                        // Otherwise do: dismiss(animated: true, completion: nil)
+                        self.navigationController?.popViewController(animated: true)
+                    })
+                }
             })
         }
     }
@@ -80,6 +93,45 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
     
     func dataIsValid() -> Bool {
         // Check that the current password is correct, that both new and repeatNew passwords are the same, that the old password and new password are different and that the new password is a valid password
+        
+        // Current Password is correct
+        if currentPasswordTextField.text! != user.password {
+            let alert = UIAlertController(title: "Wrong current password", message: nil, preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                // Alert is dismissed
+            }
+            
+            alert.addAction(alertAction)
+            
+            self.present(alert, animated: true, completion:nil)
+            return false
+        }
+            
+        // New password is not repeated correctly
+        else if newPasswordTextField.text! != repeatNewPasswordTextField.text! {
+            let alert = UIAlertController(title: "Passwords don't match", message: nil, preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                // Alert is dismissed
+            }
+            
+            alert.addAction(alertAction)
+            
+            self.present(alert, animated: true, completion:nil)
+            return false
+        }
+        
+        // New and old passwords are the same
+        else if currentPasswordTextField.text! == newPasswordTextField.text! {
+            let alert = UIAlertController(title: "Old and new passwords are the same", message: nil, preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                // Alert is dismissed
+            }
+            
+            alert.addAction(alertAction)
+            
+            self.present(alert, animated: true, completion:nil)
+            return false
+        }
         return true
     }
     

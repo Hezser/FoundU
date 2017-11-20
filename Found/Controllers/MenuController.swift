@@ -45,6 +45,8 @@ class MenuController: UITabBarController {
         messages.tabBarItem = UITabBarItem(title: "Messages", image: nil, tag: 1)
         
         let newPost = NewPostController()
+        let newPostNavigationController = UINavigationController(rootViewController: newPost)
+        newPostNavigationController.navigationBar.isTranslucent = true
         newPost.user = user
         newPost.title = "+"
         newPost.tabBarItem = UITabBarItem(title: "+", image: nil, tag: 2)
@@ -71,7 +73,7 @@ class MenuController: UITabBarController {
                 
                 userPosts.posts = self.userPosts
                 
-                self.viewControllers = [ feedNavigationController, messagesNavigationController, newPost, userPostsNavigationController, profileNavigationController ]
+                self.viewControllers = [ feedNavigationController, messagesNavigationController, newPostNavigationController, userPostsNavigationController, profileNavigationController ]
             }
         }
     }

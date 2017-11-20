@@ -15,24 +15,26 @@ class NewPostController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
         createChainOfQAViews()
     }
     
     func createChainOfQAViews() {
 
         // Questions in order
-        let question1 = "So, to put it as a title, what would you like to talk about?"
+        let question1 = "To put it as a title, what would you like to talk about?"
         let question2 = "Where would you like to meet? You can leave it blank if you'd meet anywhere."
         let question3 = "Is there any time in particular that suits you best?"
-        let question4 = "Is there anything else you want to say? You could tell me more about the specifics of the matter, your experience in this topic... Up to you!"
+        let question4 = "Why this topic? Is there anything else you want to say?"
         
         // Initializing the QAViews with their questions
         let menu = MenuController()
         let qa4 = QARegularView()
         qa4.situation = .postCreation
         qa4.variable = .details
-        qa4.answerSize = 150
         qa4.lastView = true
         qa4.question = question4
         qa4.nextView = menu
@@ -49,6 +51,7 @@ class NewPostController: UIViewController {
         let qa1 = QARegularView()
         qa1.situation = .postCreation
         qa1.variable = .title
+        qa1.firstView = true
         qa1.question = question1
         qa1.nextView = qa2
         let post = Post()
@@ -56,13 +59,11 @@ class NewPostController: UIViewController {
         post.userDescription = user.shortDescription
         qa1.newPost = post
         
-        present(qa1, animated: true, completion: nil)
+        navigationController?.pushViewController(qa1, animated: true)
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    
 }

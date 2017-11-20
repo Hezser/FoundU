@@ -307,7 +307,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     // This method should not execute unless a different image has been chosen. The way I have done it (using the var imageWasChanged) is probaby not the most efficient
     func saveImage(completion completed: @escaping FinishedDownload) {
         
-        print("\nimageWasChanged is \(imageWasChanged)\n")
         if imageWasChanged {
             // Delete previous image from Firebase Storage
             FIRStorage.storage().reference(forURL: user.profileImageURL!).delete(completion: { (error) in
@@ -354,12 +353,25 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         saveImage(completion: {
             if self.dataIsValid() {
                 let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.user.email!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "short self description" : self.user.shortDescription!, "long self description" : self.user.longDescription!]
-                FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                    let profile = self.navigationController?.viewControllers.first as! ProfileController
-                    profile.user = self.user
-                    // Assuming the EditProfileController is presented and not pushed
-                    // Otherwise do: dismiss(animated: true, completion: nil)
-                    self.navigationController?.popViewController(animated: true)
+                FIRAuth.auth()?.currentUser?.updateEmail(self.user.email!, completion: {(error) in
+                    if error != nil {
+                        print(error!)
+                        // Alert of the invalidity of password
+                        let alert = UIAlertController(title: "Invalid email", message: nil, preferredStyle: .alert)
+                        let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                            // Alert is dismissed
+                        }
+                        alert.addAction(alertAction)
+                        self.present(alert, animated: true, completion:nil)
+                    } else {
+                        FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
+                            let profile = self.navigationController?.viewControllers.first as! ProfileController
+                            profile.user = self.user
+                            // Assuming the EditProfileController is presented and not pushed
+                            // Otherwise do: dismiss(animated: true, completion: nil)
+                            self.navigationController?.popViewController(animated: true)
+                        })
+                    }
                 })
             }
         })
@@ -367,12 +379,31 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     @objc func handleCancel(_ sender: UIButton) {
         // Assuming the EditProfileController is presented and not pushed
-        // Otherwise do: dismiss(animated: true, completion: nil)
+        // Otherwise do: dismiss animated: true, completion: nil)
         navigationController?.popViewController(animated: true)
+    }
+    
+    func presentInvalidDataAlert() {
+        let alert = UIAlertController(title: "Some information is incomplete", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+            // Alert is dismissed
+        }
+        alert.addAction(alertAction)
+        self.present(alert, animated: true, completion:nil)
     }
     
     func dataIsValid() -> Bool {
         // Check that all the info is valid
+        if nameTextField.text == "" {
+            presentInvalidDataAlert()
+            return false
+        } else if homePlaceTextField.text == "" {
+            presentInvalidDataAlert()
+            return false
+        } else if shortDescriptionTextView.text == "" {
+            presentInvalidDataAlert()
+            return false
+        }
         return true
     }
     

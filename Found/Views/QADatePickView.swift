@@ -62,16 +62,14 @@ class QADatePickView: QAView {
             datePicker.minuteInterval = 15
             
             // Create iAmFlexibleButton
-            let iAmFlexibleButton = UIButton()
+            let iAmFlexibleButton = UIButton(type: .system)
             iAmFlexibleButton.addTarget(self, action: #selector(iAmFlexiblePressed), for: .touchUpInside)
-            iAmFlexibleButton.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-            iAmFlexibleButton.layer.cornerRadius = 5
             iAmFlexibleButton.translatesAutoresizingMaskIntoConstraints = false
             iAmFlexibleButton.setTitle("I am flexible", for: .normal)
             
             view.addSubview(iAmFlexibleButton)
            
-            iAmFlexibleButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: -30).isActive = true
+            iAmFlexibleButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: -15).isActive = true
             iAmFlexibleButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
             iAmFlexibleButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
             iAmFlexibleButton.heightAnchor.constraint(equalToConstant: 30).isActive = true

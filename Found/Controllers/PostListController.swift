@@ -38,7 +38,6 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        attemptReloadOfTable()
         navigationController?.navigationBar.prefersLargeTitles = true
     }
 
@@ -65,6 +64,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         if datetime == "Anytime" {
             cell.anytimeExceptionalLabel.text = "Anytime"
         } else {
+            cell.anytimeExceptionalLabel.text = ""
             let shortenedDateTime = shortenDateFormat(for: datetime)
             let commaIndex = shortenedDateTime.indexDistance(of: ",") // We use a shorter format for cells (eg: "Sep" instead of "September")
             cell.dateLabel.text = shortenedDateTime[0...commaIndex!-1]

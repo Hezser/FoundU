@@ -15,6 +15,7 @@ class PostController: UIViewController, PopUpController {
     var post: Post!
     
     var popUpView: PopUpView!
+    var tabBarHeight: CGFloat = 50
     
     typealias FinishedDownload = () -> ()
     
@@ -35,7 +36,7 @@ class PostController: UIViewController, PopUpController {
     var meetButton: UIButton = {
        let button = UIButton()
         button.setTitle("Let's Meet!", for: .normal)
-        button.titleLabel?.font = button.titleLabel?.font.withSize(26)
+        button.titleLabel?.font = button.titleLabel?.font.withSize(22)
         button.addTarget(self, action: #selector(handleMeetSetUp), for: .touchUpInside)
         button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -60,7 +61,6 @@ class PostController: UIViewController, PopUpController {
     
     var placeLabel: UILabel = {
         let label = UILabel()
-        label.text = "Nice Café @ London"
         label.font = UIFont.systemFont(ofSize: 16)
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
@@ -84,7 +84,6 @@ class PostController: UIViewController, PopUpController {
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
-        label.text = "I'd love hearing from your feedback on this app!"
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -92,7 +91,6 @@ class PostController: UIViewController, PopUpController {
     
     var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "I'd love hearing from your feedback on this app!"
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
@@ -112,7 +110,6 @@ class PostController: UIViewController, PopUpController {
     
     var userNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Sergio Hernandez"
         label.font = UIFont.systemFont(ofSize: 18)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -125,7 +122,6 @@ class PostController: UIViewController, PopUpController {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
-        label.text = "I'd love hearing from your feedback on this app!"
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -164,6 +160,10 @@ class PostController: UIViewController, PopUpController {
         super.viewWillAppear(true)
         setUpContent()
         navigationItem.largeTitleDisplayMode = .never
+        if let height = tabBarController?.tabBar.frame.size.height {
+            tabBarHeight = height
+        }
+        tabBarController?.tabBar.isHidden = true
         navigationController?.setToolbarHidden(true, animated: false)
     }
     
@@ -263,7 +263,7 @@ class PostController: UIViewController, PopUpController {
         
         if post.userID != uid {
             // Meet Button Constraints
-            meetButton.heightAnchor.constraint(equalToConstant: 70).isActive = true
+            meetButton.heightAnchor.constraint(equalToConstant: tabBarHeight).isActive = true
             meetButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
             meetButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
             meetButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true

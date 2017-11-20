@@ -212,7 +212,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
                 print("Failed to delete post: ", error!)
                 return
             }
-        
+            
             self.navigationController?.popToRootViewController(animated: true)
         })
     }
@@ -260,8 +260,24 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         navigationController?.popViewController(animated: true)
     }
     
+    func presentInvalidDataAlert() {
+        let alert = UIAlertController(title: "Some information is incomplete", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+            // Alert is dismissed
+        }
+        alert.addAction(alertAction)
+        self.present(alert, animated: true, completion:nil)
+    }
+    
     func dataIsValid() -> Bool {
         // Check that all the info is valid
+        if titleTextView.text == "" {
+            presentInvalidDataAlert()
+            return false
+        } else if placeTextView.text == "" {
+            presentInvalidDataAlert()
+            return false
+        }
         return true
     }
     
@@ -491,6 +507,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        
         if (text == "\n" && (textView == titleTextView || textView == placeTextView)) {
             textView.resignFirstResponder()
             return false
@@ -506,7 +523,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         let numberOfChars = newText.count
         if textView == titleTextView {
             return numberOfChars < 140
-        }else if textView == placeTextView {
+        } else if textView == placeTextView {
             return numberOfChars < 50
         } else if textView == detailsTextView {
             return numberOfChars < 600

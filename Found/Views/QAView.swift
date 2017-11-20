@@ -13,68 +13,82 @@ class QAView: UIViewController {
     
     typealias FinishedDownload = () -> ()
     
-    // By default, the view is not the last one
     var lastView = false
+    var firstView = false
     var situation: Situation!
     var variable: Variable?
+    var newPost: Post!
     var nextView: UIViewController!
     var question: String!
-    var nextButton: UIButton!
-    var newPost: Post!
+    
+    var questionLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.numberOfLines = 7
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var nextButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("Next!", for: .normal)
+        button.layer.cornerRadius = 5
+        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
+        button.clipsToBounds = true
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .white
         
+        setUpUI()
+        
+        setUpButtons()
+            
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        if situation != .profileCreation {
+            navigationItem.largeTitleDisplayMode = .never
+            tabBarController?.tabBar.isHidden = true
+            if firstView {
+                let nilButton = UIBarButtonItem(title: "", style: .plain, target: navigationController, action: nil)
+                navigationItem.leftBarButtonItem = nilButton
+            }
+            let cancelButton = UIBarButtonItem(title: "Cancel", style: .done, target: self, action: #selector(cancelButtonPressed))
+            navigationItem.rightBarButtonItem = cancelButton
+        }
+    }
+    
+    func setUpButtons() {
+        nextButton.addTarget(self, action: #selector(self.nextPressed), for: .touchUpInside)
+    }
+    
+    func setUpUI() {
+        
+        questionLabel.text = question
+        view.addSubview(questionLabel)
+        view.addSubview(nextButton)
+        
         let margins = view.layoutMarginsGuide
         
-        // Create a cancel button (not when creating profile)
-        if situation != .profileCreation {
-            let cancelButton = UIButton()
-            cancelButton.backgroundColor = #colorLiteral(red: 0.9331143498, green: 0.134441793, blue: 0, alpha: 1)
-            cancelButton.setTitle("Cancel", for: .normal)
-            cancelButton.layer.cornerRadius = 5
-            cancelButton.clipsToBounds = true
-            cancelButton.translatesAutoresizingMaskIntoConstraints = false
-            cancelButton.addTarget(self, action: #selector(self.cancelButtonPressed), for: .touchUpInside)
-            self.view.addSubview(cancelButton)
-            
-            cancelButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/5).isActive = true
-            cancelButton.heightAnchor.constraint(equalTo: cancelButton.widthAnchor, multiplier: 1/1.6).isActive = true
-            cancelButton.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 20).isActive = true
-            cancelButton.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
-        }
-        // Create question label programatically
-        let questionLabel = UILabel()
-        questionLabel.textAlignment = .center
-        questionLabel.text = question
-        questionLabel.numberOfLines = 7
-        questionLabel.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(questionLabel)
-        
+        // Question Label Constraints
         questionLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -10).isActive = true
         questionLabel.heightAnchor.constraint(equalTo: margins.heightAnchor, multiplier: 1/4).isActive = true
         questionLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 50).isActive = true
         questionLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-     
-        // Create next button unless view is introView (cannot figure out how to negate an "is", god damnit)
-        if self is QAIntroView { nextButton = nil } else {
-            self.nextButton = UIButton()
-            self.nextButton.setTitle("Next!", for: .normal)
-            self.nextButton.layer.cornerRadius = 5
-            nextButton.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-            nextButton.clipsToBounds = true
-            nextButton.translatesAutoresizingMaskIntoConstraints = false
-            nextButton.addTarget(self, action: #selector(self.nextPressed), for: .touchUpInside)
-            view.addSubview(self.nextButton)
-            
-            nextButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
-            nextButton.heightAnchor.constraint(equalTo: nextButton.widthAnchor, multiplier: 1/2).isActive = true
-            nextButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor, constant: -75).isActive = true
-            nextButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        }
-            
+
+        // Next Button Constraints
+        nextButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
+        nextButton.heightAnchor.constraint(equalTo: nextButton.widthAnchor, multiplier: 1/2).isActive = true
+        nextButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor, constant: -75).isActive = true
+        nextButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        
     }
     
     @objc func cancelButtonPressed(sender: UIButton!) {
@@ -198,8 +212,7 @@ class QAView: UIViewController {
                     self.present(self.nextView, animated: true, completion: nil)
                 })
             } else {
-                let menu = MenuController()
-                present(menu, animated: true, completion: nil)
+                self.present(self.nextView, animated: true, completion: nil)
             }
         }
         // If there is a following QAView
@@ -207,8 +220,10 @@ class QAView: UIViewController {
             let nextQA = nextView as! QAView
             if situation == .postCreation {
                 nextQA.newPost = self.newPost
+                navigationController?.pushViewController(nextQA, animated: true)
+            } else {
+                present(nextQA, animated: true, completion: nil)
             }
-            present(nextQA, animated: true, completion: nil)
         }
     }
 }
