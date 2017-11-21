@@ -11,6 +11,8 @@ import Firebase
 
 class Post: NSObject {
     
+    typealias FinishedDownload = () -> ()
+    
     var id: String!
     var userID: String!
     var title: String!
@@ -36,5 +38,32 @@ class Post: NSObject {
         time = post.childSnapshot(forPath: "time").value as? String
         details = post.childSnapshot(forPath: "details").value as? String
         
+    }
+    
+    func setUpConvenienceData(completed: @escaping FinishedDownload) {
+        FIRDatabase.database().reference().child("users").child(self.userID).observeSingleEvent(of: .value, with: { (snapshot) in
+            self.userName = (snapshot.childSnapshot(forPath: "name").value as! String)
+            self.userDescription = (snapshot.childSnapshot(forPath: "short self description").value as! String)
+            let url = (snapshot.childSnapshot(forPath: "pictureURL").value as! String)
+            self.transformURLIntoImage(urlString: url, completion: {
+                completed()
+            })
+        })
+    }
+    
+    func transformURLIntoImage(urlString: String, completion completed: @escaping FinishedDownload) {
+        let url = URL(string: urlString)
+        URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                self.userPicture = UIImage(data: data!)
+                completed()
+            }
+            
+        }).resume()
     }
 }

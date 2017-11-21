@@ -18,6 +18,8 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     private var collectionview: UICollectionView!
     final var type: PostListType!
     private var posts = [Post]()
+    private var initialLoad = true
+    private var refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
         
@@ -26,23 +28,24 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.itemSize = CGSize(width: view.frame.width, height: 700)
-        
-        retrievePosts {
-        
-            self.setUpConvenienceDataForPosts {
                 
-                self.collectionview = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
-                self.collectionview.dataSource = self
-                self.collectionview.delegate = self
-                self.view.addSubview(self.collectionview)
+        self.collectionview = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
+        self.collectionview.dataSource = self
+        self.collectionview.delegate = self
+        self.view.addSubview(self.collectionview)
 
-                self.view.backgroundColor = .white
-                self.collectionview.backgroundColor = .white
-                self.collectionview.alwaysBounceVertical = true
+        self.view.backgroundColor = .white
+        self.collectionview.backgroundColor = .white
+        self.collectionview.alwaysBounceVertical = true
 
-                self.collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
-                
-            }
+        self.collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
+        
+        if type == .feed {
+            listenForNewPosts()
+            listenForEditedPosts()
+            listenForDeletedPosts()
+        } else {
+            loadPostsOnce()
         }
     }
     
@@ -51,51 +54,98 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
-    // Posts will need to be retrieved using pagination when the scope of the app scalates. If not, the time needed to download all the posts will be too large
-    func retrievePosts(completed: @escaping FinishedDownload) {
+    func loadPostsOnce() {
         
+        posts = [] // Because when posts are edited or deleted I call this function again, and it would show posts twice (or more times) otherwise
         let uid = FIRAuth.auth()?.currentUser?.uid
-        
-        let ref = FIRDatabase.database().reference().child("posts")
-        ref.observeSingleEvent(of: .value, with: { snapshot in
-            for post in snapshot.children.allObjects as! [FIRDataSnapshot] {
-                if self.type == .user && post.childSnapshot(forPath: "userID").value as? String == uid {
-                    self.posts.append(Post(post))
-                } else if self.type == .feed && post.childSnapshot(forPath: "userID").value as? String != uid {
-                    self.posts.append(Post(post))
+        FIRDatabase.database().reference().child("posts").observeSingleEvent(of: .value, with: { (snapshot) in
+            for postData in snapshot.children.allObjects as! [FIRDataSnapshot] {
+                let post = Post(postData)
+                if post.userID! == uid {
+                    post.setUpConvenienceData {
+                        self.posts.insert(post, at: 0)
+                        self.collectionview.reloadData()
+                    }
                 }
             }
-            completed()
         })
-    }
-
-    func setUpConvenienceDataForPosts(completed: @escaping FinishedDownload) {
-        for post in posts {
-            FIRDatabase.database().reference().child("users").child(post.userID).observeSingleEvent(of: .value, with: { (snapshot) in
-                post.userName = (snapshot.childSnapshot(forPath: "name").value as! String)
-                post.userDescription = (snapshot.childSnapshot(forPath: "short self description").value as! String)
-                let url = (snapshot.childSnapshot(forPath: "pictureURL").value as! String)
-                self.transformURLIntoImage(urlString: url, post: post, completion: {
-                    completed()
-                })
-            })
-        }
+        
     }
     
-    func transformURLIntoImage(urlString: String, post: Post, completion completed: @escaping FinishedDownload) {
-        let url = URL(string: urlString)
-        URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
-            if error != nil {
-                print(error!)
-                return
+    func listenForNewPosts() {
+        
+        // Add listener to watch out for new posts, incuding the initial ones displayed when first loaded
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        FIRDatabase.database().reference().child("posts").observe(.childAdded, with: { (snapshot) in
+            if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
+                let post = Post(snapshot)
+                post.setUpConvenienceData {
+                    self.posts.insert(post, at: 0)
+                    if self.initialLoad {
+                        self.collectionview.reloadData()
+                    }
+                }
             }
+        })
+        
+        // Stop automatically reloading the data after 3 seconds (make sure everybody's internet connectivity is good enough such that this happens; however, they can always refresh after 3 seconds)
+        let delay = Int(3 * Double(1000))
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(delay), execute: {
+            print("\nStopped automatically reloading data on PostList\n")
             
-            DispatchQueue.main.async {
-                post.userPicture = UIImage(data: data!)
-                completed()
+            // Stop initial load of posts
+            self.initialLoad = false
+            
+            // Add refresher
+            self.refreshControl.addTarget(self, action: #selector(self.refreshData), for: .valueChanged)
+            if #available(iOS 10.0, *) {
+                self.collectionview.refreshControl = self.refreshControl
+            } else {
+                self.collectionview.addSubview(self.refreshControl)
             }
-            
-        }).resume()
+        })
+        
+    }
+    
+    func listenForDeletedPosts() {
+        
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        FIRDatabase.database().reference().child("posts").observe(.childRemoved, with: { (snapshot) in
+            if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
+                for post in self.posts {
+                    if post.id == snapshot.key {
+                        let index = self.posts.index(of: post)
+                        self.posts.remove(at: index!)
+                    }
+                }
+            }
+        })
+        
+    }
+    
+    func listenForEditedPosts() {
+        
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        FIRDatabase.database().reference().child("posts").observe(.childChanged, with: { (snapshot) in
+            if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
+                for post in self.posts {
+                    if post.id == snapshot.key {
+                        let index = self.posts.index(of: post)
+                        self.posts.remove(at: index!)
+                        let editedPost = Post(snapshot)
+                        editedPost.setUpConvenienceData {
+                            self.posts.insert(editedPost, at: index!)
+                        }
+                    }
+                }
+            }
+        })
+        
+    }
+    
+    @objc func refreshData() {
+        collectionview.reloadData()
+        refreshControl.endRefreshing()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -116,6 +166,8 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let datetime = posts[indexPath.row].time!
         if datetime == "Anytime" {
             cell.anytimeExceptionalLabel.text = "Anytime"
+            cell.dateLabel.text = ""
+            cell.timeLabel.text = ""
         } else {
             cell.anytimeExceptionalLabel.text = ""
             let shortenedDateTime = shortenDateFormat(for: datetime)
@@ -159,19 +211,4 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
-    
-    fileprivate func attemptReloadOfTable() {
-        self.timer?.invalidate()
-        
-        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
-    }
-    
-    @objc func handleReloadTable() {
-        
-        // This will crash because of background thread, so lets call this on dispatch_async main thread
-        DispatchQueue.main.async(execute: {
-            self.collectionview.reloadData()
-        })
-    }
-    
 }

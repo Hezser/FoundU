@@ -213,6 +213,8 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
                 return
             }
             
+            let postListController = self.navigationController?.viewControllers[0] as! PostListController
+            postListController.loadPostsOnce()
             self.navigationController?.popToRootViewController(animated: true)
         })
     }
@@ -247,6 +249,8 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
             FIRDatabase.database().reference().child("posts").child(self.post.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
                 let postController = self.navigationController?.viewControllers[1] as! PostController
                 postController.post = self.post
+                let postListController = self.navigationController?.viewControllers[0] as! PostListController
+                postListController.loadPostsOnce()
                 // Assuming the EditProfileController is presented and not pushed
                 // Otherwise do: dismiss(animated: true, completion: nil)
                 self.navigationController?.popViewController(animated: true)
