@@ -188,8 +188,7 @@ class QAView: UIViewController {
                     "title": post.title!,
                     "place": post.place!,
                     "time": post.time!,
-                    "details": post.details!,
-                    "userDescription" : post.userDescription]
+                    "details": post.details!]
         newPostRef.updateChildValues(data as! [String:String], withCompletionBlock: { (err, ref) in
             if err != nil {
                 print(err!)

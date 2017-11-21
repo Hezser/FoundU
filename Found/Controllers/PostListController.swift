@@ -10,11 +10,14 @@ import UIKit
 import Firebase
 
 class PostListController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    
+    typealias FinishedDownload = () -> ()
         
     private let cellId = "cellId"
     private var timer: Timer?
     private var collectionview: UICollectionView!
-    var posts: [Post]!
+    final var type: PostListType!
+    private var posts = [Post]()
     
     override func viewDidLoad() {
         
@@ -23,24 +26,77 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.itemSize = CGSize(width: view.frame.width, height: 700)
+        
+        retrievePosts {
+        
+            self.setUpConvenienceDataForPosts {
+                
+                self.collectionview = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
+                self.collectionview.dataSource = self
+                self.collectionview.delegate = self
+                self.view.addSubview(self.collectionview)
 
-        collectionview = UICollectionView(frame: view.frame, collectionViewLayout: layout)
-        collectionview.dataSource = self
-        collectionview.delegate = self
-        view.addSubview(collectionview)
+                self.view.backgroundColor = .white
+                self.collectionview.backgroundColor = .white
+                self.collectionview.alwaysBounceVertical = true
 
-        view.backgroundColor = .white
-        collectionview.backgroundColor = .white
-        collectionview.alwaysBounceVertical = true
-
-        collectionview.register(PostCell.self, forCellWithReuseIdentifier: cellId)
+                self.collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
+                
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         navigationController?.navigationBar.prefersLargeTitles = true
     }
+    
+    // Posts will need to be retrieved using pagination when the scope of the app scalates. If not, the time needed to download all the posts will be too large
+    func retrievePosts(completed: @escaping FinishedDownload) {
+        
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        
+        let ref = FIRDatabase.database().reference().child("posts")
+        ref.observeSingleEvent(of: .value, with: { snapshot in
+            for post in snapshot.children.allObjects as! [FIRDataSnapshot] {
+                if self.type == .user && post.childSnapshot(forPath: "userID").value as? String == uid {
+                    self.posts.append(Post(post))
+                } else if self.type == .feed && post.childSnapshot(forPath: "userID").value as? String != uid {
+                    self.posts.append(Post(post))
+                }
+            }
+            completed()
+        })
+    }
 
+    func setUpConvenienceDataForPosts(completed: @escaping FinishedDownload) {
+        for post in posts {
+            FIRDatabase.database().reference().child("users").child(post.userID).observeSingleEvent(of: .value, with: { (snapshot) in
+                post.userName = (snapshot.childSnapshot(forPath: "name").value as! String)
+                post.userDescription = (snapshot.childSnapshot(forPath: "short self description").value as! String)
+                let url = (snapshot.childSnapshot(forPath: "pictureURL").value as! String)
+                self.transformURLIntoImage(urlString: url, post: post, completion: {
+                    completed()
+                })
+            })
+        }
+    }
+    
+    func transformURLIntoImage(urlString: String, post: Post, completion completed: @escaping FinishedDownload) {
+        let url = URL(string: urlString)
+        URLSession.shared.dataTask(with: url! as URL, completionHandler: { (data, response, error) in
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                post.userPicture = UIImage(data: data!)
+                completed()
+            }
+            
+        }).resume()
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return posts.count
@@ -53,10 +109,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         cell.titleLabel.text = posts[indexPath.row].title
         cell.placeLabel.text = posts[indexPath.row].place
         cell.userImageView.image = posts[indexPath.row].userPicture
-        
-    FIRDatabase.database().reference().child("users").child(posts[indexPath.row].userID).child("name").observeSingleEvent(of: .value, with: { (snapshot) in
-            cell.nameLabel.text = (snapshot.value as! String)
-        })
+        cell.nameLabel.text = posts[indexPath.row].userName
         
         // Basing us on the format of the date and time, we can divide the string into two
         // If date is "Anytime" we use the Anytime Exceptional Label and leave the time and date labels empty (invisible)

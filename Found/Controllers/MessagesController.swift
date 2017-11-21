@@ -45,8 +45,6 @@ class MessagesController: UITableViewController {
         
         tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
         
-//        observeMessages()
-        
         tableView.allowsMultipleSelectionDuringEditing = true
     }
     

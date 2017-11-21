@@ -56,7 +56,6 @@ class NewPostController: UIViewController {
         qa1.nextView = qa2
         let post = Post()
         post.userID = FIRAuth.auth()?.currentUser?.uid
-        post.userDescription = user.shortDescription
         qa1.newPost = post
         
         navigationController?.pushViewController(qa1, animated: true)

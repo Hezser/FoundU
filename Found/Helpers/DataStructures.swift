@@ -26,3 +26,8 @@ enum Variable {
     case time
     case details
 }
+
+enum PostListType {
+    case feed
+    case user
+}

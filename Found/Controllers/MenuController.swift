@@ -34,6 +34,7 @@ class MenuController: UITabBarController {
         let feedNavigationController = UINavigationController(rootViewController: feed)
         feedNavigationController.navigationBar.isTranslucent = true
         feed.title = "Feed"
+        feed.type = .feed
         feed.tabBarItem = UITabBarItem(title: "Feed", image: nil, tag: 0)
         feed.tabBarItem.titlePositionAdjustment = UIOffsetMake(0.0, -10.0)
         
@@ -55,6 +56,7 @@ class MenuController: UITabBarController {
         let userPostsNavigationController = UINavigationController(rootViewController: userPosts)
         userPostsNavigationController.navigationBar.isTranslucent = true
         userPosts.title = "Your Posts"
+        userPosts.type = .user
         userPosts.tabBarItem = UITabBarItem(title: "Your Posts", image: nil, tag: 3)
         
         let profile = ProfileController()
@@ -64,77 +66,66 @@ class MenuController: UITabBarController {
         profile.mainProfile = true
         profile.title = "You"
         profile.tabBarItem = UITabBarItem(title: "Profile", image: nil, tag: 4)
-        
-        retrievePosts { () -> () in
             
-            self.downloadPictures { () -> () in
-                
-                feed.posts = self.feedPosts
-                
-                userPosts.posts = self.userPosts
-                
-                self.viewControllers = [ feedNavigationController, messagesNavigationController, newPostNavigationController, userPostsNavigationController, profileNavigationController ]
-            }
-        }
+        viewControllers = [ feedNavigationController, messagesNavigationController, newPostNavigationController, userPostsNavigationController, profileNavigationController ]
     }
     
     // This function prevents the app from crashing in low internet speeds if the pictures are retrieved faster than they are downloaded
-    func downloadPictures(completed: @escaping FinishedDownload) {
-        
-        var processesCompleted = 0
-        var postsUpdated = 0
-        var userPicture: UIImage!
-        
-        // User Posts
-        FIRDatabase.database().reference().child("users").child(user.id!).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
-            let url = URL(string: snapshot.value as! String)
-            let data = try? Data(contentsOf: url!)
-            userPicture = UIImage(data: data!)
-            for post in self.userPosts {
-                post.userPicture = userPicture
-            }
-            processesCompleted += 1
-            if processesCompleted == 2 {
-                completed()
-            }
-        })
-        
-        // Feed Posts
-        for post in feedPosts {
-            FIRDatabase.database().reference().child("users").child(post.userID).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
-                let url = URL(string: snapshot.value as! String)
-                let data = try? Data(contentsOf: url!)
-                post.userPicture = UIImage(data: data!)
-                
-                postsUpdated += 1
-                if postsUpdated == self.numberOfFeedPosts {
-                    processesCompleted += 1
-                    if processesCompleted == 2 {
-                        completed()
-                    }
-                }
-            })
-        }
-    }
+//    func downloadPictures(completed: @escaping FinishedDownload) {
+//
+//        var processesCompleted = 0
+//        var postsUpdated = 0
+//        var userPicture: UIImage!
+//
+//        // User Posts
+//        FIRDatabase.database().reference().child("users").child(user.id!).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
+//            let url = URL(string: snapshot.value as! String)
+//            let data = try? Data(contentsOf: url!)
+//            userPicture = UIImage(data: data!)
+//            for post in self.userPosts {
+//                post.userPicture = userPicture
+//            }
+//            processesCompleted += 1
+//            if processesCompleted == 2 {
+//                completed()
+//            }
+//        })
+//
+//        // Feed Posts
+//        for post in feedPosts {
+//            FIRDatabase.database().reference().child("users").child(post.userID).child("pictureURL").observeSingleEvent(of: .value, with: { (snapshot) in
+//                let url = URL(string: snapshot.value as! String)
+//                let data = try? Data(contentsOf: url!)
+//                post.userPicture = UIImage(data: data!)
+//
+//                postsUpdated += 1
+//                if postsUpdated == self.numberOfFeedPosts {
+//                    processesCompleted += 1
+//                    if processesCompleted == 2 {
+//                        completed()
+//                    }
+//                }
+//            })
+//        }
+//    }
     
-    // Posts will need to be retrieved using pagination when the scope of the app scalates. If not, the time needed to download all the posts will be too large
-    func retrievePosts(completed: @escaping FinishedDownload) {
-        
-        let ref = FIRDatabase.database().reference().child("posts")
-        ref.observeSingleEvent(of: .value, with: { snapshot in
-            for post in snapshot.children.allObjects as! [FIRDataSnapshot] {
-                if post.childSnapshot(forPath: "userID").value as? String != self.user.id {
-                    self.feedPosts.append(Post(post))
-                    self.numberOfFeedPosts += 1
-                } else {
-                    self.userPosts.append(Post(post))
-                    self.numberOfUserPosts += 1
-                }
-            }
-            print("\nFeed posts were successfully downloaded. \(self.feedPosts.count) posts were found.\n")
-            completed()
-        })
-    }
+//    // Posts will need to be retrieved using pagination when the scope of the app scalates. If not, the time needed to download all the posts will be too large
+//    func retrievePosts(completed: @escaping FinishedDownload) {
+//        
+//        let ref = FIRDatabase.database().reference().child("posts")
+//        ref.observeSingleEvent(of: .value, with: { snapshot in
+//            for post in snapshot.children.allObjects as! [FIRDataSnapshot] {
+//                if post.childSnapshot(forPath: "userID").value as? String != self.user.id {
+//                    self.feedPosts.append(Post(post))
+//                    self.numberOfFeedPosts += 1
+//                } else {
+//                    self.userPosts.append(Post(post))
+//                    self.numberOfUserPosts += 1
+//                }
+//            }
+//            completed()
+//        })
+//    }
     
 //    func getNumberOfPosts(completed: @escaping FinishedDownload) {
 //

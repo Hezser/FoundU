@@ -193,16 +193,8 @@ class PostController: UIViewController, PopUpController {
         
         userDescriptionLabel.text = post.userDescription
         detailsLabel.text = post.details
-        
-        // Make sure the download of the picture is not so slow that it crashes the app
-        FIRDatabase.database().reference().child("users").child(post.userID).observeSingleEvent(of: .value, with: { (snapshot) in
-            // Set image
-            let url = URL(string: snapshot.childSnapshot(forPath: "pictureURL").value as! String)
-            let data = try? Data(contentsOf: url!)
-            self.userImageView.image = UIImage(data: data!)
-            // Set name
-            self.userNameLabel.text = (snapshot.childSnapshot(forPath: "name").value as! String)
-        })
+        userImageView.image = post.userPicture
+        userNameLabel.text = post.userName
     }
     
     func setUpViews() {

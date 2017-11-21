@@ -17,8 +17,9 @@ class Post: NSObject {
     var place: String!
     var time: String!
     var details: String!
-    var userDescription: String!
-    var userPicture: UIImage? // for convinience
+    var userDescription: String? // From here downwards the variables are for convinience, only set in postListController
+    var userName: String?
+    var userPicture: UIImage?
     
     required override init() {
         super.init()
@@ -34,7 +35,6 @@ class Post: NSObject {
         place = post.childSnapshot(forPath: "place").value as? String
         time = post.childSnapshot(forPath: "time").value as? String
         details = post.childSnapshot(forPath: "details").value as? String
-        userDescription = post.childSnapshot(forPath: "userDescription").value as? String
         
     }
 }
