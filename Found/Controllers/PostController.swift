@@ -334,7 +334,6 @@ class PostController: UIViewController, PopUpController {
         let profile = ProfileController()
         profile.user = user
         profile.mainProfile = false
-        profile.view.backgroundColor = .white // Setting background color is needed, otherwise I get a completely black screen (???)
         self.navigationController?.pushViewController(profile, animated: true)
     }
     
