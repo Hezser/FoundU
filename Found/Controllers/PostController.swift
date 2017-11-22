@@ -289,10 +289,6 @@ class PostController: UIViewController, PopUpController {
         
         view.addSubview(userContainer)
         
-        // If tapped inside, takes you to the user's profile
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handlePushUserProfile))
-        userContainer.addGestureRecognizer(tapGesture)
-        
         // User Container Constraints
         userContainer.heightAnchor.constraint(equalToConstant: 120).isActive = true
         userContainer.widthAnchor.constraint(equalTo: titleLabel.widthAnchor).isActive = true
@@ -322,6 +318,16 @@ class PostController: UIViewController, PopUpController {
         userDescriptionLabel.leftAnchor.constraint(equalTo: userImageView.rightAnchor, constant: 10).isActive = true
         userDescriptionLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         userDescriptionLabel.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+        
+        // If tapped inside, takes you to the user's profile. Not done when the post is from the current user
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        if post.userID != uid {
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handlePushUserProfile))
+            userContainer.addGestureRecognizer(tapGesture)
+        }
+        
     }
     
     @objc func handlePushUserProfile(sender: UITapGestureRecognizer) {
