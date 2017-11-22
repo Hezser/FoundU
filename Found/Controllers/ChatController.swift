@@ -11,7 +11,7 @@ import AVFoundation
 class ChatController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PopUpController {
     
     var popUpView: PopUpView!
-    var user: User!
+    var user: User! // User who owns the post, also partner in conversation
     var post: Post! // Different proposals may represent different posts, so this variable is updated right before an action which requires the post (such as presenting the PopUpView) with the post of the proposal currently being used. This variable is kind of a wildcard: it represents different posts at different times as it is convenient
     
     var startingFrame: CGRect?
@@ -52,7 +52,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         guard let uid = FIRAuth.auth()?.currentUser?.uid, let toId = user?.id else {
             return
         }
-        
         let userMessagesRef = FIRDatabase.database().reference().child("user-messages").child(uid).child(toId)
         userMessagesRef.observe(.childAdded, with: { (snapshot) in
             
@@ -60,21 +59,16 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             let messagesRef = FIRDatabase.database().reference().child("messages").child(messageID)
             messagesRef.observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                guard let dictionary = snapshot.value as? [String: AnyObject] else {
-                    return
-                }
-                
-                self.messages.append(Message(ID: messageID, dictionary: dictionary))
+                self.messages.append(Message(withID: messageID, snapshot: snapshot))
                 DispatchQueue.main.async(execute: {
                     self.collectionView?.reloadData()
                     //scroll to the last index
                     let indexPath = IndexPath(item: self.messages.count - 1, section: 0)
                     self.collectionView?.scrollToItem(at: indexPath, at: .bottom, animated: true)
                 })
-                
-                }, withCancel: nil)
-            
-            }, withCancel: nil)
+            })
+        })
+        
     }
     
     override func viewDidLoad() {
@@ -88,6 +82,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         
         collectionView?.keyboardDismissMode = .interactive
         
+        observeMessages()
+        
         setupKeyboardObservers()
     }
     
@@ -95,7 +91,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         super.viewWillAppear(true)
         navigationController?.setToolbarHidden(true, animated: false)
         navigationItem.largeTitleDisplayMode = .never
-        observeMessages()
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
@@ -131,7 +126,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
         
-        print("\nMESSAGE ID IS: \(proposal.messageID)\n")
         let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID!).child("postID").key
         FIRDatabase.database().reference().child("posts").child(postID).observeSingleEvent(of: .value, with: { (snapshot) in
         
@@ -143,7 +137,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             }
             
             self.post = Post(snapshot.value as! FIRDataSnapshot)
-            print("\nPOST SETUP COMPLETED\n")
             completed()
             
         })
@@ -177,8 +170,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     func dismissPopUp() {
         
-        print("\nDismissing popup\n")
-        
         UIView.animate(withDuration: 0.3, animations: {
             self.popUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
             self.popUpView.alpha = 0
@@ -202,9 +193,10 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     func sendProposal(forPost post: Post, time: String, date: String, place: String) {
-
+        
         let properties: [String:AnyObject] = [ "postID" : post.id as AnyObject, "decision" : "" as AnyObject, "title" : post.title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
         sendMessageWithProperties(properties)
+        
     }
     
     func deleteConversationByDeclining() {
@@ -398,10 +390,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     func setupKeyboardObservers() {
         
         NotificationCenter.default.addObserver(self, selector: #selector(handleKeyboardDidShow), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
-        
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(handleKeyboardWillShow), name: UIKeyboardWillShowNotification, object: nil)
-//        
-//        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(handleKeyboardWillHide), name: UIKeyboardWillHideNotification, object: nil)
     }
     
     @objc func handleKeyboardDidShow() {
@@ -454,13 +442,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         
         setupMessageCell(cell, message: message)
         
-        // Text message
-        if message.text != nil {
-            cell.textView.isHidden = false
-        }
-            
-        // Image
-        else if message.imageURL != nil {
+        // Image or video
+        if message.imageURL != nil {
             cell.textView.isHidden = true
         }
         
@@ -474,6 +457,11 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             proposalCell.counterButton.tag = indexPath.row
             proposalCell.declineButton.tag = indexPath.row
             return proposalCell
+        }
+        
+        // Text message
+        else {
+            cell.textView.isHidden = false
         }
         
         cell.playButton.isHidden = message.videoURL == nil
@@ -503,7 +491,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         }
         
         if message.fromID == FIRAuth.auth()?.currentUser?.uid {
-            //outgoing blue
+            // Outgoing blue
             cell.bubbleView.backgroundColor = .blue
             cell.textView.textColor = .white
             cell.profileImageView.isHidden = true
@@ -512,7 +500,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             cell.bubbleViewLeftAnchor?.isActive = false
             
         } else {
-            //incoming gray
+            // Incoming gray
             cell.bubbleView.backgroundColor = .lightGray
             cell.textView.textColor = UIColor.black
             cell.profileImageView.isHidden = false

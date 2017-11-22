@@ -57,14 +57,18 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     func loadPostsOnce() {
         
         posts = [] // Because when posts are edited or deleted I call this function again, and it would show posts twice (or more times) otherwise
-        let uid = FIRAuth.auth()?.currentUser?.uid
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
         FIRDatabase.database().reference().child("posts").observeSingleEvent(of: .value, with: { (snapshot) in
             for postData in snapshot.children.allObjects as! [FIRDataSnapshot] {
                 let post = Post(postData)
                 if post.userID! == uid {
                     post.setUpConvenienceData {
                         self.posts.insert(post, at: 0)
-                        self.collectionview.reloadData()
+                        DispatchQueue.main.async(execute: {
+                            self.collectionview.reloadData()
+                        })
                     }
                 }
             }
@@ -75,14 +79,18 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     func listenForNewPosts() {
         
         // Add listener to watch out for new posts, incuding the initial ones displayed when first loaded
-        let uid = FIRAuth.auth()?.currentUser?.uid
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
         FIRDatabase.database().reference().child("posts").observe(.childAdded, with: { (snapshot) in
             if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
                 let post = Post(snapshot)
                 post.setUpConvenienceData {
                     self.posts.insert(post, at: 0)
                     if self.initialLoad {
-                        self.collectionview.reloadData()
+                        DispatchQueue.main.async(execute: {
+                            self.collectionview.reloadData()
+                        })
                     }
                 }
             }
@@ -109,7 +117,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     func listenForDeletedPosts() {
         
-        let uid = FIRAuth.auth()?.currentUser?.uid
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
         FIRDatabase.database().reference().child("posts").observe(.childRemoved, with: { (snapshot) in
             if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
                 for post in self.posts {
@@ -125,7 +135,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     func listenForEditedPosts() {
         
-        let uid = FIRAuth.auth()?.currentUser?.uid
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
         FIRDatabase.database().reference().child("posts").observe(.childChanged, with: { (snapshot) in
             if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
                 for post in self.posts {
@@ -144,7 +156,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     @objc func refreshData() {
-        collectionview.reloadData()
+        DispatchQueue.main.async(execute: {
+            self.collectionview.reloadData()
+        })
         refreshControl.endRefreshing()
     }
     

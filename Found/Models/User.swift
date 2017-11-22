@@ -26,6 +26,22 @@ class User: NSObject {
     var work: [String]?
     var studies: [String]?
     
+    func firstName() -> String {
+        
+        if let name = self.name {
+            var firstName = ""
+            for char in name {
+                if char == " " {
+                    return firstName
+                } else {
+                    firstName.append(char)
+                }
+            }
+        }
+        return "Someone"
+        
+    }
+    
     required override init() {
         super.init()
     }

@@ -24,31 +24,31 @@ class Message: NSObject {
     var time: String?
     var date: String?
     
-    init(ID: String, dictionary: [String: Any]) {
+    init(withID ID: String, snapshot: FIRDataSnapshot) {
         
         self.messageID = ID
-        self.fromID = dictionary["fromId"] as? String
-        self.toID = dictionary["toId"] as? String
-        self.timestamp = dictionary["timestamp"] as? NSNumber
+        self.fromID = snapshot.childSnapshot(forPath: "fromId").value as? String
+        self.toID = snapshot.childSnapshot(forPath: "toId").value as? String
+        self.timestamp = snapshot.childSnapshot(forPath: "timestamp").value as? NSNumber
         
         // Normal message
-        self.text = dictionary["text"] as? String
+        self.text = snapshot.childSnapshot(forPath: "text").value as? String
         
         // Image
-        self.imageURL = dictionary["imageUrl"] as? String
-        self.imageWidth = dictionary["imageWidth"] as? NSNumber
-        self.imageHeight = dictionary["imageHeight"] as? NSNumber
+        self.imageURL = snapshot.childSnapshot(forPath: "imageUrl").value as? String
+        self.imageWidth = snapshot.childSnapshot(forPath: "imageWidth").value as? NSNumber
+        self.imageHeight = snapshot.childSnapshot(forPath: "imageHeight").value as? NSNumber
         
         // Video
-        self.videoURL = dictionary["videoUrl"] as? String
+        self.videoURL = snapshot.childSnapshot(forPath: "videoUrl").value as? String
         
         // Proposal
-        self.postID = dictionary["postID"] as? String
-        self.decision = dictionary["decision"] as? String
-        self.title = dictionary["title"] as? String
-        self.place = dictionary["place"] as? String
-        self.time = dictionary["time"] as? String
-        self.date = dictionary["date"] as? String
+        self.postID = snapshot.childSnapshot(forPath: "postID").value as? String
+        self.decision = snapshot.childSnapshot(forPath: "decision").value as? String
+        self.title = snapshot.childSnapshot(forPath: "title").value as? String
+        self.place = snapshot.childSnapshot(forPath: "place").value as? String
+        self.time = snapshot.childSnapshot(forPath: "time").value as? String
+        self.date = snapshot.childSnapshot(forPath: "date").value as? String
     }
     
     func chatPartnerID() -> String? {

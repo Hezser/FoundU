@@ -36,16 +36,24 @@ class MessagesController: UITableViewController {
     let cellId = "cellId"
     
     var timer: Timer?
-    
+
     var messages = [Message]()
-    var messagesDictionary = [String: Message]()
+    var messagesDictionary = [String : Message]() // Used to group messages by partner, so we can select which message to show
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.register(UserCell.self, forCellReuseIdentifier: cellId)
+        tableView.register(ConversationCell.self, forCellReuseIdentifier: cellId)
         
         tableView.allowsMultipleSelectionDuringEditing = true
+        
+        // For security reasons
+        messages.removeAll()
+        messagesDictionary.removeAll()
+        
+        // Set up listeners
+        listenForNewMessages() // Including new conversations
+        listenForDeletedConversations()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,9 +71,7 @@ class MessagesController: UITableViewController {
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
-        
         let message = self.messages[indexPath.row]
-        
         if let chatPartnerID = message.chatPartnerID() {
             // Remove user-messages part of the current user
             FIRDatabase.database().reference().child("user-messages").child(uid).child(chatPartnerID).removeValue(completionBlock: { (error, ref) in
@@ -76,7 +82,10 @@ class MessagesController: UITableViewController {
                 }
                 
                 self.messagesDictionary.removeValue(forKey: chatPartnerID)
-                self.attemptReloadOfTable()
+                // This will crash because of background thread, so lets call this on dispatch_async main thread
+                DispatchQueue.main.async(execute: {
+                    self.tableView.reloadData()
+                })
             })
             
             // Remove user-messages part of the partner user
@@ -103,69 +112,46 @@ class MessagesController: UITableViewController {
         }
     }
     
-    func observeUserMessages() {
+    func listenForNewMessages() {
+        
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
-        
-        let ref = FIRDatabase.database().reference().child("user-messages").child(uid)
-        ref.observe(.childAdded, with: { (snapshot) in
-            
-            let userID = snapshot.key
-            FIRDatabase.database().reference().child("user-messages").child(uid).child(userID).observe(.childAdded, with: { (snapshot) in
-                
+        FIRDatabase.database().reference().child("user-messages").child(uid).observe(.childAdded, with: { (snapshot) in
+            let partnerID = snapshot.key
+            FIRDatabase.database().reference().child("user-messages").child(uid).child(partnerID).observe(.childAdded, with: { (snapshot) in
                 let messageID = snapshot.key
-                self.fetchMessageWithMessageID(messageID)
-                
-                }, withCancel: nil)
-            
-            }, withCancel: nil)
+                FIRDatabase.database().reference().child("messages").child(messageID).observeSingleEvent(of: .value, with: { (snapshot) in
+                    let newMessage = Message(withID: messageID, snapshot: snapshot)
+                    let oldMessage = self.messagesDictionary[partnerID]
+                    if newMessage.timestamp?.int32Value > oldMessage?.timestamp?.int32Value {
+                        self.messagesDictionary[partnerID] = newMessage
+                        self.messages = Array(self.messagesDictionary.values)
+                        // This will crash because of background thread, so lets call this on dispatch_async main thread
+                        DispatchQueue.main.async(execute: {
+                            self.tableView.reloadData()
+                        })
+                    }
+                })
+            })
+        })
         
-        ref.observe(.childRemoved, with: { (snapshot) in
-            print(snapshot.key)
-            print(self.messagesDictionary)
-            
+    }
+    
+    func listenForDeletedConversations() {
+        
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        FIRDatabase.database().reference().child("user-messages").child(uid).observe(.childRemoved, with: { (snapshot) in
             self.messagesDictionary.removeValue(forKey: snapshot.key)
-            self.attemptReloadOfTable()
-            
-            }, withCancel: nil)
-    }                            
-    
-    fileprivate func fetchMessageWithMessageID(_ messageID: String) {
-        
-        let messagesReference = FIRDatabase.database().reference().child("messages").child(messageID)
-        
-        messagesReference.observeSingleEvent(of: .value, with: { (snapshot) in
-            
-            if let dictionary = snapshot.value as? [String: AnyObject] {
-                let message = Message(ID: messageID, dictionary: dictionary)
-                
-                if let chatPartnerId = message.chatPartnerID() {
-                    self.messagesDictionary[chatPartnerId] = message
-                }
-                
-                self.attemptReloadOfTable()
-            }
-            
-            }, withCancel: nil)
-    }
-    
-    fileprivate func attemptReloadOfTable() {
-        self.timer?.invalidate()
-        
-        self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.handleReloadTable), userInfo: nil, repeats: false)
-    }
-    
-    @objc func handleReloadTable() {
-        messages = Array(messagesDictionary.values)
-        messages.sort(by: { (message1, message2) -> Bool in
-            return message1.timestamp?.int32Value > message2.timestamp?.int32Value
+            self.messages = Array(self.messagesDictionary.values)
+            // This will crash because of background thread, so lets call this on dispatch_async main thread
+            DispatchQueue.main.async(execute: {
+                self.tableView.reloadData()
+            })
         })
         
-        // This will crash because of background thread, so lets call this on dispatch_async main thread
-        DispatchQueue.main.async(execute: {
-            self.tableView.reloadData()
-        })
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -173,10 +159,11 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! UserCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ConversationCell
         
         let message = messages[indexPath.row]
         cell.message = message
+        cell.setUpContent()
         
         return cell
     }
@@ -186,13 +173,17 @@ class MessagesController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         let message = messages[indexPath.row]
         
         guard let chatPartnerId = message.chatPartnerID() else {
             return
         }
         
-        showChatController(forUser: User(id: chatPartnerId, completion: nil))
+        let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
+        chatController.user = User(id: chatPartnerId, completion: {
+            self.navigationController?.pushViewController(chatController, animated: true)
+        })
     }
     
     func sendProposal(to user: User, post: Post, title: String, place: String, date: String, time: String) {
@@ -200,71 +191,6 @@ class MessagesController: UITableViewController {
         chatController.user = user
         chatController.post = post
         chatController.sendProposal(forPost: post, time: time, date: date, place: place)
-        navigationController?.pushViewController(chatController, animated: true)
-    }
-    
-    func fetchUserAndSetupNavBarTitle() {
-        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-            return
-        }
-                
-        setupNavBarWithUser(User(id: uid, completion: nil))
-    }
-    
-    func setupNavBarWithUser(_ user: User) {
-        messages.removeAll()
-        messagesDictionary.removeAll()
-        tableView.reloadData()
-        
-        observeUserMessages()
-        
-        let titleView = UIView()
-        titleView.frame = CGRect(x: 0, y: 0, width: 100, height: 40)
-        
-        let containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        titleView.addSubview(containerView)
-        
-        let profileImageView = UIImageView()
-        profileImageView.translatesAutoresizingMaskIntoConstraints = false
-        profileImageView.contentMode = .scaleAspectFill
-        profileImageView.layer.cornerRadius = 20
-        profileImageView.clipsToBounds = true
-        if let profileImageUrl = user.profileImageURL {
-            profileImageView.loadImageUsingCacheWithURLString(profileImageUrl)
-        }
-        
-        containerView.addSubview(profileImageView)
-        
-        //ios 9 constraint anchors
-        //need x,y,width,height anchors
-        profileImageView.leftAnchor.constraint(equalTo: containerView.leftAnchor).isActive = true
-        profileImageView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-        profileImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
-        profileImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        let nameLabel = UILabel()
-        
-        containerView.addSubview(nameLabel)
-        nameLabel.text = user.name
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        //need x,y,width,height anchors
-        nameLabel.leftAnchor.constraint(equalTo: profileImageView.rightAnchor, constant: 8).isActive = true
-        nameLabel.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor).isActive = true
-        nameLabel.rightAnchor.constraint(equalTo: containerView.rightAnchor).isActive = true
-        nameLabel.heightAnchor.constraint(equalTo: profileImageView.heightAnchor).isActive = true
-        
-        containerView.centerXAnchor.constraint(equalTo: titleView.centerXAnchor).isActive = true
-        containerView.centerYAnchor.constraint(equalTo: titleView.centerYAnchor).isActive = true
-        
-        self.navigationItem.titleView = titleView
-        
-//        titleView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(showChatController)))
-    }
-    
-    func showChatController(forUser user: User) {
-        let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
-        chatController.user = user
         navigationController?.pushViewController(chatController, animated: true)
     }
 

@@ -41,7 +41,6 @@ class MenuController: UITabBarController {
         let messages = MessagesController()
         let messagesNavigationController = UINavigationController(rootViewController: messages)
         messagesNavigationController.navigationBar.isTranslucent = true
-        messages.fetchUserAndSetupNavBarTitle()
         messages.title = "Messages"
         messages.tabBarItem = UITabBarItem(title: "Messages", image: nil, tag: 1)
         
