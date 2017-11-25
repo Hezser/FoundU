@@ -8,9 +8,9 @@
 
 import UIKit
 
-protocol PopUpController {
+protocol ProposalPopUpController {
     
-    var popUpView: PopUpView! { get set }
+    var proposalPopUpView: ProposalPopUpView! { get set }
     var user: User! { get set }
     var post: Post! { get set }
     

@@ -9,12 +9,12 @@
 import UIKit
 import Firebase
 
-class PostController: UIViewController, PopUpController {
+class PostController: UIViewController, ProposalPopUpController {
     
     var user: User!
     var post: Post!
     
-    var popUpView: PopUpView!
+    var proposalPopUpView: ProposalPopUpView!
     var tabBarHeight: CGFloat = 50
     
     typealias FinishedDownload = () -> ()
@@ -149,10 +149,10 @@ class PostController: UIViewController, PopUpController {
             blurEffectView.isHidden = true // Otherwise the app crashes because in touchesBegan() it checks if blurEffectView is hidden to do some actions on popUpView. If the post is from the user, then setUpBlurAndVibrancy() will never be called, so popUpView will not be created and blurEffectView.isHidden will not be true. Hence actions will be made on a nil object
         } else {
             // Set up popup
-            popUpView = PopUpView()
-            popUpView.popUpController = self
+            proposalPopUpView = ProposalPopUpView()
+            proposalPopUpView.proposalPopUpController = self
             setUpBlurAndVibrancy()
-            popUpView.configurePopUp()
+            proposalPopUpView.configurePopUp()
         }
     }
     
@@ -272,16 +272,16 @@ class PostController: UIViewController, PopUpController {
         view.addSubview(blurEffectView)
         view.addSubview(vibrancyEffectView)
         blurEffectView.contentView.addSubview(vibrancyEffectView)
-        vibrancyEffectView.contentView.addSubview(popUpView)
+        vibrancyEffectView.contentView.addSubview(proposalPopUpView)
         blurEffectView.isHidden = true
         vibrancyEffectView.isHidden = true
 
         // PopUp View Constraints
         let margins = vibrancyEffectView.layoutMarginsGuide
-        popUpView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        popUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
-        popUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
-        popUpView.heightAnchor.constraint(equalTo: popUpView.widthAnchor).isActive = true
+        proposalPopUpView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        proposalPopUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
+        proposalPopUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
+        proposalPopUpView.heightAnchor.constraint(equalTo: proposalPopUpView.widthAnchor).isActive = true
 
     }
     
@@ -352,16 +352,16 @@ class PostController: UIViewController, PopUpController {
     
     @objc func handleMeetSetUp(sender: UIButton) {
         
-        popUpView.addButtonFunctionality()
+        proposalPopUpView.addButtonFunctionality()
 
         // Animate PopUp View
-        popUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
-        popUpView.alpha = 0
+        proposalPopUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
+        proposalPopUpView.alpha = 0
         UIView.animate(withDuration: 0.4) {
             self.blurEffectView.isHidden = false
             self.vibrancyEffectView.isHidden = false
-            self.popUpView.alpha = 1
-            self.popUpView.transform = CGAffineTransform.identity
+            self.proposalPopUpView.alpha = 1
+            self.proposalPopUpView.transform = CGAffineTransform.identity
         }
         
         navigationController?.isNavigationBarHidden = true
@@ -370,17 +370,17 @@ class PostController: UIViewController, PopUpController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         let touch: UITouch? = touches.first
-        if (touch?.view != popUpView) && (blurEffectView.isHidden == false) {
+        if (touch?.view != proposalPopUpView) && (blurEffectView.isHidden == false) {
             dismissPopUp()
-        } else if (touch?.view == popUpView) && (blurEffectView.isHidden == false) {
+        } else if (touch?.view == proposalPopUpView) && (blurEffectView.isHidden == false) {
             self.view.endEditing(true)
         }
     }
     
     func dismissPopUp() {
         UIView.animate(withDuration: 0.3, animations: {
-            self.popUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-            self.popUpView.alpha = 0
+            self.proposalPopUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            self.proposalPopUpView.alpha = 0
         }) { (success: Bool) in
             self.blurEffectView.isHidden = true
             self.vibrancyEffectView.isHidden = true

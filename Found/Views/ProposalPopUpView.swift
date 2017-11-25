@@ -8,9 +8,9 @@
 
 import UIKit
 
-class PopUpView: UIView, UITextFieldDelegate {
+class ProposalPopUpView: UIView, UITextFieldDelegate {
     
-    var popUpController: PopUpController!
+    var proposalPopUpController: ProposalPopUpController!
     var proposalCell: ProposalCell?
     
     var placeTextField: UITextField = {
@@ -35,7 +35,7 @@ class PopUpView: UIView, UITextFieldDelegate {
         button.setTitle("Cancel", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(26)
         button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         return button
@@ -46,7 +46,7 @@ class PopUpView: UIView, UITextFieldDelegate {
         button.setTitle("Send", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(26)
         button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
         return button
@@ -72,14 +72,14 @@ class PopUpView: UIView, UITextFieldDelegate {
             proposalCell?.counteringSuccessful()
         }
         
-        popUpController.sendProposal(forPost: popUpController.post, time: time, date: date, place: place)
+        proposalPopUpController.sendProposal(forPost: proposalPopUpController.post, time: time, date: date, place: place)
 
     }
     
     @objc func handleCancelProposal(_ sender: UIButton) {
         sendButton.removeTarget(nil, action: nil, for: .allEvents)
         cancelButton.removeTarget(nil, action: nil, for: .allEvents)
-        popUpController.dismissPopUp()
+        proposalPopUpController.dismissPopUp()
     }
     
     func configurePopUp() {
@@ -99,10 +99,10 @@ class PopUpView: UIView, UITextFieldDelegate {
         datePicker.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
         datePicker.heightAnchor.constraint(equalTo: datePicker.widthAnchor, multiplier: 1/2).isActive = true
         
-        if popUpController.post.time != "Anytime" {
+        if proposalPopUpController.post.time != "Anytime" {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "EEE dd LLLL, HH:mm"
-            datePicker.date = dateFormatter.date(from: popUpController.post.time)!
+            datePicker.date = dateFormatter.date(from: proposalPopUpController.post.time)!
         }
         
         // Place Text Field Constraints & Settings
@@ -111,20 +111,20 @@ class PopUpView: UIView, UITextFieldDelegate {
         placeTextField.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
         placeTextField.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
-        placeTextField.placeholder = popUpController.post.place
+        placeTextField.placeholder = proposalPopUpController.post.place
         placeTextField.delegate = self
         
         // Send Button Constraints
         sendButton.centerXAnchor.constraint(equalTo: margins.rightAnchor, constant: -((frame.size.width)/4)).isActive = true
         sendButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 5).isActive = true
         sendButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034).isActive = true
+        sendButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034*1.5).isActive = true
         
         // Cancel Button Constraints
         cancelButton.centerXAnchor.constraint(equalTo: margins.leftAnchor, constant: (frame.size.width)/4).isActive = true
         cancelButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 5).isActive = true
         cancelButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        cancelButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034).isActive = true
+        cancelButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034*1.5).isActive = true
 
     }
     

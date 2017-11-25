@@ -18,8 +18,8 @@
 		D62624E31F73F69F0075F5FC /* QARegularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E21F73F69F0075F5FC /* QARegularView.swift */; };
 		D62624E51F73F6C10075F5FC /* QAMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E41F73F6C10075F5FC /* QAMapView.swift */; };
 		D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E61F73F6CD0075F5FC /* QAPickView.swift */; };
-		D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */; };
-		D64FCA711FBC9761005CE655 /* PopUpProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */; };
+		D64FCA6F1FBC93F6005CE655 /* ProposalPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */; };
+		D64FCA711FBC9761005CE655 /* ProposalPopUpProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA701FBC9761005CE655 /* ProposalPopUpProtocol.swift */; };
 		D658ED421F8527F100A1407D /* QAImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D658ED411F8527F100A1407D /* QAImageView.swift */; };
 		D66A04CE1F951C7F00C991C0 /* PostListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CD1F951C7F00C991C0 /* PostListController.swift */; };
 		D66A04D01F95256500C991C0 /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CF1F95256500C991C0 /* PostCell.swift */; };
@@ -64,8 +64,8 @@
 		D62624E21F73F69F0075F5FC /* QARegularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QARegularView.swift; sourceTree = "<group>"; };
 		D62624E41F73F6C10075F5FC /* QAMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAMapView.swift; sourceTree = "<group>"; };
 		D62624E61F73F6CD0075F5FC /* QAPickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAPickView.swift; sourceTree = "<group>"; };
-		D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpView.swift; sourceTree = "<group>"; };
-		D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpProtocol.swift; sourceTree = "<group>"; };
+		D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalPopUpView.swift; sourceTree = "<group>"; };
+		D64FCA701FBC9761005CE655 /* ProposalPopUpProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalPopUpProtocol.swift; sourceTree = "<group>"; };
 		D658ED411F8527F100A1407D /* QAImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAImageView.swift; sourceTree = "<group>"; };
 		D66A04CD1F951C7F00C991C0 /* PostListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListController.swift; sourceTree = "<group>"; };
 		D66A04CF1F95256500C991C0 /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
@@ -174,7 +174,7 @@
 				D6C875EF1FB487CA004C3C57 /* ConversationCell.swift */,
 				D6C875F11FB487D3004C3C57 /* ChatMessageCell.swift */,
 				D6C875F31FB487DA004C3C57 /* ChatInputContainerView.swift */,
-				D64FCA6E1FBC93F6005CE655 /* PopUpView.swift */,
+				D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */,
 				D6AA1A071FBE0227005D041E /* DividerLine.swift */,
 				D61C46781F752EE200A2AE8B /* QAView.swift */,
 				D60AE3AB1F7D5FD500D0CC37 /* QAIntroView.swift */,
@@ -193,7 +193,7 @@
 			children = (
 				D6C875FE1FB48903004C3C57 /* Extensions.swift */,
 				D6AA1A051FBDFAE2005D041E /* DataStructures.swift */,
-				D64FCA701FBC9761005CE655 /* PopUpProtocol.swift */,
+				D64FCA701FBC9761005CE655 /* ProposalPopUpProtocol.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -351,7 +351,7 @@
 				D66A04D01F95256500C991C0 /* PostCell.swift in Sources */,
 				D6C875F21FB487D3004C3C57 /* ChatMessageCell.swift in Sources */,
 				D61C46791F752EE200A2AE8B /* QAView.swift in Sources */,
-				D64FCA711FBC9761005CE655 /* PopUpProtocol.swift in Sources */,
+				D64FCA711FBC9761005CE655 /* ProposalPopUpProtocol.swift in Sources */,
 				D6E2E6FF1F7C1FC80069C608 /* MenuController.swift in Sources */,
 				D61C467B1F75352C00A2AE8B /* QADatePickView.swift in Sources */,
 				D6AA1A081FBE0227005D041E /* DividerLine.swift in Sources */,
@@ -374,7 +374,7 @@
 				D6AA1A061FBDFAE2005D041E /* DataStructures.swift in Sources */,
 				D6A61E231FC1D76500240784 /* EditPostController.swift in Sources */,
 				D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */,
-				D64FCA6F1FBC93F6005CE655 /* PopUpView.swift in Sources */,
+				D64FCA6F1FBC93F6005CE655 /* ProposalPopUpView.swift in Sources */,
 				D6C875FC1FB4880C004C3C57 /* ChatController.swift in Sources */,
 				D6C875FF1FB48903004C3C57 /* Extensions.swift in Sources */,
 				D6C875F81FB48800004C3C57 /* MessagesController.swift in Sources */,

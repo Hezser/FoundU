@@ -22,7 +22,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let screensize: CGRect = UIScreen.main.bounds
         let screenWidth = screensize.width
         let screenHeight = screensize.height
-        let view = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)) // y = 20 so that pictureView has some space from the navigationBar
+        let view = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
         view.backgroundColor = .white
         view.isUserInteractionEnabled = true
         view.isScrollEnabled = true
@@ -450,8 +450,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     func setUpUI() {
         
-        view.addSubview(scrollView)
-        
         let dividerLine1 = DividerLine()
         let dividerLine2 = DividerLine()
         let dividerLine4 = DividerLine()
@@ -460,6 +458,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let dividerLine7 = DividerLine()
         let dividerLine8 = DividerLine()
         
+        view.addSubview(scrollView)
         scrollView.addSubview(spacingView)
         scrollView.addSubview(pictureView)
         scrollView.addSubview(changePictureButton)
@@ -696,6 +695,11 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         setUpUI()
         
         setUpBlurAndVibrancy()
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillHide, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillChangeFrame, object: nil)
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -705,12 +709,43 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         navigationItem.largeTitleDisplayMode = .never
     }
     
+    func calculateScrollViewHeight() -> CGFloat {
+        view.layoutIfNeeded()
+        var sum: CGFloat = 104 // Sum of blank vertical distance between views + width of divider lines
+        sum += pictureView.frame.size.height
+        sum += changePictureButton.frame.size.height
+        sum += privateInformationLabel.frame.size.height
+        sum += publicInformationLabel.frame.size.height
+        sum += passwordLabel.frame.size.height
+        sum += emailTextField.frame.size.height
+        sum += nameTextField.frame.size.height
+        sum += dateOfBirthLabel.frame.size.height
+        sum += homePlaceTextField.frame.size.height
+        sum += shortDescriptionTextView.frame.size.height
+        sum += longDescriptionTextView.frame.size.height
+        return sum
+    }
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         let screensize: CGRect = UIScreen.main.bounds
         let screenWidth = screensize.width
-        let screenHeight = screensize.height
-        scrollView.contentSize = CGSize(width: screenWidth, height: screenHeight*1.5)
+        scrollView.contentSize = CGSize(width: screenWidth, height: calculateScrollViewHeight())
+    }
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        let userInfo = notification.userInfo!
+        
+        let keyboardScreenEndFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+        
+        if notification.name == Notification.Name.UIKeyboardWillHide {
+            scrollView.contentInset = UIEdgeInsets.zero
+        } else {
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height, right: 0)
+        }
+        
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -746,7 +781,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         if textView == shortDescriptionTextView {
             return numberOfChars < 140
         } else if textView == longDescriptionTextView {
-            return numberOfChars < 600
+            return numberOfChars < 800
         }
         return true
     }

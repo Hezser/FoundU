@@ -8,9 +8,9 @@ import Firebase
 import MobileCoreServices
 import AVFoundation
 
-class ChatController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PopUpController {
+class ChatController: UICollectionViewController, UITextFieldDelegate, UICollectionViewDelegateFlowLayout, UIImagePickerControllerDelegate, UINavigationControllerDelegate, ProposalPopUpController {
     
-    var popUpView: PopUpView!
+    var proposalPopUpView: ProposalPopUpView!
     var user: User! // User who owns the post, also partner in conversation
     var post: Post! // Different proposals may represent different posts, so this variable is updated right before an action which requires the post (such as presenting the PopUpView) with the post of the proposal currently being used. This variable is kind of a wildcard: it represents different posts at different times as it is convenient
     
@@ -111,16 +111,16 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         view.addSubview(blurEffectView)
         view.addSubview(vibrancyEffectView)
         blurEffectView.contentView.addSubview(vibrancyEffectView)
-        vibrancyEffectView.contentView.addSubview(popUpView)
+        vibrancyEffectView.contentView.addSubview(proposalPopUpView)
         blurEffectView.isHidden = true
         vibrancyEffectView.isHidden = true
         
         // PopUp View Constraints
         let margins = vibrancyEffectView.layoutMarginsGuide
-        popUpView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        popUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
-        popUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
-        popUpView.heightAnchor.constraint(equalTo: popUpView.widthAnchor).isActive = true
+        proposalPopUpView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        proposalPopUpView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
+        proposalPopUpView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -50).isActive = true
+        proposalPopUpView.heightAnchor.constraint(equalTo: proposalPopUpView.widthAnchor).isActive = true
         
     }
     
@@ -148,21 +148,21 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         inputContainerView.isHidden = true
         
         // Set up popup
-        popUpView = PopUpView()
-        popUpView.popUpController = self
-        popUpView.proposalCell = proposalCell
+        proposalPopUpView = ProposalPopUpView()
+        proposalPopUpView.proposalPopUpController = self
+        proposalPopUpView.proposalCell = proposalCell
         setUpBlurAndVibrancy()
-        popUpView.addButtonFunctionality()
-        popUpView.configurePopUp()
+        proposalPopUpView.addButtonFunctionality()
+        proposalPopUpView.configurePopUp()
         
         // Animate PopUp View
-        popUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
-        popUpView.alpha = 0
+        proposalPopUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
+        proposalPopUpView.alpha = 0
         UIView.animate(withDuration: 0.4) {
             self.blurEffectView.isHidden = false
             self.vibrancyEffectView.isHidden = false
-            self.popUpView.alpha = 1
-            self.popUpView.transform = CGAffineTransform.identity
+            self.proposalPopUpView.alpha = 1
+            self.proposalPopUpView.transform = CGAffineTransform.identity
         }
         
         navigationController?.isNavigationBarHidden = true
@@ -171,8 +171,8 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     func dismissPopUp() {
         
         UIView.animate(withDuration: 0.3, animations: {
-            self.popUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
-            self.popUpView.alpha = 0
+            self.proposalPopUpView.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            self.proposalPopUpView.alpha = 0
         }) { (success: Bool) in
             self.blurEffectView.isHidden = true
             self.vibrancyEffectView.isHidden = true
@@ -185,9 +185,9 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         let touch: UITouch? = touches.first
-        if (touch?.view != popUpView) && (blurEffectView.isHidden == false) {
+        if (touch?.view != proposalPopUpView) && (blurEffectView.isHidden == false) {
             dismissPopUp()
-        } else if (touch?.view == popUpView) && (blurEffectView.isHidden == false) {
+        } else if (touch?.view == proposalPopUpView) && (blurEffectView.isHidden == false) {
             self.view.endEditing(true)
         }
     }

@@ -32,6 +32,8 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 
 class MessagesController: UITableViewController {
+    
+    typealias FinishedDownload = () -> ()
 
     let cellId = "cellId"
     
@@ -112,6 +114,30 @@ class MessagesController: UITableViewController {
         }
     }
     
+    func downloadPicture(withURL url: String, toMessage message: Message, completion completed: @escaping FinishedDownload) {
+        
+        // Otherwise fire off a new download
+        let url = URL(string: url)
+        URLSession.shared.dataTask(with: url!, completionHandler: { (data, response, error) in
+            
+            // Download hit an error so lets return out
+            if error != nil {
+                print(error ?? "")
+                return
+            }
+            
+            DispatchQueue.main.async(execute: {
+                
+                if let downloadedImage = UIImage(data: data!) {
+                    imageCache.setObject(downloadedImage, forKey: url as AnyObject)
+                    message.userPicture = downloadedImage
+                    completed()
+                }
+            })
+            
+        }).resume()
+    }
+    
     func listenForNewMessages() {
         
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
@@ -122,14 +148,29 @@ class MessagesController: UITableViewController {
             FIRDatabase.database().reference().child("user-messages").child(uid).child(partnerID).observe(.childAdded, with: { (snapshot) in
                 let messageID = snapshot.key
                 FIRDatabase.database().reference().child("messages").child(messageID).observeSingleEvent(of: .value, with: { (snapshot) in
+                    
                     let newMessage = Message(withID: messageID, snapshot: snapshot)
                     let oldMessage = self.messagesDictionary[partnerID]
                     if newMessage.timestamp?.int32Value > oldMessage?.timestamp?.int32Value {
-                        self.messagesDictionary[partnerID] = newMessage
-                        self.messages = Array(self.messagesDictionary.values)
-                        // This will crash because of background thread, so lets call this on dispatch_async main thread
-                        DispatchQueue.main.async(execute: {
-                            self.tableView.reloadData()
+                        
+                        let ref = FIRDatabase.database().reference().child("users").child(partnerID)
+                        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                            
+                            if let dictionary = snapshot.value as? [String: AnyObject] {
+                                newMessage.userName = dictionary["name"] as? String
+                                
+                                if let profileImageURL = dictionary["pictureURL"] as? String {
+                                    self.downloadPicture(withURL: profileImageURL, toMessage: newMessage, completion: {
+                                        self.messagesDictionary[partnerID] = newMessage
+                                        self.messages = Array(self.messagesDictionary.values)
+                                        // This will crash because of background thread, so lets call this on dispatch_async main thread
+                                        DispatchQueue.main.async(execute: {
+                                            self.tableView.reloadData()
+                                        })
+                                    })
+                                }
+                            }
+                            
                         })
                     }
                 })

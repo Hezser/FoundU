@@ -19,7 +19,8 @@ class Post: NSObject {
     var place: String!
     var time: String!
     var details: String!
-    var userDescription: String? // From here downwards the variables are for convinience, only set in postListController
+    // Convenience variables, only set in postListController
+    var userDescription: String?
     var userName: String?
     var userPicture: UIImage?
     

@@ -40,6 +40,12 @@ extension UIImageView {
             
         }).resume()
     }
+    
+    func setRounded() {
+        let radius = self.frame.size.width / 2
+        self.layer.cornerRadius = radius
+        self.layer.masksToBounds = true
+    }
 }
 
 extension UIViewController {

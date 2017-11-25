@@ -53,20 +53,8 @@ class ConversationCell: UITableViewCell {
             timeLabel.text = dateFormatter.string(from: timestampDate)
         }
         
-        if let id = message?.chatPartnerID() {
-            let ref = FIRDatabase.database().reference().child("users").child(id)
-            ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                
-                if let dictionary = snapshot.value as? [String: AnyObject] {
-                    self.textLabel?.text = dictionary["name"] as? String
-                    
-                    if let profileImageUrl = dictionary["pictureURL"] as? String {
-                        self.profileImageView.loadImageUsingCacheWithURLString(profileImageUrl)
-                    }
-                }
-                
-            })
-        }
+        textLabel?.text = message.userName
+        profileImageView.image = message.userPicture
         
     }
     
