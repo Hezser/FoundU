@@ -6,8 +6,6 @@
 //  Copyright © 2017 Sergio Hernandez. All rights reserved.
 //
 
-import UIKit
-
 enum Situation {
     case profileCreation
     case postCreation
@@ -20,8 +18,7 @@ enum Variable {
     case work
     case picture
     case studies
-    case shortSelfDescription
-    case longSelfDescription
+    case bio
     case title
     case time
     case details

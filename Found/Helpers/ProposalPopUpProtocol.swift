@@ -6,8 +6,6 @@
 //  Copyright © 2017 Sergio Hernandez. All rights reserved.
 //
 
-import UIKit
-
 protocol ProposalPopUpController {
     
     var proposalPopUpView: ProposalPopUpView! { get set }

@@ -118,13 +118,13 @@ class ProposalPopUpView: UIView, UITextFieldDelegate {
         sendButton.centerXAnchor.constraint(equalTo: margins.rightAnchor, constant: -((frame.size.width)/4)).isActive = true
         sendButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 5).isActive = true
         sendButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        sendButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034*1.5).isActive = true
+        sendButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
         
         // Cancel Button Constraints
         cancelButton.centerXAnchor.constraint(equalTo: margins.leftAnchor, constant: (frame.size.width)/4).isActive = true
         cancelButton.topAnchor.constraint(equalTo: datePicker.bottomAnchor, constant: 5).isActive = true
         cancelButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        cancelButton.heightAnchor.constraint(equalTo: sendButton.widthAnchor, multiplier: 1/1.618034*1.5).isActive = true
+        cancelButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
 
     }
     

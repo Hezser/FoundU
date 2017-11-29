@@ -13,11 +13,6 @@ class MenuController: UITabBarController {
     
     var user: User!
     
-    var numberOfUserPosts = 0
-    var numberOfFeedPosts = 0
-    var feedPosts = [Post]()
-    var userPosts = [Post]()
-    
     typealias FinishedDownload = () -> ()
     
     override func viewDidLoad() {
@@ -29,6 +24,8 @@ class MenuController: UITabBarController {
     }
     
     func addControllers() {
+        
+        print("\nWHAT\n")
         
         let feed = PostListController()
         let feedNavigationController = UINavigationController(rootViewController: feed)
@@ -151,8 +148,8 @@ class MenuController: UITabBarController {
             print("\nUser is not logged in\n")
             perform(#selector(handleLogout), with: nil, afterDelay: 0)
         } else {
-            print("\nUser is successfully logged in\n")
-            user = User(id: (FIRAuth.auth()?.currentUser?.uid)!, completion: { () -> () in
+            print("\nUser is successfully logged innnn\n")
+            user = User(id: (FIRAuth.auth()?.currentUser?.uid)!, completion: {
                 self.addControllers()
             })
         }
@@ -160,13 +157,17 @@ class MenuController: UITabBarController {
     
     @objc func handleLogout() {
         // Sign Out
+        logOut()
+        
+        let loginController = LoginController()
+        present(loginController, animated: true, completion: nil)
+    }
+    
+    fileprivate func logOut() {
         do {
             try FIRAuth.auth()?.signOut()
         } catch let logoutError {
             print(logoutError)
         }
-        
-        let loginController = LoginController()
-        present(loginController, animated: true, completion: nil)
     }
 }

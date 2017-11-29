@@ -18,27 +18,27 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     private var collectionview: UICollectionView!
     final var type: PostListType!
     private var posts = [Post]()
+    private var sizesOfCells = [CGFloat]()
     private var initialLoad = true
     private var refreshControl = UIRefreshControl()
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
         
         let layout: UICollectionViewFlowLayout = UICollectionViewFlowLayout()
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         layout.itemSize = CGSize(width: view.frame.width, height: 700)
                 
-        self.collectionview = UICollectionView(frame: self.view.frame, collectionViewLayout: layout)
-        self.collectionview.dataSource = self
-        self.collectionview.delegate = self
-        self.view.addSubview(self.collectionview)
+        collectionview = UICollectionView(frame: view.frame, collectionViewLayout: layout)
+        collectionview.dataSource = self
+        collectionview.delegate = self
+        view.addSubview(collectionview)
 
-        self.view.backgroundColor = .white
-        self.collectionview.backgroundColor = .white
-        self.collectionview.alwaysBounceVertical = true
-
-        self.collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
+        view.backgroundColor = .white
+        collectionview.backgroundColor = .white
+        collectionview.alwaysBounceVertical = true
+        
+        collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
         
         if type == .feed {
             listenForNewPosts()
@@ -47,6 +47,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         } else {
             loadPostsOnce()
         }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -66,6 +67,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                 if post.userID! == uid {
                     post.setUpConvenienceData {
                         self.posts.insert(post, at: 0)
+                        let cell = PostCell()
+                        let configuredCell = self.configure(cell, withDataFrom: post)
+                        self.sizesOfCells.insert(configuredCell.calculateHeight(), at: 0)
                         DispatchQueue.main.async(execute: {
                             self.collectionview.reloadData()
                         })
@@ -87,6 +91,10 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                 let post = Post(snapshot)
                 post.setUpConvenienceData {
                     self.posts.insert(post, at: 0)
+                    let cell = PostCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 300))
+                    let configuredCell = self.configure(cell, withDataFrom: post)
+                    let height = configuredCell.calculateHeight()
+                    self.sizesOfCells.insert(height, at: 0)
                     if self.initialLoad {
                         DispatchQueue.main.async(execute: {
                             self.collectionview.reloadData()
@@ -126,6 +134,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                     if post.id == snapshot.key {
                         let index = self.posts.index(of: post)
                         self.posts.remove(at: index!)
+                        self.sizesOfCells.remove(at: index!)
                     }
                 }
             }
@@ -144,9 +153,13 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                     if post.id == snapshot.key {
                         let index = self.posts.index(of: post)
                         self.posts.remove(at: index!)
+                        self.sizesOfCells.remove(at: index!)
                         let editedPost = Post(snapshot)
                         editedPost.setUpConvenienceData {
                             self.posts.insert(editedPost, at: index!)
+                            let cell = PostCell()
+                            let configuredCell = self.configure(cell, withDataFrom: post)
+                            self.sizesOfCells.insert(configuredCell.calculateHeight(), at: 0)
                         }
                     }
                 }
@@ -167,30 +180,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
         let cell = collectionview.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! PostCell
-
-        cell.titleLabel.text = posts[indexPath.row].title
-        cell.placeLabel.text = posts[indexPath.row].place
-        cell.userImageView.image = posts[indexPath.row].userPicture
-        cell.nameLabel.text = posts[indexPath.row].userName
-        
-        // Basing us on the format of the date and time, we can divide the string into two
-        // If date is "Anytime" we use the Anytime Exceptional Label and leave the time and date labels empty (invisible)
-        let datetime = posts[indexPath.row].time!
-        if datetime == "Anytime" {
-            cell.anytimeExceptionalLabel.text = "Anytime"
-            cell.dateLabel.text = ""
-            cell.timeLabel.text = ""
-        } else {
-            cell.anytimeExceptionalLabel.text = ""
-            let shortenedDateTime = shortenDateFormat(for: datetime)
-            let commaIndex = shortenedDateTime.indexDistance(of: ",") // We use a shorter format for cells (eg: "Sep" instead of "September")
-            cell.dateLabel.text = shortenedDateTime[0...commaIndex!-1]
-            cell.timeLabel.text = shortenedDateTime[commaIndex!+2...shortenedDateTime.count-1]
-        }
-        
-        return cell
+        let configuredCell = configure(cell, withDataFrom: posts[indexPath.row])
+        return configuredCell
     }
     
     func shortenDateFormat(for string: String) -> String {
@@ -204,8 +196,35 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         
     }
     
+    fileprivate func configure(_ cell: PostCell, withDataFrom post: Post) -> PostCell {
+
+        cell.titleTextView.text = post.title
+        cell.placeTextView.text = post.place
+        cell.userImageView.image = post.userPicture
+        cell.nameTextView.text = post.userName
+        
+        // Basing us on the format of the date and time, we can divide the string into two
+        // If date is "Anytime" we use the Anytime Exceptional Label and leave the time and date labels empty (invisible)
+        let datetime = post.time!
+        if datetime == "Anytime" {
+            cell.anytimeExceptionalLabel.text = "Anytime"
+            cell.dateLabel.text = ""
+            cell.timeLabel.text = ""
+        } else {
+            cell.anytimeExceptionalLabel.text = ""
+            let shortenedDateTime = shortenDateFormat(for: datetime)
+            let commaIndex = shortenedDateTime.indexDistance(of: ",") // We use a shorter format for cells (eg: "Sep" instead of "September")
+            cell.dateLabel.text = shortenedDateTime[0...commaIndex!-1]
+            cell.timeLabel.text = shortenedDateTime[commaIndex!+2...shortenedDateTime.count-1]
+        }
+        
+        cell.setUpUI()
+
+        return cell
+    }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: 175)
+        return CGSize(width: view.frame.width, height: sizesOfCells[indexPath.row])
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

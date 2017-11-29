@@ -44,7 +44,7 @@ class Post: NSObject {
     func setUpConvenienceData(completed: @escaping FinishedDownload) {
         FIRDatabase.database().reference().child("users").child(self.userID).observeSingleEvent(of: .value, with: { (snapshot) in
             self.userName = (snapshot.childSnapshot(forPath: "name").value as! String)
-            self.userDescription = (snapshot.childSnapshot(forPath: "short self description").value as! String)
+            self.userDescription = (snapshot.childSnapshot(forPath: "bio").value as! String)
             let url = (snapshot.childSnapshot(forPath: "pictureURL").value as! String)
             self.transformURLIntoImage(urlString: url, completion: {
                 completed()

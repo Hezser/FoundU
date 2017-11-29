@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D60AE3AC1F7D5FD500D0CC37 /* QAIntroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60AE3AB1F7D5FD500D0CC37 /* QAIntroView.swift */; };
-		D60AE3AE1F7D69C600D0CC37 /* QAThreeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsView.swift */; };
+		D60AE3AC1F7D5FD500D0CC37 /* QAIntroController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60AE3AB1F7D5FD500D0CC37 /* QAIntroController.swift */; };
+		D60AE3AE1F7D69C600D0CC37 /* QAThreeFieldsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsController.swift */; };
 		D61C46771F752BFD00A2AE8B /* NewPostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61C46761F752BFD00A2AE8B /* NewPostController.swift */; };
-		D61C46791F752EE200A2AE8B /* QAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61C46781F752EE200A2AE8B /* QAView.swift */; };
-		D61C467B1F75352C00A2AE8B /* QADatePickView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61C467A1F75352C00A2AE8B /* QADatePickView.swift */; };
+		D61C46791F752EE200A2AE8B /* QAController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61C46781F752EE200A2AE8B /* QAController.swift */; };
+		D61C467B1F75352C00A2AE8B /* QADatePickController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61C467A1F75352C00A2AE8B /* QADatePickController.swift */; };
+		D61E61801FCDC5760047F90B /* DualTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61E617F1FCDC5760047F90B /* DualTextView.swift */; };
 		D62624D11F73B64D0075F5FC /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624D01F73B64D0075F5FC /* AppDelegate.swift */; };
 		D62624D81F73B64E0075F5FC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D62624D71F73B64E0075F5FC /* Assets.xcassets */; };
 		D62624DB1F73B64E0075F5FC /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D62624D91F73B64E0075F5FC /* LaunchScreen.storyboard */; };
-		D62624E31F73F69F0075F5FC /* QARegularView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E21F73F69F0075F5FC /* QARegularView.swift */; };
-		D62624E51F73F6C10075F5FC /* QAMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E41F73F6C10075F5FC /* QAMapView.swift */; };
-		D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E61F73F6CD0075F5FC /* QAPickView.swift */; };
+		D62624E31F73F69F0075F5FC /* QARegularController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E21F73F69F0075F5FC /* QARegularController.swift */; };
+		D62624E51F73F6C10075F5FC /* QAMapController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62624E41F73F6C10075F5FC /* QAMapController.swift */; };
 		D64FCA6F1FBC93F6005CE655 /* ProposalPopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */; };
 		D64FCA711FBC9761005CE655 /* ProposalPopUpProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D64FCA701FBC9761005CE655 /* ProposalPopUpProtocol.swift */; };
-		D658ED421F8527F100A1407D /* QAImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D658ED411F8527F100A1407D /* QAImageView.swift */; };
+		D658ED421F8527F100A1407D /* QAImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D658ED411F8527F100A1407D /* QAImageController.swift */; };
 		D66A04CE1F951C7F00C991C0 /* PostListController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CD1F951C7F00C991C0 /* PostListController.swift */; };
 		D66A04D01F95256500C991C0 /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66A04CF1F95256500C991C0 /* PostCell.swift */; };
 		D6A61E231FC1D76500240784 /* EditPostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6A61E221FC1D76500240784 /* EditPostController.swift */; };
@@ -42,6 +42,8 @@
 		D6E6B7571F82A35E005BE722 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7561F82A35D005BE722 /* Post.swift */; };
 		D6E6B7591F82A52F005BE722 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7581F82A52F005BE722 /* User.swift */; };
 		D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */; };
+		D6F523661FC9A52B00F0684C /* QATwoFieldsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F523651FC9A52B00F0684C /* QATwoFieldsController.swift */; };
+		D6F523681FC9B47A00F0684C /* ProfileCreatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F523671FC9B47A00F0684C /* ProfileCreatorController.swift */; };
 		D6F5DDA31F9C093700633A0F /* PostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F5DDA21F9C093700633A0F /* PostController.swift */; };
 		D6FD816E1F7ABA9C00C86F6B /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FD816D1F7ABA9C00C86F6B /* LoginController.swift */; };
 		F5DC538BD360EC7E8D3249A0 /* Pods_Found.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EA91CD667AD761FA0EFE23E /* Pods_Found.framework */; };
@@ -51,22 +53,22 @@
 		2EA91CD667AD761FA0EFE23E /* Pods_Found.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Found.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		31DD90A243B150630E722FF9 /* Pods-Found.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Found.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Found/Pods-Found.debug.xcconfig"; sourceTree = "<group>"; };
 		343F59C524B4F2D72BFB4FEF /* Pods-Found.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Found.release.xcconfig"; path = "Pods/Target Support Files/Pods-Found/Pods-Found.release.xcconfig"; sourceTree = "<group>"; };
-		D60AE3AB1F7D5FD500D0CC37 /* QAIntroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAIntroView.swift; sourceTree = "<group>"; };
-		D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAThreeFieldsView.swift; sourceTree = "<group>"; };
+		D60AE3AB1F7D5FD500D0CC37 /* QAIntroController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAIntroController.swift; sourceTree = "<group>"; };
+		D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAThreeFieldsController.swift; sourceTree = "<group>"; };
 		D61C46761F752BFD00A2AE8B /* NewPostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPostController.swift; sourceTree = "<group>"; };
-		D61C46781F752EE200A2AE8B /* QAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAView.swift; sourceTree = "<group>"; };
-		D61C467A1F75352C00A2AE8B /* QADatePickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QADatePickView.swift; sourceTree = "<group>"; };
+		D61C46781F752EE200A2AE8B /* QAController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAController.swift; sourceTree = "<group>"; };
+		D61C467A1F75352C00A2AE8B /* QADatePickController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QADatePickController.swift; sourceTree = "<group>"; };
+		D61E617F1FCDC5760047F90B /* DualTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DualTextView.swift; sourceTree = "<group>"; };
 		D62624CD1F73B64D0075F5FC /* Found.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Found.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D62624D01F73B64D0075F5FC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D62624D71F73B64E0075F5FC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D62624DA1F73B64E0075F5FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D62624DC1F73B64E0075F5FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D62624E21F73F69F0075F5FC /* QARegularView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QARegularView.swift; sourceTree = "<group>"; };
-		D62624E41F73F6C10075F5FC /* QAMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAMapView.swift; sourceTree = "<group>"; };
-		D62624E61F73F6CD0075F5FC /* QAPickView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAPickView.swift; sourceTree = "<group>"; };
+		D62624E21F73F69F0075F5FC /* QARegularController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QARegularController.swift; sourceTree = "<group>"; };
+		D62624E41F73F6C10075F5FC /* QAMapController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAMapController.swift; sourceTree = "<group>"; };
 		D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalPopUpView.swift; sourceTree = "<group>"; };
 		D64FCA701FBC9761005CE655 /* ProposalPopUpProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalPopUpProtocol.swift; sourceTree = "<group>"; };
-		D658ED411F8527F100A1407D /* QAImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAImageView.swift; sourceTree = "<group>"; };
+		D658ED411F8527F100A1407D /* QAImageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QAImageController.swift; sourceTree = "<group>"; };
 		D66A04CD1F951C7F00C991C0 /* PostListController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostListController.swift; sourceTree = "<group>"; };
 		D66A04CF1F95256500C991C0 /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
 		D6A61E221FC1D76500240784 /* EditPostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPostController.swift; sourceTree = "<group>"; };
@@ -88,6 +90,8 @@
 		D6E6B7561F82A35D005BE722 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		D6E6B7581F82A52F005BE722 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordController.swift; sourceTree = "<group>"; };
+		D6F523651FC9A52B00F0684C /* QATwoFieldsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QATwoFieldsController.swift; sourceTree = "<group>"; };
+		D6F523671FC9B47A00F0684C /* ProfileCreatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCreatorController.swift; sourceTree = "<group>"; };
 		D6F5DDA21F9C093700633A0F /* PostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostController.swift; sourceTree = "<group>"; };
 		D6FD816D1F7ABA9C00C86F6B /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -153,6 +157,7 @@
 			children = (
 				D6FD816D1F7ABA9C00C86F6B /* LoginController.swift */,
 				D6E2E6FE1F7C1FC80069C608 /* MenuController.swift */,
+				D6F523671FC9B47A00F0684C /* ProfileCreatorController.swift */,
 				D6E2E7021F7C294D0069C608 /* ProfileController.swift */,
 				D6AA1A031FBDFA50005D041E /* EditProfileController.swift */,
 				D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */,
@@ -162,6 +167,14 @@
 				D6A61E221FC1D76500240784 /* EditPostController.swift */,
 				D6C875F71FB48800004C3C57 /* MessagesController.swift */,
 				D6C875FB1FB4880C004C3C57 /* ChatController.swift */,
+				D61C46781F752EE200A2AE8B /* QAController.swift */,
+				D60AE3AB1F7D5FD500D0CC37 /* QAIntroController.swift */,
+				D62624E21F73F69F0075F5FC /* QARegularController.swift */,
+				D6F523651FC9A52B00F0684C /* QATwoFieldsController.swift */,
+				D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsController.swift */,
+				D62624E41F73F6C10075F5FC /* QAMapController.swift */,
+				D61C467A1F75352C00A2AE8B /* QADatePickController.swift */,
+				D658ED411F8527F100A1407D /* QAImageController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -174,16 +187,9 @@
 				D6C875EF1FB487CA004C3C57 /* ConversationCell.swift */,
 				D6C875F11FB487D3004C3C57 /* ChatMessageCell.swift */,
 				D6C875F31FB487DA004C3C57 /* ChatInputContainerView.swift */,
+				D61E617F1FCDC5760047F90B /* DualTextView.swift */,
 				D64FCA6E1FBC93F6005CE655 /* ProposalPopUpView.swift */,
 				D6AA1A071FBE0227005D041E /* DividerLine.swift */,
-				D61C46781F752EE200A2AE8B /* QAView.swift */,
-				D60AE3AB1F7D5FD500D0CC37 /* QAIntroView.swift */,
-				D62624E21F73F69F0075F5FC /* QARegularView.swift */,
-				D60AE3AD1F7D69C600D0CC37 /* QAThreeFieldsView.swift */,
-				D62624E41F73F6C10075F5FC /* QAMapView.swift */,
-				D62624E61F73F6CD0075F5FC /* QAPickView.swift */,
-				D61C467A1F75352C00A2AE8B /* QADatePickView.swift */,
-				D658ED411F8527F100A1407D /* QAImageView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -350,35 +356,37 @@
 			files = (
 				D66A04D01F95256500C991C0 /* PostCell.swift in Sources */,
 				D6C875F21FB487D3004C3C57 /* ChatMessageCell.swift in Sources */,
-				D61C46791F752EE200A2AE8B /* QAView.swift in Sources */,
+				D61C46791F752EE200A2AE8B /* QAController.swift in Sources */,
 				D64FCA711FBC9761005CE655 /* ProposalPopUpProtocol.swift in Sources */,
 				D6E2E6FF1F7C1FC80069C608 /* MenuController.swift in Sources */,
-				D61C467B1F75352C00A2AE8B /* QADatePickView.swift in Sources */,
+				D61C467B1F75352C00A2AE8B /* QADatePickController.swift in Sources */,
 				D6AA1A081FBE0227005D041E /* DividerLine.swift in Sources */,
-				D60AE3AC1F7D5FD500D0CC37 /* QAIntroView.swift in Sources */,
+				D60AE3AC1F7D5FD500D0CC37 /* QAIntroController.swift in Sources */,
 				D6F5DDA31F9C093700633A0F /* PostController.swift in Sources */,
 				D6C875F01FB487CA004C3C57 /* ConversationCell.swift in Sources */,
 				D6E6B7571F82A35E005BE722 /* Post.swift in Sources */,
+				D6F523681FC9B47A00F0684C /* ProfileCreatorController.swift in Sources */,
 				D6AA1A041FBDFA50005D041E /* EditProfileController.swift in Sources */,
-				D62624E51F73F6C10075F5FC /* QAMapView.swift in Sources */,
+				D62624E51F73F6C10075F5FC /* QAMapController.swift in Sources */,
 				D6E6B7591F82A52F005BE722 /* User.swift in Sources */,
 				D66A04CE1F951C7F00C991C0 /* PostListController.swift in Sources */,
 				D61C46771F752BFD00A2AE8B /* NewPostController.swift in Sources */,
-				D60AE3AE1F7D69C600D0CC37 /* QAThreeFieldsView.swift in Sources */,
+				D61E61801FCDC5760047F90B /* DualTextView.swift in Sources */,
+				D60AE3AE1F7D69C600D0CC37 /* QAThreeFieldsController.swift in Sources */,
 				D6E2E7031F7C294D0069C608 /* ProfileController.swift in Sources */,
-				D62624E31F73F69F0075F5FC /* QARegularView.swift in Sources */,
+				D62624E31F73F69F0075F5FC /* QARegularController.swift in Sources */,
 				D6FD816E1F7ABA9C00C86F6B /* LoginController.swift in Sources */,
 				D6CE84F21FBA2BF600ABAD77 /* ProposalCell.swift in Sources */,
 				D6C875F61FB487F5004C3C57 /* Message.swift in Sources */,
 				D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */,
 				D6AA1A061FBDFAE2005D041E /* DataStructures.swift in Sources */,
 				D6A61E231FC1D76500240784 /* EditPostController.swift in Sources */,
-				D62624E71F73F6CD0075F5FC /* QAPickView.swift in Sources */,
 				D64FCA6F1FBC93F6005CE655 /* ProposalPopUpView.swift in Sources */,
+				D6F523661FC9A52B00F0684C /* QATwoFieldsController.swift in Sources */,
 				D6C875FC1FB4880C004C3C57 /* ChatController.swift in Sources */,
 				D6C875FF1FB48903004C3C57 /* Extensions.swift in Sources */,
 				D6C875F81FB48800004C3C57 /* MessagesController.swift in Sources */,
-				D658ED421F8527F100A1407D /* QAImageView.swift in Sources */,
+				D658ED421F8527F100A1407D /* QAImageController.swift in Sources */,
 				D6C875F41FB487DA004C3C57 /* ChatInputContainerView.swift in Sources */,
 				D62624D11F73B64D0075F5FC /* AppDelegate.swift in Sources */,
 			);

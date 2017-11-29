@@ -54,7 +54,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var pictureView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
-        view.layer.cornerRadius = 10
         view.clipsToBounds = true
         view.isUserInteractionEnabled = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -178,7 +177,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         return textField
     }()
     
-    var shortDescriptionLabel: UILabel = {
+    var bioLabel: UILabel = {
         let label = UILabel()
         label.text = "Intro"
         label.backgroundColor = .white
@@ -186,36 +185,118 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         return label
     }()
     
-    var shortDescriptionTextView: UITextView = {
+    var bioTextView: UITextView = {
         let textView = UITextView()
         textView.returnKeyType = .done
         textView.backgroundColor = .white
         textView.textContainer.lineFragmentPadding = 0
-//        textView.textContainer.maximumNumberOfLines = 4 // No need for this if we limit the number of chars
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isScrollEnabled = false // By setting this to false, the text view autoresizes when more lines are needed
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()
     
-    var longDescriptionLabel: UILabel = {
+    var workLabel: UILabel = {
         let label = UILabel()
-        label.text = "Bio"
+        label.text = "Work"
         label.backgroundColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    var longDescriptionTextView: UITextView = {
-        let textView = UITextView()
-        textView.returnKeyType = .default
-        textView.backgroundColor = .white
-        textView.textContainer.lineFragmentPadding = 0
-//        textView.textContainer.maximumNumberOfLines = 15 // No need for this if we limit the number of chars
-        textView.textContainer.lineBreakMode = .byWordWrapping
-        textView.isScrollEnabled = false // By setting this to false, the text view autoresizes when more lines are needed
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        return textView
+    var whereWorkLabel1: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        return label
+    }()
+    
+    var whereWorkTextField1: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "company"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var whatWorkTextField1: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Position"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var whereWorkLabel2: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        return label
+    }()
+    
+    var whereWorkTextField2: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "company"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var whatWorkTextField2: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Position"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var whereWorkLabel3: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        return label
+    }()
+    
+    var whereWorkTextField3: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "company"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var whatWorkTextField3: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Position"
+        textField.backgroundColor = .white
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+    
+    var studiesLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Intro"
+        label.backgroundColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     @objc func handleChangeProfilePicture() {
@@ -346,13 +427,12 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         user.age = dateOfBirthPicker.date.age
         user.dateOfBirth = dateOfBirthButton.currentTitle!
         user.place = homePlaceTextField.text!
-        user.shortDescription = shortDescriptionTextView.text!
-        user.longDescription = longDescriptionTextView.text!
+        user.bio = bioTextView.text!
         
         // saveImage() is done first because it updates user.profileImageURL, which is used in data to upload to the user's section in Firebase database
         saveImage(completion: {
             if self.dataIsValid() {
-                let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.user.email!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "short self description" : self.user.shortDescription!, "long self description" : self.user.longDescription!]
+                let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.user.email!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "bio" : self.user.bio!]
                 FIRAuth.auth()?.currentUser?.updateEmail(self.user.email!, completion: {(error) in
                     if error != nil {
                         print(error!)
@@ -367,8 +447,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
                         FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
                             let profile = self.navigationController?.viewControllers.first as! ProfileController
                             profile.user = self.user
-                            // Assuming the EditProfileController is presented and not pushed
-                            // Otherwise do: dismiss(animated: true, completion: nil)
                             self.navigationController?.popViewController(animated: true)
                         })
                     }
@@ -378,8 +456,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     }
     
     @objc func handleCancel(_ sender: UIButton) {
-        // Assuming the EditProfileController is presented and not pushed
-        // Otherwise do: dismiss animated: true, completion: nil)
         navigationController?.popViewController(animated: true)
     }
     
@@ -400,7 +476,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         } else if homePlaceTextField.text == "" {
             presentInvalidDataAlert()
             return false
-        } else if shortDescriptionTextView.text == "" {
+        } else if bioTextView.text == "" {
             presentInvalidDataAlert()
             return false
         }
@@ -430,12 +506,10 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         emailTextField.text = user.email
         nameTextField.text = user.name
         homePlaceTextField.text = user.place
-        shortDescriptionTextView.text = user.shortDescription
-        longDescriptionTextView.text = user.longDescription
+        bioTextView.text = user.bio
         dateOfBirthButton.setTitle(user.dateOfBirth, for: .normal)
         dateOfBirthButton.titleLabel?.font = nameLabel.font
-        shortDescriptionTextView.font = nameLabel.font
-        longDescriptionTextView.font = nameLabel.font
+        bioTextView.font = nameLabel.font
         let formatter = DateFormatter()
         formatter.dateFormat = "dd MMMM, yyyy"
         dateOfBirthPicker.date = formatter.date(from: user.dateOfBirth!)!
@@ -444,8 +518,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         emailTextField.delegate = self
         nameTextField.delegate = self
         homePlaceTextField.delegate = self
-        shortDescriptionTextView.delegate = self
-        longDescriptionTextView.delegate = self
+        bioTextView.delegate = self
     }
     
     func setUpUI() {
@@ -469,15 +542,14 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         scrollView.addSubview(passwordLabel)
         scrollView.addSubview(homePlaceLabel)
         scrollView.addSubview(dateOfBirthLabel)
-        scrollView.addSubview(shortDescriptionLabel)
-        scrollView.addSubview(longDescriptionLabel)
+        scrollView.addSubview(bioLabel)
+        scrollView.addSubview(workLabel)
         scrollView.addSubview(nameTextField)
         scrollView.addSubview(emailTextField)
         scrollView.addSubview(changePasswordButton)
         scrollView.addSubview(homePlaceTextField)
         scrollView.addSubview(dateOfBirthButton)
-        scrollView.addSubview(shortDescriptionTextView)
-        scrollView.addSubview(longDescriptionTextView)
+        scrollView.addSubview(bioTextView)
         scrollView.addSubview(dividerLine1)
         scrollView.addSubview(dividerLine2)
         scrollView.addSubview(dividerLine4)
@@ -614,33 +686,82 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine7.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLine7.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        // Short Description Label Constraints
-        shortDescriptionLabel.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
-        shortDescriptionLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        shortDescriptionLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
-        shortDescriptionLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        // Bio Label Constraints
+        bioLabel.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
+        bioLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        bioLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
+        bioLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        // Short Description Text Field Constraints
-        shortDescriptionTextView.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
-        shortDescriptionTextView.leftAnchor.constraint(equalTo: shortDescriptionLabel.rightAnchor, constant: 5).isActive = true
-        shortDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        // Bio Text Field Constraints
+        bioTextView.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
+        bioTextView.leftAnchor.constraint(equalTo: bioLabel.rightAnchor, constant: 5).isActive = true
+        bioTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
-        // Short Divider Line After Short Description Constraints
-        dividerLine8.topAnchor.constraint(equalTo: shortDescriptionTextView.bottomAnchor).isActive = true
+        // Short Divider Line After Bio Constraints
+        dividerLine8.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
         dividerLine8.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine8.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLine8.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        // Long Description Label Constraints
-        longDescriptionLabel.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
-        longDescriptionLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        longDescriptionLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
-        longDescriptionLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        // Work Label Constraints
+        workLabel.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
+        workLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        workLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
+        workLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        // Long Description Text Field Constraints
-        longDescriptionTextView.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
-        longDescriptionTextView.leftAnchor.constraint(equalTo: longDescriptionLabel.rightAnchor, constant: 5).isActive = true
-        longDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        setUpWorkField(whereWorkLabel1, whereWorkTextField1, whatWorkTextField1, after: dividerLine8)
+
+    }
+    
+    func setUpWorkField(_ whereWorkLabel: UILabel, _ whereWorkTextField: UITextField, _ whatWorkTextField: UITextField, after topView: UIView) {
+        
+        scrollView.addSubview(whereWorkLabel)
+        scrollView.addSubview(whereWorkTextField)
+        scrollView.addSubview(whatWorkTextField)
+        
+        whereWorkTextField.delegate = self
+        whatWorkTextField.delegate = self
+        
+        let margins = scrollView.layoutMarginsGuide
+        
+        if whereWorkLabel != whereWorkLabel1 {
+            let dividerLine = DividerLine()
+            scrollView.addSubview(dividerLine)
+            
+            // Work Divider Line Constraints
+            dividerLine.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
+            dividerLine.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 10).isActive = true
+            dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+            dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        }
+        
+        // What Work Text View Constraints
+        whatWorkTextField.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
+        whatWorkTextField.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 5).isActive = true
+        whatWorkTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        whatWorkTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // What Work Label Constraints
+        whereWorkLabel.topAnchor.constraint(equalTo: whatWorkTextField.bottomAnchor).isActive = true
+        whereWorkLabel.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 5).isActive = true
+        whereWorkLabel.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        whereWorkLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // Where Work Text View Constraints
+        whereWorkTextField.topAnchor.constraint(equalTo: whatWorkTextField.bottomAnchor).isActive = true
+        whereWorkTextField.leftAnchor.constraint(equalTo: whereWorkLabel.rightAnchor, constant: 5).isActive = true
+        whereWorkTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        whereWorkTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+
+    }
+    
+    func separateWorkInformation(for string: String) -> [String] {
+        var separatedString = [String]()
+        if let range = string.range(of: " at ") {
+            separatedString.append(String(string[...range.lowerBound]))
+            separatedString.append(String(string[range.upperBound...]))
+        }
+        return separatedString
     }
     
     func setUpBlurAndVibrancy() {
@@ -700,6 +821,12 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillHide, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillChangeFrame, object: nil)
         
+        view.layoutIfNeeded()
+        pictureView.setRounded()
+        
+        print(user.work)
+        print(separateWorkInformation(for: user.work![0]))
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -721,8 +848,13 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         sum += nameTextField.frame.size.height
         sum += dateOfBirthLabel.frame.size.height
         sum += homePlaceTextField.frame.size.height
-        sum += shortDescriptionTextView.frame.size.height
-        sum += longDescriptionTextView.frame.size.height
+        sum += bioTextView.frame.size.height
+        sum += whereWorkTextField1.frame.size.height
+        sum += whatWorkTextField1.frame.size.height
+        sum += whereWorkTextField2.frame.size.height
+        sum += whatWorkTextField2.frame.size.height
+        sum += whereWorkTextField3.frame.size.height
+        sum += whatWorkTextField3.frame.size.height
         return sum
     }
     
@@ -753,6 +885,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         return true
     }
     
+    // Not used right know
     func tooManyNewLines(in textView: UITextView, range: NSRange, text: String) -> Bool {
         let text = (textView.text as NSString).replacingCharacters(in: range, with: text)
         var numberOfNewLines = 0
@@ -764,25 +897,34 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         return numberOfNewLines > 5
     }
     
+    // Restrict number of characters
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if (text == "\n" && textView == shortDescriptionTextView) {
+        if (text == "\n" && textView == bioTextView) {
             textView.resignFirstResponder()
             return false
         }
-        
-        // Check for too many \n, we do not want 600 new lines (since they are counted as chars). We only check this for longDescriptionTextView, since when a new line is trying to be introduced in shortDescriptionTextView, the keyboard returns
-        if tooManyNewLines(in: textView, range: range, text: text) {
-            return false
-        }
-        
+
         // Limit the number of maximum chars
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         let numberOfChars = newText.count
-        if textView == shortDescriptionTextView {
+        if textView == bioTextView {
             return numberOfChars < 140
-        } else if textView == longDescriptionTextView {
-            return numberOfChars < 800
         }
         return true
+    }
+    
+    // Restrict number of characters
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard let text = textField.text else { return true }
+        
+        let newLength = text.utf16.count + string.utf16.count - range.length
+        
+        if textField == whatWorkTextField1 || textField == whatWorkTextField2 || textField == whatWorkTextField3 || textField == whereWorkTextField1 || textField == whereWorkTextField2 || textField == whereWorkTextField3 {
+            return newLength <= 40
+        } else if textField == nameTextField || textField == homePlaceTextField {
+            return newLength <= 25
+        }
+
+        return newLength <= 100 // Bool
     }
 }

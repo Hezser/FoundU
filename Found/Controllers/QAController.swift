@@ -9,9 +9,11 @@
 import UIKit
 import Firebase
 
-class QAView: UIViewController {
+class QAController: UIViewController {
     
     typealias FinishedDownload = () -> ()
+    
+    var profileCreatorController: ProfileCreatorController!
     
     var lastView = false
     var firstView = false
@@ -80,7 +82,7 @@ class QAView: UIViewController {
         // Question Label Constraints
         questionLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -10).isActive = true
         questionLabel.heightAnchor.constraint(equalTo: margins.heightAnchor, multiplier: 1/4).isActive = true
-        questionLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 50).isActive = true
+        questionLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
         questionLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
 
         // Next Button Constraints
@@ -96,86 +98,64 @@ class QAView: UIViewController {
         present(menu, animated: true, completion: nil)
     }
     
-    // Should use @escaping completion, just in case profile is trying to be retrieved before uploading to Firebase
-    func writeProfileInfoToFirebaseDatabase(data: Any, completion completed: FinishedDownload?) {
-        
-        let ref = FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/")
-        guard let id = FIRAuth.auth()?.currentUser?.uid else {
-            print("The user id is not valid in the database")
-            completed?()
-            return
-        }
-        let userRef = ref.child("users").child(id)
-        let value = createDataForProfile(value: data, type: variable!)
-        userRef.updateChildValues(value, withCompletionBlock: { (err, ref) in
-            if err != nil {
-                print(err!)
-                completed?()
-                return
-            }
-            completed?()
-            print("Data was saved succesfully into the Firebase Database")
-        })
-    }
-    
     // Determines the type of data a QAView is providing when creating a profile, and returns the key-value pair which will go in the Firebase Database
-    func createDataForProfile(value: Any, type: Variable) -> Dictionary<String, Any> {
+    func addDataToProfile(data: Any) {
+
+        if variable == .age {
+            profileCreatorController.user.age = Int((data as? String)!)
+        }
+        else if variable == .dateOfBirth {
+            profileCreatorController.user.dateOfBirth = data as? String
+        }
+        else if variable == .picture {
+            profileCreatorController.user.profileImageURL = data as? String
+        }
+        else if variable == .place {
+            profileCreatorController.user.place = data as? String
+        }
+        else if variable == .work {
+            profileCreatorController.user.work = data as? [String]
+        }
+        else if variable == .studies {
+            profileCreatorController.user.studies = data as? [String]
+        }
+        else if variable == .bio {
+            profileCreatorController.user.bio = data as? String
+        }
+
+        else {
+            print("An error has ocurred during the evaluation of the data provided and the database will not be able to be updated")
+        }
         
-        if type == .age {
-            return ["age":value]
-        }
-        else if type == .dateOfBirth {
-            return ["date of birth":value]
-        }
-        else if type == .picture {
-            return ["pictureURL":value]
-        }
-        else if type == .place {
-            return ["place":value]
-        }
-        else if type == .work {
-            return ["work":value]
-        }
-        else if type == .studies {
-            return ["studies":value]
-        }
-        else if type == .shortSelfDescription {
-            return ["short self description":value]
-        }
-        else if type == .longSelfDescription {
-            return ["long self description":value]
-        }
-        print("An error has ocurred during the evaluation of the data provided and the database will not be able to be updated")
-        return ["":""]
     }
     
     // Determines the type of data a QAView is providing when creating a post, and updates the post with that data
-    func addDataToPost(value: Any?, type: Variable) {
+    func addDataToPost(data: Any?) {
         
-        if type == .title {
-            newPost.title = value as? String
+        if variable == .title {
+            newPost.title = data as? String
         }
-        else if type == .place {
-            if value as? String == "" {
+        else if variable == .place {
+            if data as? String == "" {
                 newPost.place = "Anywhere"
             } else {
-                newPost.place = value as? String
+                newPost.place = data as? String
             }
         }
-        else if type == .time {
+        else if variable == .time {
             var timeString: String!
-            if value == nil {
+            if data == nil {
                 newPost.time = "Anytime"
             } else {
-                let time = value as! Date
+                let time = data as! Date
                 let dateFormatter = DateFormatter()
                 dateFormatter.dateFormat = "EEE dd LLLL, HH:mm"
                 timeString = dateFormatter.string(from: time)
                 newPost.time = timeString
             }
         }
-        else if type == .details {
-            newPost.details = value as? String
+        else if variable == .details {
+            newPost.details = data as? String
         }
     }
     
@@ -204,24 +184,24 @@ class QAView: UIViewController {
     }
     
     func goToNextView() {
-        // If this is the last QAView
+        // If this is the last QAView. Next view will be the menu
         if lastView == true {
             if situation == .postCreation {
                 uploadPostToDatabase(post: newPost, completion: {
                     self.present(self.nextView, animated: true, completion: nil)
                 })
             } else {
-                self.present(self.nextView, animated: true, completion: nil)
+                profileCreatorController.createUser()
             }
         }
         // If there is a following QAView
         else {
-            let nextQA = nextView as! QAView
+            let nextQA = nextView as! QAController
             if situation == .postCreation {
                 nextQA.newPost = self.newPost
                 navigationController?.pushViewController(nextQA, animated: true)
             } else {
-                present(nextQA, animated: true, completion: nil)
+                navigationController?.pushViewController(nextQA, animated: true)
             }
         }
     }

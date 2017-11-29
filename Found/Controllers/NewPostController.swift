@@ -32,23 +32,23 @@ class NewPostController: UIViewController {
         
         // Initializing the QAViews with their questions
         let menu = MenuController()
-        let qa4 = QARegularView()
+        let qa4 = QARegularController()
         qa4.situation = .postCreation
         qa4.variable = .details
         qa4.lastView = true
         qa4.question = question4
         qa4.nextView = menu
-        let qa3 = QADatePickView()
+        let qa3 = QADatePickController()
         qa3.situation = .postCreation
         qa3.variable = .time
         qa3.question = question3
         qa3.nextView = qa4
-        let qa2 = QARegularView()
+        let qa2 = QARegularController()
         qa2.situation = .postCreation
         qa2.variable = .place
         qa2.question = question2
         qa2.nextView = qa3
-        let qa1 = QARegularView()
+        let qa1 = QARegularController()
         qa1.situation = .postCreation
         qa1.variable = .title
         qa1.firstView = true

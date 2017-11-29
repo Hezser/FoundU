@@ -9,9 +9,7 @@
 import UIKit
 
 
-class PostCell: BaseCell {
-    
-    var containerView: UIView!
+class PostCell: UICollectionViewCell, UITextViewDelegate {
     
     var userImageView: UIImageView = {
         let imageView = UIImageView()
@@ -22,160 +20,152 @@ class PostCell: BaseCell {
         return imageView
     }()
     
-    var titleLabel: UILabel = {
-        let label = UILabel()
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var titleTextView: UITextView = {
+        let textView = UITextView()
+        textView.textAlignment = .center
+        textView.font = UIFont.systemFont(ofSize: 22)
+        textView.textContainer.lineBreakMode = .byWordWrapping
+        textView.textContainerInset = .zero
+        textView.isUserInteractionEnabled = false
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
-    var nameLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var nameTextView: UITextView = {
+        let textView = UITextView()
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.isUserInteractionEnabled = false
+        textView.font = UIFont.systemFont(ofSize: 16)
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     var dateLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var timeLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14)
-        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    var placeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var placeTextView: UITextView = {
+        let textView = UITextView()
+        textView.textAlignment = .center
+        textView.textContainer.lineBreakMode = .byWordWrapping
+        textView.textContainerInset = .zero
+        textView.font = UIFont.systemFont(ofSize: 16)
+        textView.isUserInteractionEnabled = false
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     // Used to not have to rearrange all other labels when "Anytime" is shown instead of date and time separately. This label will be empty (invisible) if there is a specific date and time for the post
     var anytimeExceptionalLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
-        label.textAlignment = .left
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
-    override func setupViews() {
+    func calculateHeight() -> CGFloat {
+        layoutIfNeeded()
+        var sum = CGFloat(56) // Spacing between views + divider line height + 15 bottom spacing + 10 upper spacing
+        sum += userImageView.frame.size.height
+        sum += titleTextView.contentSize.height
+        if placeTextView.contentSize.height > (dateLabel.frame.size.height + timeLabel.frame.size.height) || anytimeExceptionalLabel.text == "Anytime" {
+            sum += placeTextView.contentSize.height
+        } else {
+            sum += dateLabel.frame.size.height + timeLabel.frame.size.height
+        }
+        return sum
+    }
+    
+    func setUpUI() {
         
         let dividerLine = DividerLine()
         
-        addSubview(userImageView)
         addSubview(dividerLine)
-        
-        setupContainerView()
+        addSubview(userImageView)
+        addSubview(nameTextView)
+        addSubview(titleTextView)
+        addSubview(dateLabel)
+        addSubview(timeLabel)
+        addSubview(placeTextView)
+        addSubview(anytimeExceptionalLabel)
 
-        let margins = self.layoutMarginsGuide
+        let margins = layoutMarginsGuide
+        
+        // Name Text View Constraints
+        nameTextView.centerYAnchor.constraint(equalTo: userImageView.centerYAnchor).isActive = true
+        nameTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        nameTextView.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
         // Profile Image View Constraints
-        userImageView.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        userImageView.centerYAnchor.constraint(equalTo: margins.centerYAnchor, constant: -10).isActive = true // the -10 depends on the height of the cell, and allows the user to percieve the image to be on the center of the posts, even if it's not on the center of the actual cell
-        userImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
+        userImageView.rightAnchor.constraint(equalTo: nameTextView.leftAnchor, constant: -5).isActive = true
+        userImageView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 10).isActive = true
+        userImageView.heightAnchor.constraint(equalTo: nameTextView.heightAnchor, multiplier: 2).isActive = true
         userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
         
+        // Title Text View Constraints
+        titleTextView.topAnchor.constraint(equalTo: userImageView.bottomAnchor, constant: 5).isActive = true
+        titleTextView.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -20).isActive = true
+        titleTextView.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 20).isActive = true
+        
+        // Date Label Constraints
+        dateLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
+        dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        dateLabel.rightAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        dateLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 20).isActive = true
+        
+        // Time Label Constraints
+        timeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
+        timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        timeLabel.rightAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        timeLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor).isActive = true
+        
+        // Any Time Exceptional Label Constraints
+        anytimeExceptionalLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
+        anytimeExceptionalLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        anytimeExceptionalLabel.rightAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        anytimeExceptionalLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 20).isActive = true
+        
+        // Place Text View Constraints
+        placeTextView.leftAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        placeTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
+        placeTextView.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 20).isActive = true
+        
         // Divider Line Constraints
+        dividerLine.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
         dividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        dividerLine.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+        
+        layoutIfNeeded()
+        userImageView.setRounded()
         
     }
     
-    private func setupContainerView() {
-        
-        containerView = UIView()
-        containerView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(containerView)
-        
-        var margins = self.layoutMarginsGuide
-
-        // Container View Constraints
-        containerView.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 90).isActive = true
-        containerView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        containerView.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-        containerView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
-        
-        containerView.addSubview(nameLabel)
-        containerView.addSubview(titleLabel)
-        containerView.addSubview(dateLabel)
-        containerView.addSubview(timeLabel)
-        containerView.addSubview(placeLabel)
-        containerView.addSubview(anytimeExceptionalLabel)
-
-        
-        margins = containerView.layoutMarginsGuide
-        
-        // Name Label Constraints
-        nameLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        nameLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        nameLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        nameLabel.topAnchor.constraint(equalTo: margins.topAnchor).isActive = true
-        
-        // Title Label Constraints
-        titleLabel.widthAnchor.constraint(equalTo: margins.widthAnchor).isActive = true
-        titleLabel.heightAnchor.constraint(equalToConstant: 70).isActive = true
-        titleLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 5).isActive = true
-        
-        // Time Label Constraints
-        timeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        timeLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        timeLabel.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
-        
-        // Date Label Constraints
-        dateLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        dateLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        dateLabel.bottomAnchor.constraint(equalTo: timeLabel.topAnchor).isActive = true
-        
-        // Place Label Constraints
-        placeLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/3).isActive = true
-        placeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        placeLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        placeLabel.centerYAnchor.constraint(equalTo: dateLabel.bottomAnchor).isActive = true
-
-        // Any Time Exceptional Label Constraints
-        anytimeExceptionalLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 1/3).isActive = true
-        anytimeExceptionalLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        anytimeExceptionalLabel.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
-        anytimeExceptionalLabel.centerYAnchor.constraint(equalTo: placeLabel.centerYAnchor).isActive = true
-    }
-    
-}
-
-class BaseCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupViews()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupViews() {
-        // To be overriden
-    }
 }

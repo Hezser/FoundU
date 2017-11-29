@@ -21,8 +21,7 @@ class User: NSObject {
     var dateOfBirth: String?
     var place: String?
     var profileImageURL: String?
-    var shortDescription: String?
-    var longDescription: String?
+    var bio: String?
     var work: [String]?
     var studies: [String]?
     
@@ -48,13 +47,11 @@ class User: NSObject {
     
     init(id: String, completion completed: FinishedDownload?) {
         super.init()
-        
+
         self.id = id
-        
-        let ref = FIRDatabase.database().reference()
-        
-        ref.child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
-            
+
+        FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/").child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
+            print("\nYEYE2\n")
             let value = snapshot.value as? NSDictionary
             self.email = value?["email"] as? String
             self.password = value?["password"] as? String
@@ -63,10 +60,13 @@ class User: NSObject {
             self.dateOfBirth = value?["date of birth"] as? String
             self.place = value?["place"] as? String
             self.profileImageURL = value?["pictureURL"] as? String
-            self.shortDescription = value?["short self description"] as? String
-            self.longDescription = value?["long self description"] as? String
-            //            self.work = value?["work"] as? [String] ?? ["pennyless"]
-            //            self.studies = value?["studies"] as? [String] ?? ["brainless"]
+            self.bio = value?["bio"] as? String
+            self.work = value?["work"] as? [String]
+            self.studies = value?["studies"] as? [String]
+//            print("\n\(value?["work"])\n")
+//            for w in self.work! {
+//                print(w)
+//            }
             
             print("\nUser was successfully loaded\n")
             if completed != nil {

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class QADatePickView: QAView {
+class QADatePickController: QAController {
     
     var datePicker: UIDatePicker!
 
@@ -19,19 +19,18 @@ class QADatePickView: QAView {
         dateFormatter.dateFormat = "dd MMMM, yyyy"
         let dateOfBirth = dateFormatter.string(from: datePicker.date)
         if situation == .profileCreation {
-            writeProfileInfoToFirebaseDatabase(data: ageString, completion: {
-                self.variable = .dateOfBirth
-                self.writeProfileInfoToFirebaseDatabase(data: dateOfBirth, completion: nil)
-            })
+            addDataToProfile(data: ageString)
+            variable = .dateOfBirth
+            addDataToProfile(data: dateOfBirth)
         }
         else if situation == .postCreation {
-            addDataToPost(value: datePicker.date, type: variable!)
+            addDataToPost(data: datePicker.date)
         }
         goToNextView()
     }
     
     @objc func iAmFlexiblePressed(_ sender: UIButton) {
-        addDataToPost(value: nil, type: variable!)
+        addDataToPost(data: nil)
         goToNextView()
     }
     

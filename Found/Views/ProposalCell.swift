@@ -196,8 +196,6 @@ class ProposalCell: UICollectionViewCell {
             counterButton.addTarget(self, action: #selector(handleCountering), for: .touchUpInside)
             declineButton.addTarget(self, action: #selector(handleDeclination), for: .touchUpInside)
         }
-    
-        print("\nDecision is \(decision!)\n")
         
         setUpContainer()
     

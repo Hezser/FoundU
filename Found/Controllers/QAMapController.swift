@@ -1,5 +1,5 @@
 //
-//  QAPickView.swift
+//  QAMapView.swift
 //  Found
 //
 //  Created by Sergio Hernandez on 21/09/2017.
@@ -7,8 +7,9 @@
 //
 
 import UIKit
+import MapKit
 
-class QAPickView: QAView {
+class QAMapController: QAController {
     
     override func viewDidLoad() {
         super.viewDidLoad()

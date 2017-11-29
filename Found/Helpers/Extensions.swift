@@ -90,6 +90,10 @@ extension String {
         guard let index = index(of: character) else { return nil }
         return distance(from: startIndex, to: index)
     }
+    
+    func size(OfFont font: UIFont) -> CGSize {
+        return (self as NSString).size(withAttributes: [NSAttributedStringKey.font: font])
+    }
 }
 
 extension Date {

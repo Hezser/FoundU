@@ -8,11 +8,14 @@
 
 import UIKit
 
-class QAIntroView: QAView {
+class QAIntroController: QAController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let loginButton = UIBarButtonItem(title: "Login", style: .plain, target: self, action: #selector(handleLogIn))
+        navigationItem.leftBarButtonItem = loginButton
+    
         nextButton.isHidden = true
         
         let goButton = UIButton(frame: CGRect(x: 0.0, y: 0.0, width: 113.26, height: 70.0))
@@ -23,6 +26,11 @@ class QAIntroView: QAView {
         view.addSubview(goButton)
         goButton.addTarget(self, action: #selector(goButtonPressed), for: .touchUpInside)
         
+    }
+    
+    @objc func handleLogIn(_ sender: UIButton) {
+        let loginController = LoginController()
+        present(loginController, animated: true, completion: nil)
     }
     
     @objc func goButtonPressed(_ sender: UIButton) {

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class QARegularView: QAView, UITextViewDelegate {
+class QARegularController: QAController, UITextViewDelegate {
     
     var answerTextView: UITextView = {
         let textView = UITextView()
@@ -24,10 +24,10 @@ class QARegularView: QAView, UITextViewDelegate {
     
     override func nextPressed(sender: UIButton!) {
         if situation == .profileCreation {
-            writeProfileInfoToFirebaseDatabase(data: answerTextView.text ?? "nil", completion: nil)
+            addDataToProfile(data: answerTextView.text ?? "nil")
         }
         else if situation == .postCreation {
-            addDataToPost(value: answerTextView.text, type: variable!)
+            addDataToPost(data: answerTextView.text)
         }
         goToNextView()
     }
@@ -74,12 +74,12 @@ class QARegularView: QAView, UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
-        if (text == "\n" && (variable == . place || variable == .shortSelfDescription || variable == .title)) {
+        if (text == "\n" && (variable == . place || variable == .bio || variable == .title)) {
             textView.resignFirstResponder()
             return false
         }
         
-        // Check for too many \n, we do not want 600 new lines (since they are counted as chars). We only check this for longSelfDescription and details, since when a new line is trying to be introduced for some other variable, the keyboard returns
+        // Check for too many \n, we do not want 600 new lines (since they are counted as chars)
         if tooManyNewLines(in: textView, range: range, text: text) {
             return false
         }
@@ -87,11 +87,11 @@ class QARegularView: QAView, UITextViewDelegate {
         // Limit the number of maximum chars
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         let numberOfChars = newText.count
-        if variable == .shortSelfDescription || variable == .title {
+        if variable == .bio || variable == .title {
             return numberOfChars < 140
         } else if variable == .place {
             return numberOfChars < 50
-        } else if variable == .longSelfDescription || variable == .details {
+        } else if variable == .bio || variable == .details {
             return numberOfChars < 600
         }
         

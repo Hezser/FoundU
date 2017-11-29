@@ -65,19 +65,9 @@ class ProfileController: UIViewController {
         return label
     }()
     
-    var shortDescriptionTextView: UITextView = {
+    var bioTextView: UITextView = {
         let textView = UITextView()
         textView.textAlignment = .center
-        textView.textContainer.lineBreakMode = .byWordWrapping
-        textView.isEditable = false
-        textView.isScrollEnabled = false
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        return textView
-    }()
-    
-    var longDescriptionTextView: UITextView = {
-        let textView = UITextView()
-        textView.textAlignment = .left
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isEditable = false
         textView.isScrollEnabled = false
@@ -98,6 +88,7 @@ class ProfileController: UIViewController {
             let editButton = UIBarButtonItem(title: "Edit", style: .done, target: self, action: #selector(handleEdit))
             navigationItem.leftBarButtonItem = editButton
         }
+        
         view.layoutIfNeeded()
         pictureView.setRounded()
     }
@@ -121,10 +112,8 @@ class ProfileController: UIViewController {
         nameLabel.text = user.name
         ageLabel.text = String(describing: user.age!) + " years old"
         placeLabel.text = "From " + user.place!
-        shortDescriptionTextView.text = user.shortDescription
-        longDescriptionTextView.text = user.longDescription
-        shortDescriptionTextView.font = placeLabel.font
-        longDescriptionTextView.font = placeLabel.font
+        bioTextView.text = user.bio!
+        bioTextView.font = placeLabel.font
         
         let url = URL(string: user.profileImageURL!)
         let data = try? Data(contentsOf: url!)
@@ -183,15 +172,12 @@ class ProfileController: UIViewController {
         
         let dividerLine1 = DividerLine()
         let dividerLine2 = DividerLine()
-        let dividerLine3 = DividerLine()
         
         view.addSubview(scrollView)
         scrollView.addSubview(basicInformationContainer)
         scrollView.addSubview(dividerLine1)
-        scrollView.addSubview(shortDescriptionTextView)
+        scrollView.addSubview(bioTextView)
         scrollView.addSubview(dividerLine2)
-        scrollView.addSubview(longDescriptionTextView)
-        scrollView.addSubview(dividerLine3)
     
         let margins = scrollView.layoutMarginsGuide
         
@@ -207,23 +193,14 @@ class ProfileController: UIViewController {
         dividerLine1.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         dividerLine1.heightAnchor.constraint(equalToConstant: 1).isActive = true
 
-        shortDescriptionTextView.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 10).isActive = true
-        shortDescriptionTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
-        shortDescriptionTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 3/5).isActive = true
+        bioTextView.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 10).isActive = true
+        bioTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        bioTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 3/5).isActive = true
 
-        dividerLine2.topAnchor.constraint(equalTo: shortDescriptionTextView.bottomAnchor, constant: 10).isActive = true
+        dividerLine2.topAnchor.constraint(equalTo: bioTextView.bottomAnchor, constant: 10).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
-
-        longDescriptionTextView.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 10).isActive = true
-        longDescriptionTextView.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
-        longDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: 5).isActive = true
-
-        dividerLine3.topAnchor.constraint(equalTo: longDescriptionTextView.bottomAnchor, constant: 10).isActive = true
-        dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
     }
     
@@ -241,8 +218,7 @@ class ProfileController: UIViewController {
         view.layoutIfNeeded()
         var sum: CGFloat = 43 // Sum of blank vertical distance between views + width of divider lines
         sum += basicInformationContainer.frame.size.height
-        sum += shortDescriptionTextView.frame.size.height
-        sum += longDescriptionTextView.frame.size.height
+        sum += bioTextView.frame.size.height
         return sum
     }
     

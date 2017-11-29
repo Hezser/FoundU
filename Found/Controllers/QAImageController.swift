@@ -11,10 +11,11 @@ import Firebase
 import FirebaseStorage
 import Photos
 
-class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class QAImageController: QAController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var picture: UIImageView!
     var pictureURL: String!
+    private var imageWasSelected = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,29 +54,29 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
         
         if let selectedImage = selectedImageFromImagePicker {
             picture.image = selectedImage
+            imageWasSelected = true
         }
         
         dismiss(animated: true, completion: nil)
     }
     
     override func nextPressed(sender: UIButton!) {
-        
-        // Note that this QAView is currently only used for profile creation
-        let group = DispatchGroup()
-        group.enter()
-        
-        DispatchQueue.main.async {
-            self.uploadPictureToFirebaseStorage(picture: self.picture.image!, group: group)
-        }
-        
-        // Wait to write the pictureURL in the database until the picture upload to storage has finished
-        group.notify(queue: .main) {
-            self.writeProfileInfoToFirebaseDatabase(data: self.pictureURL, completion: nil)
-            self.goToNextView()
+        if imageWasSelected {
+            uploadPictureToFirebaseStorage(picture: self.picture.image!, completion: {
+                self.addDataToProfile(data: self.pictureURL)
+                self.goToNextView()
+            })
+        } else {
+            let alert = UIAlertController(title: "No picture selected", message: "Please, select a picture to continue.", preferredStyle: .alert)
+            let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                // Alert is dismissed
+            }
+            alert.addAction(alertAction)
+            self.present(alert, animated: true, completion:nil)
         }
     }
     
-    func uploadPictureToFirebaseStorage(picture: UIImage?, group: DispatchGroup) {
+    func uploadPictureToFirebaseStorage(picture: UIImage?, completion completed: @escaping FinishedDownload) {
         
         let imageName = UUID().uuidString
         let storageRef = FIRStorage.storage().reference().child("profile_images").child("\(imageName).jpg")
@@ -90,7 +91,7 @@ class QAImageView: QAView, UIImagePickerControllerDelegate, UINavigationControll
                 
                 if let profileImageUrl = metadata?.downloadURL()?.absoluteString {
                     self.pictureURL = profileImageUrl
-                    group.leave()
+                    completed()
                 }
             })
         }

@@ -71,100 +71,15 @@ class LoginController: UIViewController {
             return
         }
         
-        FIRAuth.auth()?.createUser(withEmail: email, password: password, completion: { (user: FIRUser?, error) in
-            if error != nil {
-                print(error!)
-                return
-            }
-            // Register user in Firebase Database
-            guard let id = user?.uid else {
-                print("The user id is not valid in the database")
-                return
-            }
-            
-            let ref = FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/")
-            let userRef = ref.child("users").child(id)
-            let values = ["name": name, "email": email, "password": password]
-            userRef.updateChildValues(values, withCompletionBlock: { (err, ref) in
-                if err != nil {
-                    print(err!)
-                    return
-                }
-                print("User was saved succesfully into the Firebase Database")
-                
-                // Succesfully registered. Now we ask for the personal details to create the profile
-                self.createProfile(name: name)
-            })
-        })
-    
-    }
-    
-    func createProfile(name: String) {
-        
-        let name = self.getName(name: name)
-        
-        let intro = "Hey \(name)! It is very nice to have you here. I will ask 7 questions, and once you answer them you'll be all set up! Keep in mind you can change any of this at any time later in your profile. Ready?"
-        let question1 = "I think we should start by getting to know each other better. I guess a good first step would be to be able to see each other's faces."
-        let question2 = "Nice! I was born a bit over a year ago, when were you born?"
-        let question3 = "Well, that is quite an age difference, but I think we'll get along well anyway. I would also love to hear a short description of yourself, something other people will see at first glance when you use me. Keep it at twit-length!"
-        let question4 = "That'll get you attention! Now, where are you from?"
-        let question5 = "Home sweet home. Would you like to tell me a bit about your education? You can tell me a maximum of three places you've studied at. This is an optional one, so you can skip it by simply going forward."
-        let question6 = "What about your working life? You can tell me a maximum of three places you've worked at. This is also an optional one, so you can skip it by simply going forward."
-        let question7 = "Last one! Would you like to tell me someting more about yourself? I will only add this to your profile. It won't be the first impression people get of you, but it can bee a good way to tell those interested a bit more."
-        
-        let qa7 = QARegularView()
-        qa7.situation = .profileCreation
-        qa7.variable = .longSelfDescription
-        qa7.lastView = true
-        qa7.question = question7
-        qa7.nextView = nil
-        let qa6 = QAThreeFieldsView()
-        qa6.situation = .profileCreation
-        qa6.variable = .work
-        qa6.question = question6
-        qa6.nextView = qa7
-        let qa5 = QAThreeFieldsView()
-        qa5.situation = .profileCreation
-        qa5.variable = .studies
-        qa5.question = question5
-        qa5.nextView = qa6
-        let qa4 = QARegularView()
-        qa4.situation = .profileCreation
-        qa4.variable = .place
-        qa4.question = question4
-        qa4.nextView = qa5
-        let qa3 = QARegularView()
-        qa3.situation = .profileCreation
-        qa3.variable = .shortSelfDescription
-        qa3.question = question3
-        qa3.nextView = qa4
-        let qa2 = QADatePickView()
-        qa2.situation = .profileCreation
-        qa2.variable = .age
-        qa2.question = question2
-        qa2.nextView = qa3
-        let qa1 = QAImageView()
-        qa1.situation = .profileCreation
-        qa1.variable = .picture
-        qa1.question = question1
-        qa1.nextView = qa2
-        let introView = QAIntroView()
-        introView.situation = .profileCreation
-        introView.question = intro
-        introView.nextView = qa1
-        
-        self.present(introView, animated: true, completion: nil)
-    }
-    
-    func getName(name: String) -> String {
-        var firstName = ""
-        for char in name {
-            if char == " " {
-                return firstName
-            }
-            firstName.append(char)
-        }
-        return firstName
+        // Succesfully registered. Now push profile creator
+        let profileCreatorController = ProfileCreatorController()
+        let user = User()
+        user.name = name
+        user.email = email
+        user.password = password
+        profileCreatorController.user = user
+        let profileCreatorNavigationController = UINavigationController(rootViewController: profileCreatorController)
+        self.present(profileCreatorNavigationController, animated: true, completion: nil)
     }
     
     let nameTextField: UITextField = {

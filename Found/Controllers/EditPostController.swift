@@ -510,6 +510,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         return numberOfNewLines > 5
     }
     
+    // Restrict number of characters
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         if (text == "\n" && (textView == titleTextView || textView == placeTextView)) {
@@ -534,4 +535,5 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         }
         return true
     }
+    
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class QAThreeFieldsView: QAView, UITextFieldDelegate {
+class QAThreeFieldsController: QAController, UITextFieldDelegate {
     
     var atTextField1: UITextField = {
         let textField = UITextField()
@@ -120,6 +120,7 @@ class QAThreeFieldsView: QAView, UITextFieldDelegate {
         asLabel1.translatesAutoresizingMaskIntoConstraints = false
         asLabel2.translatesAutoresizingMaskIntoConstraints = false
         asLabel3.translatesAutoresizingMaskIntoConstraints = false
+        
         var asWidth = 30
         if variable == .studies {
             asWidth = 80
@@ -278,12 +279,13 @@ class QAThreeFieldsView: QAView, UITextFieldDelegate {
                 if atTextField3.text != "" {
                     string3 = (atTextField3.text! + connective + asTextField3.text!)
                 }
-                writeProfileInfoToFirebaseDatabase(data: [string1, string2, string3], completion: nil)
+                print("\n\(string1) \(string2) \(string3)\n")
+                addDataToProfile(data: [string1, string2, string3])
             }
             goToNextView()
         } else {
             // Alert of the invalidity of input
-            let alert = UIAlertController(title: "Invalid Entries", message: "You have not finsihed some of the entries you have started. It is not necessary to complete any of the three entries, but if you start a section of one, you must complete the other section.", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Invalid Entries", message: "You have not finsihed some of the entries you have started.", preferredStyle: .alert)
             let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
                 // Alert is dismissed
             }
