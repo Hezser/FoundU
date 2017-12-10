@@ -30,7 +30,6 @@ class ProfileController: UIViewController {
     // Containing pictureView, nameLabel, ageLabel and placeLabel
     var basicInformationContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = #colorLiteral(red: 0.9763647914, green: 0.9765316844, blue: 0.9763541818, alpha: 1)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -68,6 +67,7 @@ class ProfileController: UIViewController {
     var bioTextView: UITextView = {
         let textView = UITextView()
         textView.textAlignment = .center
+        textView.backgroundColor = .clear
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isEditable = false
         textView.isScrollEnabled = false
@@ -79,7 +79,8 @@ class ProfileController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
-        
+        scrollView.backgroundColor = Color.veryLightOrange
+
         setUpUI()
         
         if mainProfile {

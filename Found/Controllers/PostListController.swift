@@ -35,7 +35,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         view.addSubview(collectionview)
 
         view.backgroundColor = .white
-        collectionview.backgroundColor = .white
+        collectionview.backgroundColor = Color.veryLightOrange
         collectionview.alwaysBounceVertical = true
         
         collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
@@ -67,9 +67,10 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                 if post.userID! == uid {
                     post.setUpConvenienceData {
                         self.posts.insert(post, at: 0)
-                        let cell = PostCell()
+                        let cell = PostCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 300))
                         let configuredCell = self.configure(cell, withDataFrom: post)
-                        self.sizesOfCells.insert(configuredCell.calculateHeight(), at: 0)
+                        let height = configuredCell.calculateHeight()
+                        self.sizesOfCells.insert(height, at: 0)
                         DispatchQueue.main.async(execute: {
                             self.collectionview.reloadData()
                         })
@@ -113,6 +114,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
             self.initialLoad = false
             
             // Add refresher
+            self.refreshControl.tintColor = .white
             self.refreshControl.addTarget(self, action: #selector(self.refreshData), for: .valueChanged)
             if #available(iOS 10.0, *) {
                 self.collectionview.refreshControl = self.refreshControl
@@ -234,7 +236,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let postController = PostController()
         postController.user = User(id: post.userID, completion: { () -> () in
             postController.post = post
-            postController.view.backgroundColor = .white
+            postController.view.backgroundColor = Color.veryLightOrange
             postController.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(postController, animated: true)
         })

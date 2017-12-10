@@ -31,7 +31,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class MessagesController: UITableViewController {
+class MessagesListController: UITableViewController {
     
     typealias FinishedDownload = () -> ()
 
@@ -44,6 +44,8 @@ class MessagesController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.backgroundColor = Color.veryLightOrange
         
         tableView.register(ConversationCell.self, forCellReuseIdentifier: cellId)
         

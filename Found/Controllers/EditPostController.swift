@@ -32,6 +32,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var informationLabel: UILabel = {
         let label = UILabel()
         label.text = "Information"
+        label.textColor = Color.strongOrange
         label.backgroundColor = .white
         label.font = .boldSystemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -41,6 +42,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var optionsLabel: UILabel = {
         let label = UILabel()
         label.text = "Options"
+        label.textColor = Color.strongOrange
         label.backgroundColor = .white
         label.font = .boldSystemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false

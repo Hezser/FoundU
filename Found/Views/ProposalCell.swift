@@ -166,7 +166,7 @@ class ProposalCell: UICollectionViewCell {
         } else if decision == "Declined" {
             containerView.backgroundColor = #colorLiteral(red: 0.9492980647, green: 0.6576105266, blue: 0.677450324, alpha: 1)
         } else {
-            // As of now, we keep the background color on default
+            containerView.backgroundColor = .white
         }
     }
     

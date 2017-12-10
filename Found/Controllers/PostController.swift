@@ -38,7 +38,7 @@ class PostController: UIViewController, ProposalPopUpController {
         button.setTitle("Let's Meet!", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(22)
         button.addTarget(self, action: #selector(handleMeetSetUp), for: .touchUpInside)
-        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
+        button.backgroundColor = Color.lightOrange
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -103,7 +103,7 @@ class PostController: UIViewController, ProposalPopUpController {
     var userContainer: UIView = {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
-        containerView.backgroundColor = .lightGray
+        containerView.backgroundColor = Color.lightOrange
         containerView.layer.cornerRadius = 10
         return containerView
     }()
@@ -112,6 +112,7 @@ class PostController: UIViewController, ProposalPopUpController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18)
         label.textAlignment = .center
+        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -122,6 +123,7 @@ class PostController: UIViewController, ProposalPopUpController {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
+        label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 18)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -138,6 +140,8 @@ class PostController: UIViewController, ProposalPopUpController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        view.backgroundColor = Color.veryLightOrange
         
         setUpViews()
         
@@ -343,7 +347,7 @@ class PostController: UIViewController, ProposalPopUpController {
         tabBarController?.selectedIndex = 1
         
         let messagesNavigationController = tabBarController?.selectedViewController as! UINavigationController
-        let messagesController = messagesNavigationController.topViewController as! MessagesController
+        let messagesController = messagesNavigationController.topViewController as! MessagesListController
         
         messagesController.sendProposal(to: user, post: post, title: post.title, place: place, date: date, time: time)
         

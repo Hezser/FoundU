@@ -43,14 +43,14 @@ class ProfileCreatorController: UIViewController {
         qa5.question = question5
         qa5.title = "5/6"
         qa5.nextView = qa6
-        let qa4 = QARegularController()
+        let qa4 = QAOneFieldController()
         qa4.situation = .profileCreation
         qa4.variable = .place
         qa4.profileCreatorController = self
         qa4.question = question4
         qa4.title = "4/6"
         qa4.nextView = qa5
-        let qa3 = QARegularController()
+        let qa3 = QAOneFieldController()
         qa3.situation = .profileCreation
         qa3.variable = .bio
         qa3.profileCreatorController = self
@@ -99,7 +99,7 @@ class ProfileCreatorController: UIViewController {
                 print("The user id is not valid in the database")
                 return
             }
-            let data = ["name" : self.user.name!, "age" : String(self.user.age!), "date of birth" : self.user.dateOfBirth!, "email" : self.user.email!, "password" : self.user.password!, "bio" : self.user.bio!, "place" : self.user.place!, "pictureURL" : self.user.profileImageURL!]
+            let data = ["name" : self.user.name!, "age" : String(self.user.age!), "date of birth" : self.user.dateOfBirth!, "email" : self.user.email!, "password" : self.user.password!, "bio" : self.user.bio!, "place" : self.user.place!, "pictureURL" : self.user.profileImageURL!, "work" : self.user.work!, "studies" : self.user.studies!] as [String : Any]
             FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/").child("users").child(id).updateChildValues(data, withCompletionBlock: { (err, ref) in
                 if err != nil {
                     print(err!)

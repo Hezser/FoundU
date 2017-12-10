@@ -17,13 +17,18 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var user: User!
     
     var imageWasChanged = false
+    var workCount = 0
+    var studiesCount = 0
+    var studiesDividerTopConstraint: NSLayoutConstraint!
+    var workHeight: CGFloat = 40
+    var studiesHeight: CGFloat = 40
     
     var scrollView: UIScrollView = {
         let screensize: CGRect = UIScreen.main.bounds
         let screenWidth = screensize.width
         let screenHeight = screensize.height
         let view = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
-        view.backgroundColor = .white
+        view.backgroundColor = Color.veryLightOrange
         view.isUserInteractionEnabled = true
         view.isScrollEnabled = true
         view.showsVerticalScrollIndicator = true
@@ -64,6 +69,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let button = UIButton(type: .system)
         button.setTitle("Change your profile picture", for: .normal)
         button.contentHorizontalAlignment = .center
+        button.setTitleColor(Color.strongOrange, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -71,8 +77,9 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var privateInformationLabel: UILabel = {
         let label = UILabel()
         label.text = "Private Information"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.font = .boldSystemFont(ofSize: 18)
+        label.textColor = Color.strongOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -80,8 +87,9 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var publicInformationLabel: UILabel = {
         let label = UILabel()
         label.text = "Public Information"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.font = .boldSystemFont(ofSize: 18)
+        label.textColor = Color.strongOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -89,7 +97,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var passwordLabel: UILabel = {
         let label = UILabel()
         label.text = "Password"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -98,6 +106,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let button = UIButton(type: .system)
         button.setTitle("Change your password", for: .normal)
         button.contentHorizontalAlignment = .left
+        button.setTitleColor(Color.strongOrange, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -105,7 +114,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var emailLabel: UILabel = {
         let label = UILabel()
         label.text = "Email"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -113,7 +122,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var emailTextField: UITextField = {
         let textField = UITextField()
         textField.returnKeyType = .done
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -122,7 +131,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Name"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -130,7 +139,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var nameTextField: UITextField = {
         let textField = UITextField()
         textField.returnKeyType = .done
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -138,15 +147,15 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     var dateOfBirthLabel: UILabel = {
         let label = UILabel()
-        label.text = "Date Of Birth"
-        label.backgroundColor = .white
+        label.text = "Birthdate"
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var dateOfBirthButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .white
+        button.backgroundColor = .clear
         button.setTitleColor(.black, for: .normal)
         button.contentHorizontalAlignment = .left
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -162,8 +171,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     var homePlaceLabel: UILabel = {
         let label = UILabel()
-        label.text = "Home Place"
-        label.backgroundColor = .white
+        label.text = "Home"
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -171,7 +180,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var homePlaceTextField: UITextField = {
         let textField = UITextField()
         textField.returnKeyType = .done
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -179,8 +188,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     var bioLabel: UILabel = {
         let label = UILabel()
-        label.text = "Intro"
-        label.backgroundColor = .white
+        label.text = "Bio"
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -188,7 +197,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var bioTextView: UITextView = {
         let textView = UITextView()
         textView.returnKeyType = .done
-        textView.backgroundColor = .white
+        textView.backgroundColor = .clear
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isScrollEnabled = false // By setting this to false, the text view autoresizes when more lines are needed
@@ -199,17 +208,28 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var workLabel: UILabel = {
         let label = UILabel()
         label.text = "Work"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    var addWorkButton: UIButton = {
+        let button = UIButton(type: .contactAdd)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = Color.strongOrange
+        return button
+    }()
+    
+    var dividerLineWork1: DividerLine!
+    var dividerLineWork2: DividerLine!
+    var dividerLineWork3: DividerLine!
     
     var whereWorkLabel1: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        label.textColor = Color.strongOrange
         return label
     }()
     
@@ -217,7 +237,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "company"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -227,7 +247,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "Position"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -238,7 +258,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        label.textColor = Color.strongOrange
         return label
     }()
     
@@ -246,7 +266,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "company"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -256,7 +276,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "Position"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -267,7 +287,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = #colorLiteral(red: 0.9901074767, green: 0.4136155248, blue: 0.2146835923, alpha: 1)
+        label.textColor = Color.strongOrange
         return label
     }()
     
@@ -275,7 +295,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "company"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -285,7 +305,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let textField = UITextField()
         textField.returnKeyType = .done
         textField.placeholder = "Position"
-        textField.backgroundColor = .white
+        textField.backgroundColor = .clear
         textField.clearButtonMode = .whileEditing
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -293,10 +313,107 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     
     var studiesLabel: UILabel = {
         let label = UILabel()
-        label.text = "Intro"
-        label.backgroundColor = .white
+        label.text = "Studies"
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    var addStudiesButton: UIButton = {
+        let button = UIButton(type: .contactAdd)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = Color.strongOrange
+        return button
+    }()
+
+    var dividerLineStudies1: DividerLine!
+    var dividerLineStudies2: DividerLine!
+    var dividerLineStudies3: DividerLine!
+
+    var whereStudiesLabel1: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = Color.strongOrange
+        return label
+    }()
+
+    var whereStudiesTextField1: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "institution"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    var whatStudiesTextField1: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Course"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    var whereStudiesLabel2: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = Color.strongOrange
+        return label
+    }()
+
+    var whereStudiesTextField2: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "institution"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    var whatStudiesTextField2: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Course"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    var whereStudiesLabel3: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.systemFont(ofSize: 18)
+        label.text = "at"
+        label.textColor = Color.strongOrange
+        return label
+    }()
+
+    var whereStudiesTextField3: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "institution"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
+    }()
+
+    var whatStudiesTextField3: UITextField = {
+        let textField = UITextField()
+        textField.returnKeyType = .done
+        textField.placeholder = "Course"
+        textField.backgroundColor = .clear
+        textField.clearButtonMode = .whileEditing
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        return textField
     }()
     
     @objc func handleChangeProfilePicture() {
@@ -419,38 +536,88 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         }
     }
     
+    fileprivate func prepareDataFor(_ variable: Variable) -> [String] {
+        
+        var data: [String] = []
+        if variable == .work {
+            if (whatWorkTextField1.text != "") {
+                data.append(whatWorkTextField1.text! + " at " + whereWorkTextField1.text!)
+            } else {
+                data.append("")
+            }
+            if (whatWorkTextField2.text != "") {
+                data.append(whatWorkTextField2.text! + " at " + whereWorkTextField2.text!)
+            } else {
+                data.append("")
+            }
+            if (whatWorkTextField3.text != "") {
+                data.append(whatWorkTextField3.text! + " at " + whereWorkTextField3.text!)
+            } else {
+                data.append("")
+            }
+        } else if variable == .studies {
+            if (whatStudiesTextField1.text != "") {
+                data.append(whatStudiesTextField1.text! + " at " + whereStudiesTextField1.text!)
+            } else {
+                data.append("")
+            }
+            if (whatStudiesTextField2.text != "") {
+                data.append(whatStudiesTextField2.text! + " at " + whereStudiesTextField2.text!)
+            } else {
+                data.append("")
+            }
+            if (whatStudiesTextField3.text != "") {
+                data.append(whatStudiesTextField3.text! + " at " + whereStudiesTextField3.text!)
+            } else {
+                data.append("")
+            }
+        }
+        
+        return data
+    }
+    
     @objc func handleSave(_ sender: UIButton) {
         
         // Update user
-        user.email = emailTextField.text!
         user.name = nameTextField.text!
         user.age = dateOfBirthPicker.date.age
         user.dateOfBirth = dateOfBirthButton.currentTitle!
         user.place = homePlaceTextField.text!
         user.bio = bioTextView.text!
+        user.work = prepareDataFor(.work)
+        user.studies = prepareDataFor(.studies)
         
         // saveImage() is done first because it updates user.profileImageURL, which is used in data to upload to the user's section in Firebase database
         saveImage(completion: {
             if self.dataIsValid() {
-                let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.user.email!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "bio" : self.user.bio!]
-                FIRAuth.auth()?.currentUser?.updateEmail(self.user.email!, completion: {(error) in
-                    if error != nil {
-                        print(error!)
-                        // Alert of the invalidity of password
-                        let alert = UIAlertController(title: "Invalid email", message: nil, preferredStyle: .alert)
-                        let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
-                            // Alert is dismissed
+                let data = ["pictureURL" : self.user.profileImageURL!, "email" : self.emailTextField.text!, "name" : self.user.name!, "age" : String(describing: self.user.age!), "date of birth" : self.user.dateOfBirth!, "place" : self.user.place!, "bio" : self.user.bio!, "work" : self.user.work!, "studies" : self.user.studies!] as [String : Any]
+                if self.user.email != self.emailTextField.text! {
+                    FIRAuth.auth()?.currentUser?.updateEmail(self.emailTextField.text!, completion: {(error) in
+                        if error != nil {
+                            print(error!)
+                            // Alert of the invalidity of password
+                            let alert = UIAlertController(title: "Invalid email", message: nil, preferredStyle: .alert)
+                            let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                                // Alert is dismissed
+                            }
+                            alert.addAction(alertAction)
+                            self.present(alert, animated: true, completion:nil)
+                        } else {
+                            self.user.email = self.emailTextField.text!
+                            FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
+                                let profile = self.navigationController?.viewControllers.first as! ProfileController
+                                profile.user = self.user
+                                self.navigationController?.popViewController(animated: true)
+                            })
                         }
-                        alert.addAction(alertAction)
-                        self.present(alert, animated: true, completion:nil)
-                    } else {
-                        FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                            let profile = self.navigationController?.viewControllers.first as! ProfileController
-                            profile.user = self.user
-                            self.navigationController?.popViewController(animated: true)
-                        })
-                    }
-                })
+                    })
+                } else {
+                    FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
+                        let profile = self.navigationController?.viewControllers.first as! ProfileController
+                        profile.user = self.user
+                        self.navigationController?.popViewController(animated: true)
+                    })
+                }
             }
         })
     }
@@ -459,8 +626,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         navigationController?.popViewController(animated: true)
     }
     
-    func presentInvalidDataAlert() {
-        let alert = UIAlertController(title: "Some information is incomplete", message: nil, preferredStyle: .alert)
+    func presentInvalidDataAlert(withMessage message: String) {
+        let alert = UIAlertController(title: "Some information is incomplete: \(message).", message: nil, preferredStyle: .alert)
         let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
             // Alert is dismissed
         }
@@ -469,17 +636,37 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     }
     
     func dataIsValid() -> Bool {
+        
         // Check that all the info is valid
         if nameTextField.text == "" {
-            presentInvalidDataAlert()
+            presentInvalidDataAlert(withMessage: "Your must have a name")
             return false
         } else if homePlaceTextField.text == "" {
-            presentInvalidDataAlert()
+            presentInvalidDataAlert(withMessage: "You must have grown up somewhere")
             return false
         } else if bioTextView.text == "" {
-            presentInvalidDataAlert()
+            presentInvalidDataAlert(withMessage: "You need to have a short bio")
+            return false
+        } else if (whatWorkTextField1.text != "" && whereWorkTextField1.text == "") || (whatWorkTextField1.text == "" && whereWorkTextField1.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a work field without finishing it")
+            return false
+        } else if (whatWorkTextField2.text != "" && whereWorkTextField2.text == "") || (whatWorkTextField2.text == "" && whereWorkTextField2.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a work field without finishing it")
+            return false
+        } else if (whatWorkTextField3.text != "" && whereWorkTextField3.text == "") || (whatWorkTextField3.text == "" && whereWorkTextField3.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a work field without finishing it")
+            return false
+        } else if (whatStudiesTextField1.text != "" && whereStudiesTextField1.text == "") || (whatStudiesTextField1.text == "" && whereStudiesTextField1.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a studies field without finishing it")
+            return false
+        } else if (whatStudiesTextField2.text != "" && whereStudiesTextField2.text == "") || (whatStudiesTextField2.text == "" && whereStudiesTextField2.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a studies field without finishing it")
+            return false
+        } else if (whatStudiesTextField2.text != "" && whereStudiesTextField2.text == "") || (whatStudiesTextField2.text == "" && whereStudiesTextField2.text != "") {
+            presentInvalidDataAlert(withMessage: "You cannot start a studies field without finishing it")
             return false
         }
+        
         return true
     }
     
@@ -499,7 +686,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         }).resume()
     }
     
-    func setUpTextFields() {
+    func setUpContent() {
         
         // Default Content
         setUserImage(fromURLString: user.profileImageURL!)
@@ -513,6 +700,44 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let formatter = DateFormatter()
         formatter.dateFormat = "dd MMMM, yyyy"
         dateOfBirthPicker.date = formatter.date(from: user.dateOfBirth!)!
+        for work in user.work! {
+            if work != "" {
+                let workStrings = separateInformation(for: work)
+                if workCount == 0 {
+                    whatWorkTextField1.text = workStrings[0]
+                    whereWorkTextField1.text = workStrings[1]
+                    setUpField(whereWorkLabel1, whereWorkTextField1, whatWorkTextField1, after: dividerLineWork1)
+                } else if workCount == 1 {
+                    whatWorkTextField2.text = workStrings[0]
+                    whereWorkTextField2.text = workStrings[1]
+                    setUpField(whereWorkLabel2, whereWorkTextField2, whatWorkTextField2, after: whereWorkTextField1)
+                } else if workCount == 2 {
+                    whatWorkTextField3.text = workStrings[0]
+                    whereWorkTextField3.text = workStrings[1]
+                    setUpField(whereWorkLabel3, whereWorkTextField3, whatWorkTextField3, after: whereWorkTextField2)
+                }
+                workCount += 1
+            }
+        }
+        for studies in user.studies! {
+            if studies != "" {
+                let studiesStrings = separateInformation(for: studies)
+                if studiesCount == 0 {
+                    whatStudiesTextField1.text = studiesStrings[0]
+                    whereStudiesTextField1.text = studiesStrings[1]
+                    setUpField(whereStudiesLabel1, whereStudiesTextField1, whatStudiesTextField1, after: dividerLineStudies1)
+                } else if studiesCount == 1 {
+                    whatStudiesTextField2.text = studiesStrings[0]
+                    whereStudiesTextField2.text = studiesStrings[1]
+                    setUpField(whereStudiesLabel2, whereStudiesTextField2, whatStudiesTextField2, after: whereStudiesTextField1)
+                } else if studiesCount == 2 {
+                    whatStudiesTextField3.text = studiesStrings[0]
+                    whereStudiesTextField3.text = studiesStrings[1]
+                    setUpField(whereStudiesLabel3, whereStudiesTextField3, whatStudiesTextField3, after: whereStudiesTextField2)
+                }
+                studiesCount += 1
+            }
+        }
         
         // Delegates
         emailTextField.delegate = self
@@ -529,7 +754,12 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let dividerLine5 = DividerLine()
         let dividerLine6 = DividerLine()
         let dividerLine7 = DividerLine()
-        let dividerLine8 = DividerLine()
+        dividerLineWork1 = DividerLine()
+        dividerLineWork2 = DividerLine()
+        dividerLineWork3 = DividerLine()
+        dividerLineStudies1 = DividerLine()
+        dividerLineStudies2 = DividerLine()
+        dividerLineStudies3 = DividerLine()
         
         view.addSubview(scrollView)
         scrollView.addSubview(spacingView)
@@ -544,6 +774,9 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         scrollView.addSubview(dateOfBirthLabel)
         scrollView.addSubview(bioLabel)
         scrollView.addSubview(workLabel)
+        scrollView.addSubview(studiesLabel)
+        scrollView.addSubview(addWorkButton)
+        scrollView.addSubview(addStudiesButton)
         scrollView.addSubview(nameTextField)
         scrollView.addSubview(emailTextField)
         scrollView.addSubview(changePasswordButton)
@@ -556,12 +789,12 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         scrollView.addSubview(dividerLine5)
         scrollView.addSubview(dividerLine6)
         scrollView.addSubview(dividerLine7)
-        scrollView.addSubview(dividerLine8)
+        scrollView.addSubview(dividerLineWork1)
+        scrollView.addSubview(dividerLineStudies1)
         
         let margins = scrollView.layoutMarginsGuide
         
         // Spacing View Constraints
-//        spacingView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true // Can't use it with scroll view, it wouldn't allow scrolling
         spacingView.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         spacingView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         spacingView.heightAnchor.constraint(equalToConstant: 20).isActive = true // 20 is the separation between the tab bar and the image view
@@ -698,67 +931,162 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         bioTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
         // Short Divider Line After Bio Constraints
-        dividerLine8.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
-        dividerLine8.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        dividerLine8.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine8.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLineWork1.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
+        dividerLineWork1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        dividerLineWork1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+        dividerLineWork1.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
         // Work Label Constraints
-        workLabel.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
+        workLabel.topAnchor.constraint(equalTo: dividerLineWork1.bottomAnchor).isActive = true
         workLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         workLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
         workLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        setUpWorkField(whereWorkLabel1, whereWorkTextField1, whatWorkTextField1, after: dividerLine8)
+        // Add Work Button Constraints and Functionality
+        addWorkButton.centerYAnchor.constraint(equalTo: workLabel.centerYAnchor).isActive = true
+        addWorkButton.rightAnchor.constraint(equalTo: workLabel.rightAnchor).isActive = true
+        addWorkButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        addWorkButton.widthAnchor.constraint(equalTo: addWorkButton.heightAnchor).isActive = true
+        
+        addWorkButton.addTarget(self, action: #selector(handleNewWorkRequest), for: .touchUpInside)
+        
+        // Short Divider Line After Work Constraints
+        studiesDividerTopConstraint = dividerLineStudies1.topAnchor.constraint(equalTo: workLabel.bottomAnchor, constant: 0)
+        studiesDividerTopConstraint.isActive = true
+        dividerLineStudies1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        dividerLineStudies1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+        dividerLineStudies1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        // Studies Label Constraints
+        studiesLabel.topAnchor.constraint(equalTo: dividerLineStudies1.bottomAnchor).isActive = true
+        studiesLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        studiesLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
+        studiesLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // Add Studies Button Constraints and Functionality
+        addStudiesButton.centerYAnchor.constraint(equalTo: studiesLabel.centerYAnchor).isActive = true
+        addStudiesButton.rightAnchor.constraint(equalTo: studiesLabel.rightAnchor).isActive = true
+        addStudiesButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        addStudiesButton.widthAnchor.constraint(equalTo: addStudiesButton.heightAnchor).isActive = true
+        
+        addStudiesButton.addTarget(self, action: #selector(handleNewStudiesRequest), for: .touchUpInside)
 
     }
     
-    func setUpWorkField(_ whereWorkLabel: UILabel, _ whereWorkTextField: UITextField, _ whatWorkTextField: UITextField, after topView: UIView) {
+    @objc func handleNewWorkRequest(_ sender: UIButton) {
+        if workCount < 3 {
+            switch workCount {
+            case 0 :
+                setUpField(whereWorkLabel1, whereWorkTextField1, whatWorkTextField1, after: dividerLineWork1)
+                workCount += 1
+            case 1 :
+                setUpField(whereWorkLabel2, whereWorkTextField2, whatWorkTextField2, after: whereWorkTextField1)
+                workCount += 1
+            case 2 :
+                setUpField(whereWorkLabel3, whereWorkTextField3, whatWorkTextField3, after: whereWorkTextField2)
+                workCount += 1
+            default :
+                return
+            }
+        }
+    }
+    
+    @objc func handleNewStudiesRequest(_ sender: UIButton) {
+        if studiesCount < 3 {
+            switch studiesCount {
+            case 0 :
+                setUpField(whereStudiesLabel1, whereStudiesTextField1, whatStudiesTextField1, after: dividerLineStudies1)
+                studiesCount += 1
+            case 1 :
+                setUpField(whereStudiesLabel2, whereStudiesTextField2, whatStudiesTextField2, after: whereStudiesTextField1)
+                studiesCount += 1
+            case 2 :
+                setUpField(whereStudiesLabel3, whereStudiesTextField3, whatStudiesTextField3, after: whereStudiesTextField2)
+                studiesCount += 1
+            default :
+                return
+            }
+        }
+    }
+    
+    func setUpField(_ whereLabel: UILabel, _ whereTextField: UITextField, _ whatTextField: UITextField, after topView: UIView) {
         
-        scrollView.addSubview(whereWorkLabel)
-        scrollView.addSubview(whereWorkTextField)
-        scrollView.addSubview(whatWorkTextField)
+        var titleLabel = workLabel // By default, will change to studiesLabel if necesessary
         
-        whereWorkTextField.delegate = self
-        whatWorkTextField.delegate = self
+        scrollView.addSubview(whereLabel)
+        scrollView.addSubview(whereTextField)
+        scrollView.addSubview(whatTextField)
+        
+        whereTextField.delegate = self
+        whatTextField.delegate = self
         
         let margins = scrollView.layoutMarginsGuide
         
-        if whereWorkLabel != whereWorkLabel1 {
-            let dividerLine = DividerLine()
-            scrollView.addSubview(dividerLine)
+        // What Text View Constraints
+        whatTextField.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
+        whatTextField.leftAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 5).isActive = true
+        whatTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        whatTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // What Label Constraints
+        whereLabel.topAnchor.constraint(equalTo: whatTextField.bottomAnchor, constant: -10).isActive = true
+        whereLabel.leftAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 5).isActive = true
+        whereLabel.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        whereLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // Where Text View Constraints
+        whereTextField.topAnchor.constraint(equalTo: whatTextField.bottomAnchor, constant: -10).isActive = true
+        whereTextField.leftAnchor.constraint(equalTo: whereLabel.rightAnchor, constant: 5).isActive = true
+        whereTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        whereTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        if whereLabel != whereWorkLabel1 && whereLabel != whereStudiesLabel1 {
             
-            // Work Divider Line Constraints
+            var dividerLine: DividerLine!
+            if whereLabel == whereWorkLabel2 {
+                workHeight += 70
+                dividerLine = dividerLineWork2
+                scrollView.addSubview(dividerLine)
+                studiesDividerTopConstraint.constant += 70 // 40+40-10 of both textfields (where, what), -10 because we supperpose the textfields
+                view.layoutIfNeeded()
+            } else if whereLabel == whereWorkLabel3 {
+                workHeight += 70
+                addWorkButton.isHidden = true
+                dividerLine = dividerLineWork3
+                scrollView.addSubview(dividerLine)
+                studiesDividerTopConstraint.constant += 70 // 40+40-10 of both textfields (where, what), -10 because we supperpose the textfields
+            } else if whereLabel == whereStudiesLabel2 {
+                studiesHeight += 70
+                dividerLine = dividerLineStudies2
+                scrollView.addSubview(dividerLine)
+                titleLabel = studiesLabel
+            } else if whereLabel == whereStudiesLabel3 {
+                studiesHeight += 70
+                addStudiesButton.isHidden = true
+                dividerLine = dividerLineStudies3
+                scrollView.addSubview(dividerLine)
+                titleLabel = studiesLabel
+            }
+            
+            // Divider Line Constraints
             dividerLine.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
-            dividerLine.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 10).isActive = true
+            dividerLine.leftAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 10).isActive = true
             dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
             dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+            
+        } else if whereLabel == whereWorkLabel1 {
+            studiesDividerTopConstraint.constant += 30 // 40-10 because of the bottom textfield (the upper one is not counted since we are already under workLabel, and -10 because we supperpose the textfields)
+            workHeight += 30
+        } else if whereLabel == whereStudiesLabel1 {
+            studiesHeight += 30
         }
-        
-        // What Work Text View Constraints
-        whatWorkTextField.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
-        whatWorkTextField.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 5).isActive = true
-        whatWorkTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        whatWorkTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        // What Work Label Constraints
-        whereWorkLabel.topAnchor.constraint(equalTo: whatWorkTextField.bottomAnchor).isActive = true
-        whereWorkLabel.leftAnchor.constraint(equalTo: workLabel.rightAnchor, constant: 5).isActive = true
-        whereWorkLabel.widthAnchor.constraint(equalToConstant: 20).isActive = true
-        whereWorkLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        
-        // Where Work Text View Constraints
-        whereWorkTextField.topAnchor.constraint(equalTo: whatWorkTextField.bottomAnchor).isActive = true
-        whereWorkTextField.leftAnchor.constraint(equalTo: whereWorkLabel.rightAnchor, constant: 5).isActive = true
-        whereWorkTextField.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        whereWorkTextField.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
     }
     
-    func separateWorkInformation(for string: String) -> [String] {
+    func separateInformation(for string: String) -> [String] {
         var separatedString = [String]()
         if let range = string.range(of: " at ") {
-            separatedString.append(String(string[...range.lowerBound]))
+            separatedString.append(String(string[..<range.lowerBound]))
             separatedString.append(String(string[range.upperBound...]))
         }
         return separatedString
@@ -811,9 +1139,9 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         
         setUpButtons()
         
-        setUpTextFields()
-        
         setUpUI()
+        
+        setUpContent()
         
         setUpBlurAndVibrancy()
         
@@ -823,9 +1151,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         
         view.layoutIfNeeded()
         pictureView.setRounded()
-        
-        print(user.work)
-        print(separateWorkInformation(for: user.work![0]))
         
     }
     
@@ -849,12 +1174,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         sum += dateOfBirthLabel.frame.size.height
         sum += homePlaceTextField.frame.size.height
         sum += bioTextView.frame.size.height
-        sum += whereWorkTextField1.frame.size.height
-        sum += whatWorkTextField1.frame.size.height
-        sum += whereWorkTextField2.frame.size.height
-        sum += whatWorkTextField2.frame.size.height
-        sum += whereWorkTextField3.frame.size.height
-        sum += whatWorkTextField3.frame.size.height
+        sum += workHeight
+        sum += studiesHeight
         return sum
     }
     

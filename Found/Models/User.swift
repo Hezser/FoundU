@@ -63,10 +63,6 @@ class User: NSObject {
             self.bio = value?["bio"] as? String
             self.work = value?["work"] as? [String]
             self.studies = value?["studies"] as? [String]
-//            print("\n\(value?["work"])\n")
-//            for w in self.work! {
-//                print(w)
-//            }
             
             print("\nUser was successfully loaded\n")
             if completed != nil {

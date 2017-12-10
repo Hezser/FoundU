@@ -74,9 +74,10 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .white
         collectionView?.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         collectionView?.alwaysBounceVertical = true
-        collectionView?.backgroundColor = UIColor.white
+        collectionView?.backgroundColor = Color.veryLightOrange
         collectionView?.register(ChatMessageCell.self, forCellWithReuseIdentifier: messageCellID)
         collectionView?.register(ProposalCell.self, forCellWithReuseIdentifier: proposalCellID)
         
@@ -492,7 +493,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         
         if message.fromID == FIRAuth.auth()?.currentUser?.uid {
             // Outgoing blue
-            cell.bubbleView.backgroundColor = .blue
+            cell.bubbleView.backgroundColor = Color.lightOrange
             cell.textView.textColor = .white
             cell.profileImageView.isHidden = true
             

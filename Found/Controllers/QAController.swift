@@ -35,7 +35,7 @@ class QAController: UIViewController {
         let button = UIButton()
         button.setTitle("Next!", for: .normal)
         button.layer.cornerRadius = 5
-        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
+        button.backgroundColor = Color.lightOrange
         button.clipsToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -44,12 +44,10 @@ class QAController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = Color.veryLightOrange
         
         setUpUI()
-        
         setUpButtons()
-            
     }
     
     override func viewWillAppear(_ animated: Bool) {

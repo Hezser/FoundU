@@ -69,6 +69,8 @@ class ConversationCell: UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
         
+        backgroundColor = .clear
+        
         addSubview(profileImageView)
         addSubview(timeLabel)
         

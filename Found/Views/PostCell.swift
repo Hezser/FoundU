@@ -22,6 +22,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
     
     var titleTextView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .clear
         textView.textAlignment = .center
         textView.font = UIFont.systemFont(ofSize: 22)
         textView.textContainer.lineBreakMode = .byWordWrapping
@@ -35,6 +36,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
     
     var nameTextView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .clear
         textView.textAlignment = .center
         textView.isEditable = false
         textView.isScrollEnabled = false
@@ -62,6 +64,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
     
     var placeTextView: UITextView = {
         let textView = UITextView()
+        textView.backgroundColor = .clear
         textView.textAlignment = .center
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.textContainerInset = .zero

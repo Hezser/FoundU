@@ -8,7 +8,7 @@
 
 import UIKit
 
-class QARegularController: QAController, UITextViewDelegate {
+class QAOneFieldController: QAController, UITextViewDelegate {
     
     var answerTextView: UITextView = {
         let textView = UITextView()
@@ -24,7 +24,7 @@ class QARegularController: QAController, UITextViewDelegate {
     
     override func nextPressed(sender: UIButton!) {
         if situation == .profileCreation {
-            addDataToProfile(data: answerTextView.text ?? "nil")
+            addDataToProfile(data: answerTextView.text ?? "")
         }
         else if situation == .postCreation {
             addDataToPost(data: answerTextView.text)

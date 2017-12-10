@@ -19,45 +19,61 @@ class MenuController: UITabBarController {
         super.viewDidLoad()
         
         view.backgroundColor = .white
+        tabBar.barTintColor = Color.lightOrange
+        tabBar.tintColor = .white
+        tabBar.unselectedItemTintColor = .black
         
         checkIfUserIsLoggedIn()
     }
     
     func addControllers() {
         
-        print("\nWHAT\n")
-        
         let feed = PostListController()
         let feedNavigationController = UINavigationController(rootViewController: feed)
-        feedNavigationController.navigationBar.isTranslucent = true
+        feedNavigationController.navigationBar.barTintColor = Color.lightOrange
+        feedNavigationController.navigationBar.tintColor = .white
+        feedNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        feedNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         feed.title = "Feed"
         feed.type = .feed
         feed.tabBarItem = UITabBarItem(title: "Feed", image: nil, tag: 0)
         feed.tabBarItem.titlePositionAdjustment = UIOffsetMake(0.0, -10.0)
         
-        let messages = MessagesController()
+        let messages = MessagesListController()
         let messagesNavigationController = UINavigationController(rootViewController: messages)
-        messagesNavigationController.navigationBar.isTranslucent = true
+        messagesNavigationController.navigationBar.barTintColor = Color.lightOrange
+        messagesNavigationController.navigationBar.tintColor = .white
+        messagesNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        messagesNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         messages.title = "Messages"
         messages.tabBarItem = UITabBarItem(title: "Messages", image: nil, tag: 1)
         
         let newPost = NewPostController()
         let newPostNavigationController = UINavigationController(rootViewController: newPost)
-        newPostNavigationController.navigationBar.isTranslucent = true
+        newPostNavigationController.navigationBar.barTintColor = Color.lightOrange
+        newPostNavigationController.navigationBar.tintColor = .white
+        newPostNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        newPostNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         newPost.user = user
         newPost.title = "+"
         newPost.tabBarItem = UITabBarItem(title: "+", image: nil, tag: 2)
         
         let userPosts = PostListController()
         let userPostsNavigationController = UINavigationController(rootViewController: userPosts)
-        userPostsNavigationController.navigationBar.isTranslucent = true
+        userPostsNavigationController.navigationBar.barTintColor = Color.lightOrange
+        userPostsNavigationController.navigationBar.tintColor = .white
+        userPostsNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        userPostsNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         userPosts.title = "Your Posts"
         userPosts.type = .user
         userPosts.tabBarItem = UITabBarItem(title: "Your Posts", image: nil, tag: 3)
         
         let profile = ProfileController()
         let profileNavigationController = UINavigationController(rootViewController: profile)
-        profileNavigationController.navigationBar.isTranslucent = true
+        profileNavigationController.navigationBar.barTintColor = Color.lightOrange
+        profileNavigationController.navigationBar.tintColor = .white
+        profileNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
+        profileNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         profile.user = user
         profile.mainProfile = true
         profile.title = "You"

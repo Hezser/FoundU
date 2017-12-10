@@ -34,7 +34,7 @@ class ProposalPopUpView: UIView, UITextFieldDelegate {
         let button = UIButton()
         button.setTitle("Cancel", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(26)
-        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
+        button.backgroundColor = Color.lightOrange
         button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true
@@ -45,7 +45,7 @@ class ProposalPopUpView: UIView, UITextFieldDelegate {
         let button = UIButton()
         button.setTitle("Send", for: .normal)
         button.titleLabel?.font = button.titleLabel?.font.withSize(26)
-        button.backgroundColor = #colorLiteral(red: 1, green: 0.6470588446, blue: 0.3098038733, alpha: 1)
+        button.backgroundColor = Color.lightOrange
         button.layer.cornerRadius = 5
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isUserInteractionEnabled = true

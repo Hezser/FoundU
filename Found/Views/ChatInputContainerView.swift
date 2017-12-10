@@ -46,6 +46,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         
         
         sendButton.setTitle("Send", for: UIControlState())
+        sendButton.setTitleColor(Color.strongOrange, for: .normal)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
         
         //what is handleSend?

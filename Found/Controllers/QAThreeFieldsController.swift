@@ -266,18 +266,15 @@ class QAThreeFieldsController: QAController, UITextFieldDelegate {
         
         if dataIsValid() {
             if situation == .profileCreation {
-                var string1 = "nil", string2 = "nil", string3 = "nil", connective = " as "
-                if variable == .studies {
-                    connective = " studying "
-                }
+                var string1 = "", string2 = "", string3 = "", connective = " at "
                 if atTextField1.text != "" {
-                    string1 = (atTextField1.text! + connective + asTextField1.text!)
+                    string1 = (asTextField1.text! + connective + atTextField1.text!)
                 }
                 if atTextField2.text != "" {
-                    string2 = (atTextField2.text! + connective + asTextField2.text!)
+                    string2 = (asTextField2.text! + connective + atTextField2.text!)
                 }
                 if atTextField3.text != "" {
-                    string3 = (atTextField3.text! + connective + asTextField3.text!)
+                    string3 = (asTextField3.text! + connective + atTextField3.text!)
                 }
                 print("\n\(string1) \(string2) \(string3)\n")
                 addDataToProfile(data: [string1, string2, string3])

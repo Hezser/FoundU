@@ -11,6 +11,15 @@ import UIKit
 class QADatePickController: QAController {
     
     var datePicker: UIDatePicker!
+    
+    var iAmFlexibleButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(Color.strongOrange, for: .normal)
+        button.addTarget(self, action: #selector(iAmFlexiblePressed), for: .touchUpInside)
+        button.setTitle("I am flexible", for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 
     override func nextPressed(sender: UIButton!) {
         let age = datePicker.date.age
@@ -59,12 +68,6 @@ class QADatePickController: QAController {
         if situation == .postCreation {
             
             datePicker.minuteInterval = 15
-            
-            // Create iAmFlexibleButton
-            let iAmFlexibleButton = UIButton(type: .system)
-            iAmFlexibleButton.addTarget(self, action: #selector(iAmFlexiblePressed), for: .touchUpInside)
-            iAmFlexibleButton.translatesAutoresizingMaskIntoConstraints = false
-            iAmFlexibleButton.setTitle("I am flexible", for: .normal)
             
             view.addSubview(iAmFlexibleButton)
            
