@@ -107,6 +107,7 @@ class ProfileCreatorController: UIViewController {
                 }
                 print("Data was saved succesfully into the Firebase Database")
                 let menu = MenuController()
+                menu.itemToDisplay = 0
                 menu.user = self.user
                 self.present(menu, animated: true, completion: nil)
             })

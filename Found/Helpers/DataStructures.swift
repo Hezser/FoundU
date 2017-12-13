@@ -9,6 +9,8 @@
 enum Situation {
     case profileCreation
     case postCreation
+    case profile
+    case editProfile
 }
 
 enum Variable {

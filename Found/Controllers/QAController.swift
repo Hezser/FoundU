@@ -93,6 +93,7 @@ class QAController: UIViewController {
     
     @objc func cancelButtonPressed(sender: UIButton!) {
         let menu = MenuController()
+        menu.itemToDisplay = 0
         present(menu, animated: true, completion: nil)
     }
     

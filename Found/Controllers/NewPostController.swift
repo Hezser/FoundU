@@ -32,6 +32,7 @@ class NewPostController: UIViewController {
         
         // Initializing the QAViews with their questions
         let menu = MenuController()
+        menu.itemToDisplay = 3
         let qa4 = QAOneFieldController()
         qa4.situation = .postCreation
         qa4.variable = .details

@@ -20,7 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FIRApp.configure()
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = MenuController()
+        let menu = MenuController()
+        menu.itemToDisplay = 0
+        window?.rootViewController = menu
         window?.makeKeyAndVisible()
         
         return true

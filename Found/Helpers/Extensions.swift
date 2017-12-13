@@ -76,6 +76,19 @@ extension UIView {
     
 }
 
+extension Sequence where Iterator.Element == ExperienceField {
+    
+    func isUseless() -> Bool {
+        for field in self {
+            if field.getWhat() != "" { // Assuming there cannot be a where without a what (if not, include a &&)
+                return false
+            }
+        }
+        
+        return true
+    }
+}
+
 extension String {
     
     subscript (r: CountableClosedRange<Int>) -> String? {

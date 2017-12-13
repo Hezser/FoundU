@@ -69,7 +69,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let button = UIButton(type: .system)
         button.setTitle("Change your profile picture", for: .normal)
         button.contentHorizontalAlignment = .center
-        button.setTitleColor(Color.strongOrange, for: .normal)
+        button.setTitleColor(Color.lightOrange, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -79,7 +79,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.text = "Private Information"
         label.backgroundColor = .clear
         label.font = .boldSystemFont(ofSize: 18)
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -89,7 +89,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.text = "Public Information"
         label.backgroundColor = .clear
         label.font = .boldSystemFont(ofSize: 18)
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -106,7 +106,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let button = UIButton(type: .system)
         button.setTitle("Change your password", for: .normal)
         button.contentHorizontalAlignment = .left
-        button.setTitleColor(Color.strongOrange, for: .normal)
+        button.setTitleColor(Color.lightOrange, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -216,7 +216,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var addWorkButton: UIButton = {
         let button = UIButton(type: .contactAdd)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = Color.strongOrange
+        button.tintColor = Color.lightOrange
         return button
     }()
     
@@ -229,7 +229,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
     
@@ -258,7 +258,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
     
@@ -287,7 +287,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
     
@@ -321,7 +321,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
     var addStudiesButton: UIButton = {
         let button = UIButton(type: .contactAdd)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = Color.strongOrange
+        button.tintColor = Color.lightOrange
         return button
     }()
 
@@ -334,7 +334,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
 
@@ -363,7 +363,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
 
@@ -392,7 +392,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = UIFont.systemFont(ofSize: 18)
         label.text = "at"
-        label.textColor = Color.strongOrange
+        label.textColor = Color.lightOrange
         return label
     }()
 
@@ -605,17 +605,28 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
                         } else {
                             self.user.email = self.emailTextField.text!
                             FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                                let profile = self.navigationController?.viewControllers.first as! ProfileController
-                                profile.user = self.user
-                                self.navigationController?.popViewController(animated: true)
+//                                let profile = self.navigationController?.viewControllers.first as! ProfileController
+//                                profile.user = self.user
+//                                self.navigationController?.popViewController(animated: true)
+                                // In order to instantly update, we need to present, not pop (if we add studies/work fields, how do you create new ExperienceFields in viewDidAppear?
+                                let menu = MenuController()
+                                menu.user = self.user
+                                menu.itemToDisplay = 4
+                                self.present(menu, animated: true)
+                                
                             })
                         }
                     })
                 } else {
                     FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                        let profile = self.navigationController?.viewControllers.first as! ProfileController
-                        profile.user = self.user
-                        self.navigationController?.popViewController(animated: true)
+                        // let profile = self.navigationController?.viewControllers.first as! ProfileController
+                        // profile.user = self.user
+                        // self.navigationController?.popViewController(animated: true)
+                        // In order to instantly update, we need to present, not pop (if we add studies/work fields, how do you create new ExperienceFields in viewDidAppear?
+                        let menu = MenuController()
+                        menu.user = self.user
+                        menu.itemToDisplay = 4
+                        self.present(menu, animated: true)
                     })
                 }
             }

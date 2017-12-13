@@ -12,6 +12,7 @@ import Firebase
 class MenuController: UITabBarController {
     
     var user: User!
+    var itemToDisplay: Int!
     
     typealias FinishedDownload = () -> ()
     
@@ -80,6 +81,8 @@ class MenuController: UITabBarController {
         profile.tabBarItem = UITabBarItem(title: "Profile", image: nil, tag: 4)
             
         viewControllers = [ feedNavigationController, messagesNavigationController, newPostNavigationController, userPostsNavigationController, profileNavigationController ]
+        
+        selectedIndex = itemToDisplay
     }
     
     // This function prevents the app from crashing in low internet speeds if the pictures are retrieved faster than they are downloaded

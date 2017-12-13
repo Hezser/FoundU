@@ -59,6 +59,7 @@ class LoginController: UIViewController {
             
             // Succesfully logged in
             let menu = MenuController()
+            menu.itemToDisplay = 0
             menu.user = User(id: (user?.uid)!, completion: { () -> () in
                 self.present(menu, animated: true, completion: nil)
             })
