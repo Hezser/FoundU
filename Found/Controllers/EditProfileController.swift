@@ -1254,7 +1254,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         if textField == whatWorkTextField1 || textField == whatWorkTextField2 || textField == whatWorkTextField3 || textField == whereWorkTextField1 || textField == whereWorkTextField2 || textField == whereWorkTextField3 {
             return newLength <= 40
         } else if textField == nameTextField || textField == homePlaceTextField {
-            return newLength <= 25
+            return newLength <= 26
         }
 
         return newLength <= 100 // Bool

@@ -103,6 +103,7 @@ class ProfileController: UIViewController {
         textView.backgroundColor = .clear
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isEditable = false
+        textView.isSelectable = false
         textView.isScrollEnabled = false
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView

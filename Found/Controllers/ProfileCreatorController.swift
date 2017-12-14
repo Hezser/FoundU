@@ -18,6 +18,8 @@ class ProfileCreatorController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = Color.veryLightOrange
+        
         let firstName = getFirstName(of: user.name!)
         
         let intro = "Hey \(firstName)! It is very nice to have you here. I will ask you some questions, and once you answer them you'll be all set up! Keep in mind you can change any of this at any time later in your profile. Ready?"

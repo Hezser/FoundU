@@ -29,6 +29,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         textView.textContainerInset = .zero
         textView.isUserInteractionEnabled = false
         textView.isEditable = false
+        textView.isSelectable = false
         textView.isScrollEnabled = false
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
@@ -39,6 +40,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         textView.backgroundColor = .clear
         textView.textAlignment = .center
         textView.isEditable = false
+        textView.isSelectable = false
         textView.isScrollEnabled = false
         textView.isUserInteractionEnabled = false
         textView.font = UIFont.systemFont(ofSize: 16)
@@ -71,6 +73,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         textView.font = UIFont.systemFont(ofSize: 16)
         textView.isUserInteractionEnabled = false
         textView.isEditable = false
+        textView.isSelectable = false
         textView.isScrollEnabled = false
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView

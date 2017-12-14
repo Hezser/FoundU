@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class PostController: UIViewController, ProposalPopUpController {
+class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate {
     
     var user: User!
     var post: Post!
@@ -59,15 +59,17 @@ class PostController: UIViewController, ProposalPopUpController {
         return label
     }()
     
-    var placeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var placeTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.font = UIFont.systemFont(ofSize: 16)
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     // Used to not have to rearrange all other labels when "Anytime" is shown instead of date and time separately. This label will be empty (invisible) if there is a specific date and time for the post
@@ -79,25 +81,30 @@ class PostController: UIViewController, ProposalPopUpController {
         return label
     }()
     
-    var detailsLabel: UILabel = {
-        let label = UILabel()
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var detailsTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.font = UIFont.systemFont(ofSize: 18)
+        textView.textAlignment = .left
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
-    var titleLabel: UILabel = {
-        let label = UILabel()
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 24)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var titleTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textContainerInset = .zero
+        textView.font = UIFont.systemFont(ofSize: 26)
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     var userContainer: UIView = {
@@ -108,25 +115,32 @@ class PostController: UIViewController, ProposalPopUpController {
         return containerView
     }()
     
-    var userNameLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.textAlignment = .center
-        label.textColor = .white
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var userNameTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textColor = .white
+        textView.textContainerInset = .zero
+        textView.font = UIFont.boldSystemFont(ofSize: 18)
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
-    var userDescriptionLabel: UILabel = {
-        let label = UILabel()
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 0
-        label.baselineAdjustment = .alignCenters
-        label.textAlignment = .center
-        label.textColor = .white
-        label.font = UIFont.systemFont(ofSize: 18)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var userDescriptionTextView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = .clear
+        textView.textColor = .white
+        textView.textContainerInset = .zero
+        textView.font = UIFont.systemFont(ofSize: 16)
+        textView.textAlignment = .center
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     var userImageView: UIImageView = {
@@ -140,9 +154,33 @@ class PostController: UIViewController, ProposalPopUpController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = Color.veryLightOrange
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        navigationItem.largeTitleDisplayMode = .never
+        if let height = tabBarController?.tabBar.frame.size.height {
+            tabBarHeight = height
+        }
+        tabBarController?.tabBar.isHidden = true
+        navigationController?.setToolbarHidden(true, animated: false)
+    }
+    
+    @objc func handleEdit(_ sender: UIButton) {
+        let editPostController = EditPostController()
+        editPostController.post = post
+        navigationController?.pushViewController(editPostController, animated: true)
+    }
+    
+    public func configure() {
         
+        titleTextView.delegate = self
+        detailsTextView.delegate = self
+        userDescriptionTextView.delegate = self
+        userNameTextView.delegate = self
+        
+        setUpContent()
         setUpViews()
         
         let uid = FIRAuth.auth()?.currentUser?.uid
@@ -158,23 +196,7 @@ class PostController: UIViewController, ProposalPopUpController {
             setUpBlurAndVibrancy()
             proposalPopUpView.configurePopUp()
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
-        setUpContent()
-        navigationItem.largeTitleDisplayMode = .never
-        if let height = tabBarController?.tabBar.frame.size.height {
-            tabBarHeight = height
-        }
-        tabBarController?.tabBar.isHidden = true
-        navigationController?.setToolbarHidden(true, animated: false)
-    }
-    
-    @objc func handleEdit(_ sender: UIButton) {
-        let editPostController = EditPostController()
-        editPostController.post = post
-        navigationController?.pushViewController(editPostController, animated: true)
+        
     }
     
     func setUpContent() {
@@ -185,8 +207,8 @@ class PostController: UIViewController, ProposalPopUpController {
         anytimeExceptionalLabel.text = ""
         
         // Set up text
-        titleLabel.text = post.title
-        placeLabel.text = post.place
+        titleTextView.text = post.title
+        placeTextView.text = post.place
         if post.time == "Anytime" {
             anytimeExceptionalLabel.text = "Anytime"
         } else {
@@ -195,20 +217,21 @@ class PostController: UIViewController, ProposalPopUpController {
             timeLabel.text = post.time[commaIndex!+2...post.time.count-1]
         }
         
-        userDescriptionLabel.text = post.userDescription
-        detailsLabel.text = post.details
+        userDescriptionTextView.text = post.userDescription
+        detailsTextView.text = post.details
         userImageView.image = post.userPicture
-        userNameLabel.text = post.userName
+        userNameTextView.text = post.userName
+        
     }
     
     func setUpViews() {
         
         // UI
-        view.addSubview(titleLabel)
+        view.addSubview(titleTextView)
         view.addSubview(timeLabel)
         view.addSubview(dateLabel)
         view.addSubview(anytimeExceptionalLabel)
-        view.addSubview(placeLabel)
+        view.addSubview(placeTextView)
         
         let uid = FIRAuth.auth()?.currentUser?.uid
         if post.userID != uid {
@@ -218,44 +241,41 @@ class PostController: UIViewController, ProposalPopUpController {
         let margins = view.layoutMarginsGuide
         
         // Title Label Constraints
-        titleLabel.heightAnchor.constraint(equalToConstant: 90).isActive = true
-        titleLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -40).isActive = true
-        titleLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
-        titleLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        titleTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -40).isActive = true
+        titleTextView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
+        titleTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
         // Date Label Constraints
         dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        dateLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 1/2).isActive = true
-        dateLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 25).isActive = true
-        dateLabel.leftAnchor.constraint(equalTo: titleLabel.leftAnchor).isActive = true
+        dateLabel.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
+        dateLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 25).isActive = true
+        dateLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
         // Time Label Constraints
         timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
-        timeLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 1/2).isActive = true
+        timeLabel.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
         timeLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor).isActive = true
-        timeLabel.leftAnchor.constraint(equalTo: titleLabel.leftAnchor).isActive = true
+        timeLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
-        // Place Label Constraints
-        placeLabel.heightAnchor.constraint(equalToConstant: 60).isActive = true
-        placeLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 1/2).isActive = true
-        placeLabel.centerYAnchor.constraint(equalTo: dateLabel.bottomAnchor).isActive = true
-        placeLabel.rightAnchor.constraint(equalTo: titleLabel.rightAnchor).isActive = true
+        // Place Text View Constraints
+        placeTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
+        placeTextView.centerYAnchor.constraint(equalTo: dateLabel.bottomAnchor).isActive = true
+        placeTextView.rightAnchor.constraint(equalTo: titleTextView.rightAnchor).isActive = true
         
         // Anytime Exceptional Label Constraints
         anytimeExceptionalLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        anytimeExceptionalLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor, multiplier: 1/2).isActive = true
-        anytimeExceptionalLabel.centerYAnchor.constraint(equalTo: placeLabel.centerYAnchor).isActive = true
-        anytimeExceptionalLabel.leftAnchor.constraint(equalTo: titleLabel.leftAnchor).isActive = true
+        anytimeExceptionalLabel.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
+        anytimeExceptionalLabel.centerYAnchor.constraint(equalTo: placeTextView.centerYAnchor).isActive = true
+        anytimeExceptionalLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
         setUpUserSectionView()
         
-        view.addSubview(detailsLabel)
+        view.addSubview(detailsTextView)
         
         // Details Label Constraints
-        detailsLabel.heightAnchor.constraint(equalToConstant: 120).isActive = true
-        detailsLabel.widthAnchor.constraint(equalTo: titleLabel.widthAnchor).isActive = true
-        detailsLabel.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 40).isActive = true
-        detailsLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        detailsTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
+        detailsTextView.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 40).isActive = true
+        detailsTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
         if post.userID != uid {
             // Meet Button Constraints
@@ -294,34 +314,44 @@ class PostController: UIViewController, ProposalPopUpController {
         view.addSubview(userContainer)
         
         // User Container Constraints
-        userContainer.heightAnchor.constraint(equalToConstant: 120).isActive = true
-        userContainer.widthAnchor.constraint(equalTo: titleLabel.widthAnchor).isActive = true
-        userContainer.topAnchor.constraint(equalTo: timeLabel.bottomAnchor, constant: 40).isActive = true
-        userContainer.centerXAnchor.constraint(equalTo: titleLabel.centerXAnchor).isActive = true
+        userContainer.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
+        userContainer.topAnchor.constraint(equalTo: placeTextView.bottomAnchor, constant: 30).isActive = true
+        userContainer.centerXAnchor.constraint(equalTo: titleTextView.centerXAnchor).isActive = true
+        
+        let dividerLine = DividerLine()
+        dividerLine.setColor(to: .white)
         
         userContainer.addSubview(userImageView)
-        userContainer.addSubview(userNameLabel)
-        userContainer.addSubview(userDescriptionLabel)
+        userContainer.addSubview(userNameTextView)
+        userContainer.addSubview(dividerLine)
+        userContainer.addSubview(userDescriptionTextView)
         
         let margins = userContainer.layoutMarginsGuide
         
         // User Image View Constraints
         userImageView.heightAnchor.constraint(equalToConstant: 70).isActive = true
         userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
-        userImageView.centerYAnchor.constraint(equalTo: margins.centerYAnchor).isActive = true
-        userImageView.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
+        userImageView.centerYAnchor.constraint(equalTo: userContainer.centerYAnchor).isActive = true
+        userImageView.leftAnchor.constraint(equalTo: userContainer.leftAnchor, constant: 10).isActive = true
         
         // User Name Label Constraints
-        userNameLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        userNameLabel.leftAnchor.constraint(equalTo: userImageView.rightAnchor, constant: 5).isActive = true
-        userNameLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        userNameLabel.topAnchor.constraint(equalTo: margins.topAnchor).isActive = true
+        userNameTextView.topAnchor.constraint(equalTo: userContainer.topAnchor, constant: 10).isActive = true
+        userNameTextView.centerXAnchor.constraint(equalTo: userContainer.centerXAnchor, constant: 40).isActive = true // IDK why 40... should be 90: 10 (spacing left of image) + 70 (width of image) + 10 (spacing with image)
+        userNameTextView.widthAnchor.constraint(lessThanOrEqualTo: userContainer.widthAnchor, constant: -100).isActive = true // 90 from before + 10 of spacing on the right
+        
+        // Divider Line Constraints
+        dividerLine.topAnchor.constraint(equalTo: userNameTextView.bottomAnchor).isActive = true
+        dividerLine.centerXAnchor.constraint(equalTo: userNameTextView.centerXAnchor).isActive = true
+        dividerLine.widthAnchor.constraint(equalTo: userNameTextView.widthAnchor).isActive = true
+        dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
         // User Description Label Constraints
-        userDescriptionLabel.heightAnchor.constraint(equalToConstant: 70).isActive = true
-        userDescriptionLabel.leftAnchor.constraint(equalTo: userImageView.rightAnchor, constant: 10).isActive = true
-        userDescriptionLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        userDescriptionLabel.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+        userDescriptionTextView.topAnchor.constraint(equalTo: userNameTextView.bottomAnchor, constant: 10).isActive = true
+        userDescriptionTextView.leftAnchor.constraint(equalTo: userImageView.rightAnchor, constant: 10).isActive = true
+        userDescriptionTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        
+        // Dynamically set the container's height
+        userContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: calculateSizeOfUserContainer()).isActive = true
         
         // If tapped inside, takes you to the user's profile. Not done when the post is from the current user
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
@@ -332,6 +362,18 @@ class PostController: UIViewController, ProposalPopUpController {
             userContainer.addGestureRecognizer(tapGesture)
         }
         
+    }
+    
+    fileprivate func calculateSizeOfUserContainer() -> CGFloat {
+        view.layoutIfNeeded()
+        var sum: CGFloat = 30 // Name label
+        sum += userDescriptionTextView.frame.size.height
+        
+        if sum < 60 { // 80 + padding space (20) = 100
+            return 80
+        } else {
+            return sum+40 // +20 to account for additional padding space on top and bottom
+        }
     }
     
     @objc func handlePushUserProfile(sender: UITapGestureRecognizer) {

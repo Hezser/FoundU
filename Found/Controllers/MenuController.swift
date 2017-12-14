@@ -19,7 +19,7 @@ class MenuController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = Color.veryLightOrange
         tabBar.barTintColor = Color.lightOrange
         tabBar.tintColor = .white
         tabBar.unselectedItemTintColor = .black

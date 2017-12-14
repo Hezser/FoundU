@@ -10,9 +10,12 @@ import UIKit
 
 class DividerLine: UIView {
     
+    public func setColor(to color: UIColor) {
+        backgroundColor = color
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         backgroundColor = UIColor(white: 0.5, alpha: 0.5)
         translatesAutoresizingMaskIntoConstraints = false
     }

@@ -15,6 +15,7 @@ class NewPostController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = Color.veryLightOrange
     }
     
     override func viewDidAppear(_ animated: Bool) {

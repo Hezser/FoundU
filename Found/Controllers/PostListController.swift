@@ -236,9 +236,9 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         let postController = PostController()
         postController.user = User(id: post.userID, completion: { () -> () in
             postController.post = post
-            postController.view.backgroundColor = Color.veryLightOrange
             postController.hidesBottomBarWhenPushed = true
-        self.navigationController?.pushViewController(postController, animated: true)
+            postController.configure()
+            self.navigationController?.pushViewController(postController, animated: true)
         })
         
     }
