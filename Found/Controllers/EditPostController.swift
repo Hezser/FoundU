@@ -15,6 +15,16 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     
     var post: Post!
     
+    var scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+        view.isScrollEnabled = true
+        view.showsVerticalScrollIndicator = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     var blurEffectView: UIVisualEffectView = {
         let blurEffect = UIBlurEffect(style: .dark)
         let effectView = UIVisualEffectView(effect: blurEffect)
@@ -32,9 +42,9 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var informationLabel: UILabel = {
         let label = UILabel()
         label.text = "Information"
-        label.textColor = Color.strongOrange
-        label.backgroundColor = .white
-        label.font = .boldSystemFont(ofSize: 18)
+        label.backgroundColor = .clear
+        label.font = .boldSystemFont(ofSize: 20)
+        label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -42,9 +52,9 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var optionsLabel: UILabel = {
         let label = UILabel()
         label.text = "Options"
-        label.textColor = Color.strongOrange
-        label.backgroundColor = .white
-        label.font = .boldSystemFont(ofSize: 18)
+        label.backgroundColor = .clear
+        label.font = .boldSystemFont(ofSize: 20)
+        label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -52,7 +62,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Title"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -60,7 +70,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var titleTextView: UITextView = {
         let textView = UITextView()
         textView.returnKeyType = .done
-        textView.backgroundColor = .white
+        textView.backgroundColor = .clear
         textView.textContainer.lineFragmentPadding = 0
         // textView.textContainer.maximumNumberOfLines = 4 // No need for this if we limit the number of chars
         textView.textContainer.lineBreakMode = .byWordWrapping
@@ -72,14 +82,14 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var dateTimeLabel: UILabel = {
         let label = UILabel()
         label.text = "When"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     var dateTimeButton: UIButton = {
         let button = UIButton()
-        button.backgroundColor = .white
+        button.backgroundColor = .clear
         button.setTitleColor(.black, for: .normal)
         button.contentHorizontalAlignment = .left
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +115,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var placeLabel: UILabel = {
         let label = UILabel()
         label.text = "Where"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -113,7 +123,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var placeTextView: UITextView = {
         let textView = UITextView()
         textView.returnKeyType = .done
-        textView.backgroundColor = .white
+        textView.backgroundColor = .clear
         textView.textContainer.lineFragmentPadding = 0
         // textView.textContainer.maximumNumberOfLines = 4 // No need for this if we limit the number of chars
         textView.textContainer.lineBreakMode = .byWordWrapping
@@ -125,7 +135,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var detailsLabel: UILabel = {
         let label = UILabel()
         label.text = "Details"
-        label.backgroundColor = .white
+        label.backgroundColor = .clear
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -133,7 +143,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     var detailsTextView: UITextView = {
         let textView = UITextView()
         textView.returnKeyType = .default
-        textView.backgroundColor = .white
+        textView.backgroundColor = .clear
         textView.textContainer.lineFragmentPadding = 0
         // textView.textContainer.maximumNumberOfLines = 15 // No need for this if we limit the number of chars
         textView.textContainer.lineBreakMode = .byWordWrapping
@@ -312,51 +322,49 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     
     func setUpUI() {
         
-        let dividerLine1 = DividerLine()
+        view.addSubview(scrollView)
+        
+        // Scroll View Constraints
+        scrollView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor).isActive = true
+        scrollView.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor).isActive = true
+        scrollView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        scrollView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        
         let dividerLine2 = DividerLine()
         let dividerLine3 = DividerLine()
         let dividerLine4 = DividerLine()
-        let dividerLine5 = DividerLine()
         
-        view.addSubview(informationLabel)
-        view.addSubview(titleLabel)
-        view.addSubview(titleTextView)
-        view.addSubview(dateTimeLabel)
-        view.addSubview(dateTimeButton)
-        view.addSubview(placeLabel)
-        view.addSubview(placeTextView)
-        view.addSubview(detailsLabel)
-        view.addSubview(detailsTextView)
-        view.addSubview(optionsLabel)
-        view.addSubview(deletePostButton)
-        view.addSubview(dividerLine1)
-        view.addSubview(dividerLine2)
-        view.addSubview(dividerLine3)
-        view.addSubview(dividerLine4)
-        view.addSubview(dividerLine5)
+        scrollView.addSubview(informationLabel)
+        scrollView.addSubview(titleLabel)
+        scrollView.addSubview(titleTextView)
+        scrollView.addSubview(dateTimeLabel)
+        scrollView.addSubview(dateTimeButton)
+        scrollView.addSubview(placeLabel)
+        scrollView.addSubview(placeTextView)
+        scrollView.addSubview(detailsLabel)
+        scrollView.addSubview(detailsTextView)
+        scrollView.addSubview(optionsLabel)
+        scrollView.addSubview(deletePostButton)
+        scrollView.addSubview(dividerLine2)
+        scrollView.addSubview(dividerLine3)
+        scrollView.addSubview(dividerLine4)
         
-        let margins = view.layoutMarginsGuide
+        let margins = scrollView.layoutMarginsGuide
         
         // Information Label Constraints
-        informationLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
+        informationLabel.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 20).isActive = true
         informationLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         informationLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         informationLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        // Long Divider Line After Information Label Constraints
-        dividerLine1.topAnchor.constraint(equalTo: informationLabel.bottomAnchor).isActive = true
-        dividerLine1.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine1.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        
         // Title Label Constraints
-        titleLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 5).isActive = true
+        titleLabel.topAnchor.constraint(equalTo: informationLabel.bottomAnchor, constant: 5).isActive = true
         titleLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         titleLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
         titleLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Title Text View Constraints
-        titleTextView.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 5).isActive = true
+        titleTextView.topAnchor.constraint(equalTo: informationLabel.bottomAnchor, constant: 5).isActive = true
         titleTextView.leftAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 5).isActive = true
         titleTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
@@ -384,13 +392,13 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
 
         // Date Time Label Constraints
-        dateTimeLabel.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 5).isActive = true
+        dateTimeLabel.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor).isActive = true
         dateTimeLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dateTimeLabel.widthAnchor.constraint(equalToConstant: view.frame.size.width/4).isActive = true
         dateTimeLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
         // Date Time Button Constraints
-        dateTimeButton.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 5).isActive = true
+        dateTimeButton.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor).isActive = true
         dateTimeButton.leftAnchor.constraint(equalTo: dateTimeLabel.rightAnchor, constant: 5).isActive = true
         dateTimeButton.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         dateTimeButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -413,19 +421,13 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         detailsTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
         // Options Label Constraints
-        optionsLabel.topAnchor.constraint(equalTo: detailsTextView.bottomAnchor, constant: 30).isActive = true
+        optionsLabel.topAnchor.constraint(equalTo: detailsTextView.bottomAnchor, constant: 20).isActive = true
         optionsLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         optionsLabel.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         optionsLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
-        // Long Divider Line After Private Information Label Constraints
-        dividerLine5.topAnchor.constraint(equalTo: optionsLabel.bottomAnchor).isActive = true
-        dividerLine5.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine5.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine5.heightAnchor.constraint(equalToConstant: 2).isActive = true
-        
         // Name Label Constraints
-        deletePostButton.topAnchor.constraint(equalTo: dividerLine5.bottomAnchor, constant: 5).isActive = true
+        deletePostButton.topAnchor.constraint(equalTo: optionsLabel.bottomAnchor, constant: 5).isActive = true
         deletePostButton.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         deletePostButton.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         deletePostButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -472,7 +474,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = Color.veryLightOrange
         hideKeyboardWhenTappedAround()
         
         let saveButton = UIBarButtonItem(title: "Save", style: .done, target: self, action: #selector(handleSave))
@@ -487,6 +489,10 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         setUpUI()
         
         setUpBlurAndVibrancy()
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillHide, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: Notification.Name.UIKeyboardWillChangeFrame, object: nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -494,6 +500,41 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         navigationItem.title = "Edit Post"
         tabBarController?.tabBar.isHidden = true
         navigationItem.largeTitleDisplayMode = .never
+    }
+    
+    func calculateScrollViewHeight() -> CGFloat {
+        view.layoutIfNeeded()
+        var sum: CGFloat = 80 // Sum of spacing (50 spacing between views + 30 bottom spacing)
+        sum += informationLabel.frame.size.height
+        sum += titleTextView.frame.size.height
+        sum += placeTextView.frame.size.height
+        sum += dateTimeButton.frame.size.height
+        sum += detailsTextView.frame.size.height
+        sum += optionsLabel.frame.size.height
+        sum += deletePostButton.frame.size.height
+        return sum
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let screensize: CGRect = UIScreen.main.bounds
+        let screenWidth = screensize.width
+        scrollView.contentSize = CGSize(width: screenWidth, height: calculateScrollViewHeight())
+    }
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        let userInfo = notification.userInfo!
+        
+        let keyboardScreenEndFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+        
+        if notification.name == Notification.Name.UIKeyboardWillHide {
+            scrollView.contentInset = UIEdgeInsets.zero
+        } else {
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height, right: 0)
+        }
+        
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

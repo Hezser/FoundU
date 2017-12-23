@@ -23,7 +23,7 @@ class ProfileController: UIViewController {
         let screenWidth = screensize.width
         let screenHeight = screensize.height
         let view = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
-        view.backgroundColor = .white
+        view.backgroundColor = .clear
         view.isUserInteractionEnabled = true
         view.isScrollEnabled = true
         view.showsVerticalScrollIndicator = true
@@ -109,6 +109,21 @@ class ProfileController: UIViewController {
         return textView
     }()
     
+    var hashtagLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Tags"
+        label.textAlignment = .left
+        label.textColor = Color.lightOrange
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var hashtagField: HashtagField = {
+        let hashtagField = HashtagField()
+        return hashtagField
+    }()
+    
     var studiesLabel: UILabel = {
         let label = UILabel()
         label.text = "Studies"
@@ -169,6 +184,7 @@ class ProfileController: UIViewController {
         placeLabel.text = "From " + user.place!
         bioTextView.text = user.bio!
         bioTextView.font = placeLabel.font
+        hashtagField.setHashtags(["Football", "Reading", "Netflix", "Football", "Reading", "Netflix","Football", "Reading", "Netflix"])
         
         for studies in user.studies! {
             if studies != "" {
@@ -261,6 +277,8 @@ class ProfileController: UIViewController {
         scrollView.addSubview(startQuotations)
         scrollView.addSubview(endQuotations)
         scrollView.addSubview(bioTextView)
+        scrollView.addSubview(hashtagLabel)
+        scrollView.addSubview(hashtagField)
         scrollView.addSubview(dividerLine2)
         scrollView.addSubview(studiesLabel)
         for studies in studiesFields {
@@ -275,14 +293,15 @@ class ProfileController: UIViewController {
         
         // In case there are no studies or/and work fields to display
         studiesLabel.isHidden = true
-        dividerLine3.isHidden = true
-        workLabel.isHidden = true
         dividerLine4.isHidden = true
+        workLabel.isHidden = true
+//        dividerLine5.isHidden = true
     
         let margins = scrollView.layoutMarginsGuide
         
         setUpBasicInformationContainer()
         
+        basicInformationContainer.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
         basicInformationContainer.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         basicInformationContainer.widthAnchor.constraint(equalTo: scrollView.widthAnchor).isActive = true
         basicInformationContainer.heightAnchor.constraint(equalToConstant: calculateBasicInformationContainerHeight()).isActive = true
@@ -316,15 +335,31 @@ class ProfileController: UIViewController {
         dividerLine2.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        var lastDividerLine: DividerLine = dividerLine2
+        hashtagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
+        hashtagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
+        hashtagLabel.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        hashtagLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        
+        hashtagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
+        hashtagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
+        hashtagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+        hashtagField.configure()
+        hashtagField.heightAnchor.constraint(equalToConstant: hashtagField.getHeight()).isActive = true
+        
+        dividerLine3.topAnchor.constraint(equalTo: hashtagField.bottomAnchor, constant: 20).isActive = true
+        dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        var lastDividerLine: DividerLine = dividerLine3
         var lastView: UIView = lastDividerLine
         
         if !studiesFields.isUseless() {
             
             studiesLabel.isHidden = false
-            dividerLine3.isHidden = false
+            dividerLine4.isHidden = false
             
-            studiesLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
+            studiesLabel.topAnchor.constraint(equalTo: lastDividerLine.bottomAnchor).isActive = true
             studiesLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
             studiesLabel.widthAnchor.constraint(equalToConstant: 80).isActive = true
             studiesLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
@@ -352,11 +387,11 @@ class ProfileController: UIViewController {
                 
             }
             
-            dividerLine3.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
-            dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-            dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-            dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
-            lastDividerLine = dividerLine3
+            dividerLine4.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
+            dividerLine4.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+            dividerLine4.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+            dividerLine4.heightAnchor.constraint(equalToConstant: 1).isActive = true
+            lastDividerLine = dividerLine4
             lastView = lastDividerLine
             
         }
@@ -364,7 +399,7 @@ class ProfileController: UIViewController {
         if !workFields.isUseless() {
             
             workLabel.isHidden = false
-            dividerLine4.isHidden = false
+//            dividerLine5.isHidden = false
             
             workLabel.topAnchor.constraint(equalTo: lastView.bottomAnchor).isActive = true
             workLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
@@ -394,10 +429,12 @@ class ProfileController: UIViewController {
                 
             }
             
-            dividerLine4.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
-            dividerLine4.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-            dividerLine4.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-            dividerLine4.heightAnchor.constraint(equalToConstant: 1).isActive = true
+//            dividerLine5.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
+//            dividerLine5.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+//            dividerLine5.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+//            dividerLine5.heightAnchor.constraint(equalToConstant: 1).isActive = true
+//            lastDividerLine = dividerLine5
+//            lastView = lastDividerLine
         }
         
     }
@@ -423,9 +460,22 @@ class ProfileController: UIViewController {
     
     func calculateScrollViewHeight() -> CGFloat {
         view.layoutIfNeeded()
-        var sum: CGFloat = 43 // Sum of blank vertical distance between views + width of divider lines
+        var sum: CGFloat = 121 // Sum of blank vertical distance between views + width of divider lines
         sum += basicInformationContainer.frame.size.height
         sum += bioTextView.frame.size.height
+        sum += hashtagField.getHeight()
+        if studiesFields.count > 0 {
+            sum += 41 // 30 top spacing + 10 bottom spacing + 1 divider line
+        }
+        for studies in studiesFields {
+            sum += studies.frame.size.height
+        }
+        if workFields.count > 0 {
+            sum += 41 // 30 top spacing + 10 bottom spacing + 1 divider line
+        }
+        for work in workFields {
+            sum += work.frame.size.height
+        }
         return sum
     }
     
@@ -433,8 +483,7 @@ class ProfileController: UIViewController {
         super.viewDidLayoutSubviews()
         let screensize: CGRect = UIScreen.main.bounds
         let screenWidth = screensize.width
-//        scrollView.contentSize = CGSize(width: screenWidth, height: calculateScrollViewHeight())
-        scrollView.contentSize = CGSize(width: screenWidth, height: 2000)
+        scrollView.contentSize = CGSize(width: screenWidth, height: calculateScrollViewHeight())
     }
     
     @objc func handleLogOut(_ sender: UIButton) {

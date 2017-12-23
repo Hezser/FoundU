@@ -36,8 +36,8 @@ class MessagesListController: UITableViewController {
     typealias FinishedDownload = () -> ()
 
     let cellId = "cellId"
-    
     var timer: Timer?
+    private var locked = false // Prevents many postControllers to be pushed if several taps are made very quickly
 
     var messages = [Message]()
     var messagesDictionary = [String : Message]() // Used to group messages by partner, so we can select which message to show
@@ -62,6 +62,7 @@ class MessagesListController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        locked = false
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
@@ -217,16 +218,19 @@ class MessagesListController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let message = messages[indexPath.row]
-        
-        guard let chatPartnerId = message.chatPartnerID() else {
-            return
+        if !locked {
+            self.locked = true
+            let message = messages[indexPath.row]
+            
+            guard let chatPartnerId = message.chatPartnerID() else {
+                return
+            }
+            
+            let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
+            chatController.user = User(id: chatPartnerId, completion: {
+                self.navigationController?.pushViewController(chatController, animated: true)
+            })
         }
-        
-        let chatController = ChatController(collectionViewLayout: UICollectionViewFlowLayout())
-        chatController.user = User(id: chatPartnerId, completion: {
-            self.navigationController?.pushViewController(chatController, animated: true)
-        })
     }
     
     func sendProposal(to user: User, post: Post, title: String, place: String, date: String, time: String) {

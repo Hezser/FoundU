@@ -21,6 +21,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     private var sizesOfCells = [CGFloat]()
     private var initialLoad = true
     private var refreshControl = UIRefreshControl()
+    private var locked = false // Prevents many postControllers to be pushed if several taps are made very quickly
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +53,7 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        locked = false
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
@@ -231,16 +233,18 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        let post = posts[indexPath.row]
-        
-        let postController = PostController()
-        postController.user = User(id: post.userID, completion: { () -> () in
-            postController.post = post
-            postController.hidesBottomBarWhenPushed = true
-            postController.configure()
-            self.navigationController?.pushViewController(postController, animated: true)
-        })
-        
+        if !locked {
+            self.locked = true
+            let post = posts[indexPath.row]
+            
+            let postController = PostController()
+            postController.user = User(id: post.userID, completion: { () -> () in
+                postController.post = post
+                postController.hidesBottomBarWhenPushed = true
+                postController.configure()
+                self.navigationController?.pushViewController(postController, animated: true)
+            })
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

@@ -78,7 +78,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let label = UILabel()
         label.text = "Private Information"
         label.backgroundColor = .clear
-        label.font = .boldSystemFont(ofSize: 18)
+        label.font = .boldSystemFont(ofSize: 20)
         label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -88,7 +88,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let label = UILabel()
         label.text = "Public Information"
         label.backgroundColor = .clear
-        label.font = .boldSystemFont(ofSize: 18)
+        label.font = .boldSystemFont(ofSize: 20)
         label.textColor = Color.lightOrange
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

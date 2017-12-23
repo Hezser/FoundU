@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate {
+class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate, UIScrollViewDelegate {
     
     var user: User!
     var post: Post!
@@ -18,6 +18,25 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     var tabBarHeight: CGFloat = 50
     
     typealias FinishedDownload = () -> ()
+    
+    // For the purpose of leaving space for the meet button
+    var scrollViewContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    var scrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.backgroundColor = .clear
+        view.isUserInteractionEnabled = true
+        view.isScrollEnabled = true
+        view.showsVerticalScrollIndicator = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
     
     var blurEffectView: UIVisualEffectView = {
         let blurEffect = UIBlurEffect(style: .dark)
@@ -107,6 +126,11 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         return textView
     }()
     
+    var hashtagField: HashtagField = {
+        let hashtagField = HashtagField()
+        return hashtagField
+    }()
+    
     var userContainer: UIView = {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
@@ -175,6 +199,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     
     public func configure() {
         
+        scrollView.delegate = self
         titleTextView.delegate = self
         detailsTextView.delegate = self
         userDescriptionTextView.delegate = self
@@ -221,34 +246,51 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         detailsTextView.text = post.details
         userImageView.image = post.userPicture
         userNameTextView.text = post.userName
+        hashtagField.setHashtags(["Football", "Ski", "Basketball", "Skate", "Swimming", "Chess", "Running", "Eating"])
         
     }
     
     func setUpViews() {
         
         // UI
-        view.addSubview(titleTextView)
-        view.addSubview(timeLabel)
-        view.addSubview(dateLabel)
-        view.addSubview(anytimeExceptionalLabel)
-        view.addSubview(placeTextView)
+        view.addSubview(scrollViewContainer)
+        scrollViewContainer.addSubview(scrollView)
+        scrollView.addSubview(titleTextView)
+        scrollView.addSubview(timeLabel)
+        scrollView.addSubview(dateLabel)
+        scrollView.addSubview(anytimeExceptionalLabel)
+        scrollView.addSubview(placeTextView)
         
+        var spacing: CGFloat = 0
         let uid = FIRAuth.auth()?.currentUser?.uid
         if post.userID != uid {
+            spacing = tabBarHeight
             view.addSubview(meetButton)
         }
         
-        let margins = view.layoutMarginsGuide
+        // Scroll View Container Constraints
+        scrollViewContainer.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor).isActive = true // negative (wtf swift???)
+        scrollViewContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -spacing).isActive = true
+        scrollViewContainer.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        scrollViewContainer.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+
+        // Scroll View Constraints
+        scrollView.topAnchor.constraint(equalTo: scrollViewContainer.topAnchor).isActive = true
+        scrollView.leftAnchor.constraint(equalTo: scrollViewContainer.leftAnchor).isActive = true
+        scrollView.rightAnchor.constraint(equalTo: scrollViewContainer.rightAnchor).isActive = true
+        scrollView.heightAnchor.constraint(equalTo: scrollViewContainer.heightAnchor).isActive = true
+        
+        let margins = scrollView.layoutMarginsGuide
         
         // Title Label Constraints
+        titleTextView.topAnchor.constraint(equalTo: scrollView.topAnchor, constant: 30).isActive = true
         titleTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -40).isActive = true
-        titleTextView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
         titleTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
         // Date Label Constraints
         dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         dateLabel.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
-        dateLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 25).isActive = true
+        dateLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 30).isActive = true
         dateLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
         // Time Label Constraints
@@ -270,11 +312,19 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         
         setUpUserSectionView()
         
-        view.addSubview(detailsTextView)
+        scrollView.addSubview(hashtagField)
+        scrollView.addSubview(detailsTextView)
         
+        // Hashtag Field Constraints
+        hashtagField.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
+        hashtagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
+        hashtagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+        hashtagField.configure()
+        hashtagField.heightAnchor.constraint(equalToConstant: hashtagField.getHeight()).isActive = true
+
         // Details Label Constraints
         detailsTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
-        detailsTextView.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 40).isActive = true
+        detailsTextView.topAnchor.constraint(equalTo: hashtagField.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
         detailsTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
         if post.userID != uid {
@@ -282,7 +332,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
             meetButton.heightAnchor.constraint(equalToConstant: tabBarHeight).isActive = true
             meetButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
             meetButton.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-            meetButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor).isActive = true
+            meetButton.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         }
     }
     
@@ -311,11 +361,11 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     
     func setUpUserSectionView() {
         
-        view.addSubview(userContainer)
+        scrollView.addSubview(userContainer)
         
         // User Container Constraints
         userContainer.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
-        userContainer.topAnchor.constraint(equalTo: placeTextView.bottomAnchor, constant: 30).isActive = true
+        userContainer.topAnchor.constraint(equalTo: placeTextView.bottomAnchor, constant: 40).isActive = true
         userContainer.centerXAnchor.constraint(equalTo: titleTextView.centerXAnchor).isActive = true
         
         let dividerLine = DividerLine()
@@ -411,6 +461,23 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         }
         
         navigationController?.isNavigationBarHidden = true
+    }
+    
+    func calculateScrollViewHeight() -> CGFloat {
+        view.layoutIfNeeded()
+        var sum: CGFloat = 160 // Sum of spacing (130 of spacing between views + 30 bottom spacing)
+        sum += titleTextView.frame.size.height
+        sum += placeTextView.frame.size.height > (dateLabel.frame.size.height + timeLabel.frame.size.height) ? placeTextView.frame.size.height : (dateLabel.frame.size.height + timeLabel.frame.size.height)
+        sum += userContainer.frame.size.height
+        sum += hashtagField.getHeight()
+        sum += detailsTextView.frame.size.height
+        return sum
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        let width = scrollViewContainer.frame.size.width
+        scrollView.contentSize = CGSize(width: width, height: calculateScrollViewHeight())
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
