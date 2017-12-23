@@ -90,7 +90,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        navigationController?.setToolbarHidden(true, animated: false)
+        tabBarController?.tabBar.isHidden = true
         navigationItem.largeTitleDisplayMode = .never
     }
     
@@ -126,18 +126,25 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
+        print("id = \(proposal.postID!)")
         
-        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID!).child("postID").key
-        FIRDatabase.database().reference().child("posts").child(postID).observeSingleEvent(of: .value, with: { (snapshot) in
+//        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID!).value(forKey: "postID")
+        FIRDatabase.database().reference().child("posts").child(proposal.postID!).observeSingleEvent(of: .value, with: { (snapshot) in
         
             if snapshot.value as? [String : String] == nil {
                 // The post has been removed. Notify the user about this.
-                print("\nThe post you are trying to access has been removed from the database\n")
-                completed()
+                print("\nThe post you are trying to access (id = \(proposal.postID!)) has been removed from the database\n")
+                // Alert of the inexistance of the post
+                let alert = UIAlertController(title: "This post no longer exists", message: nil, preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                    // Alert is dismissed
+                }
+                alert.addAction(alertAction)
+                self.present(alert, animated: true, completion:nil)
                 return
             }
             
-            self.post = Post(snapshot.value as! FIRDataSnapshot)
+            self.post = Post(snapshot)
             completed()
             
         })
@@ -203,7 +210,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     func deleteConversationByDeclining() {
         
         // Present the alert to confirm
-        let alert = UIAlertController(title: "Delete Conversation", message: "When you decline a proposal, the conversation will be deleted. If you want to keep the conversation then accept the proposal, counter it, or don't answer it yet. Do you still want to decline?", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Delete Conversation", message: "When you decline a proposal, the conversation is deleted. Do you still want to decline?", preferredStyle: .alert)
         let clearAction = UIAlertAction(title: "Yes", style: .destructive) { (alert: UIAlertAction!) -> Void in
             self.deleteConversation()
         }

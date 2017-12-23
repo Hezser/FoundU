@@ -63,6 +63,7 @@ class MessagesListController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         locked = false
+        tabBarController?.tabBar.isHidden = false
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     

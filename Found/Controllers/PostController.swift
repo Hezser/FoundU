@@ -11,13 +11,13 @@ import Firebase
 
 class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate, UIScrollViewDelegate {
     
+    typealias FinishedDownload = () -> ()
+    
     var user: User!
     var post: Post!
     
     var proposalPopUpView: ProposalPopUpView!
     var tabBarHeight: CGFloat = 50
-    
-    typealias FinishedDownload = () -> ()
     
     // For the purpose of leaving space for the meet button
     var scrollViewContainer: UIView = {
@@ -55,7 +55,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     var meetButton: UIButton = {
        let button = UIButton()
         button.setTitle("Let's Meet!", for: .normal)
-        button.titleLabel?.font = button.titleLabel?.font.withSize(22)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 22)
         button.addTarget(self, action: #selector(handleMeetSetUp), for: .touchUpInside)
         button.backgroundColor = Color.lightOrange
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -435,32 +435,82 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     
     func sendProposal(forPost post: Post, time: String, date: String, place: String) {
         
-        // We have to push the ChatController from the MessagesController in order to preserve the logical navigation of the app
-        tabBarController?.selectedIndex = 1
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        FIRDatabase.database().reference().child("users").child(uid!).child("proposals").child(post.id).setValue("Ongoing", withCompletionBlock: { (error, reference) in
+            
+            if error != nil {
+                print(error!)
+                return
+            }
+            
+            // We have to push the ChatController from the MessagesController in order to preserve the logical navigation of the app
+            self.tabBarController?.selectedIndex = 1
+            
+            let messagesNavigationController = self.tabBarController?.selectedViewController as! UINavigationController
+            let messagesController = messagesNavigationController.topViewController as! MessagesListController
+            
+            messagesController.sendProposal(to: self.user, post: post, title: post.title, place: place, date: date, time: time)
+            
+            self.dismissPopUp()
+
+        })
+    }
+    
+    // Checks if the user has an ongoing proposal for this post, if the user is blocked by the posting user, etc.
+    fileprivate func checkValidityOfProposal(completion completed: @escaping FinishedDownload) {
+       
+        let uid = FIRAuth.auth()?.currentUser?.uid
+        FIRDatabase.database().reference().child("users").child(uid!).observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            if !snapshot.hasChild("proposals") {
+                print("\nNo proposals exist for this user\n")
+                completed()
+                return
+            }
+            
+            let proposals = snapshot.childSnapshot(forPath: "proposals")
+            print("\nProposals are: \(proposals)\n")
+            if (proposals.hasChild(self.post.id!)) {
+                print("\nThere already exists a proposal\n")
+                // Alert of the existance of ongoing proposal
+                let alert = UIAlertController(title: "You already have an ongoing proposal for this post", message: nil, preferredStyle: .alert)
+                let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+                    // Alert is dismissed
+                }
+                alert.addAction(alertAction)
+                self.present(alert, animated: true, completion:nil)
+                return
+            } else {
+                print("\nNo proposal for this post exists\n")
+                completed()
+                return
+            }
+        })
         
-        let messagesNavigationController = tabBarController?.selectedViewController as! UINavigationController
-        let messagesController = messagesNavigationController.topViewController as! MessagesListController
-        
-        messagesController.sendProposal(to: user, post: post, title: post.title, place: place, date: date, time: time)
-        
-        dismissPopUp()
+        // Something went wrong
+        return
     }
     
     @objc func handleMeetSetUp(sender: UIButton) {
         
-        proposalPopUpView.addButtonFunctionality()
-
-        // Animate PopUp View
-        proposalPopUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
-        proposalPopUpView.alpha = 0
-        UIView.animate(withDuration: 0.4) {
-            self.blurEffectView.isHidden = false
-            self.vibrancyEffectView.isHidden = false
-            self.proposalPopUpView.alpha = 1
-            self.proposalPopUpView.transform = CGAffineTransform.identity
-        }
+        checkValidityOfProposal(completion: {
+            
+            self.proposalPopUpView.addButtonFunctionality()
+            
+            // Animate PopUp View
+            self.proposalPopUpView.transform = CGAffineTransform.init(scaleX: 1.2, y: 1.2)
+            self.proposalPopUpView.alpha = 0
+            UIView.animate(withDuration: 0.4) {
+                self.blurEffectView.isHidden = false
+                self.vibrancyEffectView.isHidden = false
+                self.proposalPopUpView.alpha = 1
+                self.proposalPopUpView.transform = CGAffineTransform.identity
+            }
+            
+            self.navigationController?.isNavigationBarHidden = true
+            
+        })
         
-        navigationController?.isNavigationBarHidden = true
     }
     
     func calculateScrollViewHeight() -> CGFloat {

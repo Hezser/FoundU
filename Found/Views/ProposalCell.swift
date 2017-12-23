@@ -31,7 +31,7 @@ class ProposalCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 13)
+        label.font = UIFont.boldSystemFont(ofSize: 14)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -41,7 +41,6 @@ class ProposalCell: UICollectionViewCell {
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
-        label.textColor = .gray
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,8 +53,7 @@ class ProposalCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
-        label.textColor = .gray
-        label.font = UIFont.systemFont(ofSize: 11)
+        label.font = UIFont.systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -66,8 +64,7 @@ class ProposalCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.baselineAdjustment = .alignCenters
         label.textAlignment = .center
-        label.textColor = .gray
-        label.font = UIFont.systemFont(ofSize: 11)
+        label.font = UIFont.systemFont(ofSize: 12)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -75,7 +72,7 @@ class ProposalCell: UICollectionViewCell {
     let acceptButton: UIButton = {
         let button = UIButton()
         button.setTitle("Accept", for: .normal)
-        button.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
+        button.backgroundColor = Color.green
         button.isUserInteractionEnabled = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -84,7 +81,7 @@ class ProposalCell: UICollectionViewCell {
     let counterButton: UIButton = {
         let button = UIButton()
         button.setTitle("Counter", for: .normal)
-        button.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
+        button.backgroundColor = Color.lightOrange
         button.isUserInteractionEnabled = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -93,7 +90,7 @@ class ProposalCell: UICollectionViewCell {
     let declineButton: UIButton = {
         let button = UIButton()
         button.setTitle("Decline", for: .normal)
-        button.backgroundColor = #colorLiteral(red: 0.9492980647, green: 0.6576105266, blue: 0.677450324, alpha: 1)
+        button.backgroundColor = Color.red
         button.isUserInteractionEnabled = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -112,7 +109,7 @@ class ProposalCell: UICollectionViewCell {
         
         // Set image of messagescontroller cell to acceptance one (white tick on green background with circle shape)
         
-        containerView.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
+        containerView.backgroundColor = Color.green
         acceptButton.isHidden = true
         counterButton.isHidden = true
         declineButton.isHidden = true
@@ -137,7 +134,7 @@ class ProposalCell: UICollectionViewCell {
         
         // Set image of messagescontroller cell to countering one (whatever white symbol on orange background with circle shape)
         
-        containerView.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
+        containerView.backgroundColor = Color.lightOrange
         acceptButton.isHidden = true
         counterButton.isHidden = true
         declineButton.isHidden = true
@@ -159,14 +156,23 @@ class ProposalCell: UICollectionViewCell {
     
     func setBackgroundColor(for decision: String?) {
         
+        titleLabel.textColor = .white
+        placeLabel.textColor = .white
+        dateLabel.textColor = .white
+        timeLabel.textColor = .white
+        
         if decision == "Accepted" {
-            containerView.backgroundColor = #colorLiteral(red: 0.7234831207, green: 1, blue: 0.6667848926, alpha: 1)
+            containerView.backgroundColor = Color.green
         } else if decision == "Countered" {
-            containerView.backgroundColor = #colorLiteral(red: 0.926276967, green: 0.7887039048, blue: 0.581957822, alpha: 1)
+            containerView.backgroundColor = Color.lightOrange
         } else if decision == "Declined" {
-            containerView.backgroundColor = #colorLiteral(red: 0.9492980647, green: 0.6576105266, blue: 0.677450324, alpha: 1)
+            containerView.backgroundColor = Color.red
         } else {
             containerView.backgroundColor = .white
+            titleLabel.textColor = .black
+            placeLabel.textColor = .black
+            dateLabel.textColor = .black
+            timeLabel.textColor = .black
         }
     }
     
