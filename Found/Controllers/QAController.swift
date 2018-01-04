@@ -33,8 +33,9 @@ class QAController: UIViewController {
     
     var nextButton: UIButton = {
         let button = UIButton()
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 24)
         button.setTitle("Next!", for: .normal)
-        button.layer.cornerRadius = 5
+        button.layer.cornerRadius = 10
         button.backgroundColor = Color.lightOrange
         button.clipsToBounds = true
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -86,7 +87,7 @@ class QAController: UIViewController {
         // Next Button Constraints
         nextButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
         nextButton.heightAnchor.constraint(equalTo: nextButton.widthAnchor, multiplier: 1/2).isActive = true
-        nextButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor, constant: -75).isActive = true
+        nextButton.bottomAnchor.constraint(equalTo: margins.bottomAnchor, constant: -30).isActive = true
         nextButton.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
     }

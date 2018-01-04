@@ -23,6 +23,7 @@ class Message: NSObject {
     var place: String?
     var time: String?
     var date: String?
+    
     // Convenience variables, not present at database but setup dinamically to speedup UI
     var userPicture: UIImage?
     var userName: String?

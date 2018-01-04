@@ -51,7 +51,6 @@ class User: NSObject {
         self.id = id
 
         FIRDatabase.database().reference(fromURL: "https://found-87b59.firebaseio.com/").child("users").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
-            print("\nYEYE2\n")
             let value = snapshot.value as? NSDictionary
             self.email = value?["email"] as? String
             self.password = value?["password"] as? String

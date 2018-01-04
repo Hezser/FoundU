@@ -109,7 +109,7 @@ class ProfileController: UIViewController {
         return textView
     }()
     
-    var hashtagLabel: UILabel = {
+    var tagLabel: UILabel = {
         let label = UILabel()
         label.text = "Tags"
         label.textAlignment = .left
@@ -119,9 +119,9 @@ class ProfileController: UIViewController {
         return label
     }()
     
-    var hashtagField: HashtagField = {
-        let hashtagField = HashtagField()
-        return hashtagField
+    var tagField: TagField = {
+        let tagField = TagField()
+        return tagField
     }()
     
     var studiesLabel: UILabel = {
@@ -184,7 +184,7 @@ class ProfileController: UIViewController {
         placeLabel.text = "From " + user.place!
         bioTextView.text = user.bio!
         bioTextView.font = placeLabel.font
-        hashtagField.setHashtags(["Football", "Reading", "Netflix", "Football", "Reading", "Netflix","Football", "Reading", "Netflix"])
+        tagField.setTags(["Football", "Reading", "Netflix", "Football", "Reading", "Netflix","Football", "Reading", "Netflix"])
         
         for studies in user.studies! {
             if studies != "" {
@@ -277,8 +277,8 @@ class ProfileController: UIViewController {
         scrollView.addSubview(startQuotations)
         scrollView.addSubview(endQuotations)
         scrollView.addSubview(bioTextView)
-        scrollView.addSubview(hashtagLabel)
-        scrollView.addSubview(hashtagField)
+        scrollView.addSubview(tagLabel)
+        scrollView.addSubview(tagField)
         scrollView.addSubview(dividerLine2)
         scrollView.addSubview(studiesLabel)
         for studies in studiesFields {
@@ -335,18 +335,18 @@ class ProfileController: UIViewController {
         dividerLine2.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
         
-        hashtagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
-        hashtagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
-        hashtagLabel.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        hashtagLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+        tagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
+        tagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
+        tagLabel.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        tagLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
         
-        hashtagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
-        hashtagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
-        hashtagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
-        hashtagField.configure()
-        hashtagField.heightAnchor.constraint(equalToConstant: hashtagField.getHeight()).isActive = true
+        tagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
+        tagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
+        tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+        tagField.configure()
+        tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
         
-        dividerLine3.topAnchor.constraint(equalTo: hashtagField.bottomAnchor, constant: 20).isActive = true
+        dividerLine3.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 20).isActive = true
         dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
@@ -463,7 +463,7 @@ class ProfileController: UIViewController {
         var sum: CGFloat = 121 // Sum of blank vertical distance between views + width of divider lines
         sum += basicInformationContainer.frame.size.height
         sum += bioTextView.frame.size.height
-        sum += hashtagField.getHeight()
+        sum += tagField.getHeight()
         if studiesFields.count > 0 {
             sum += 41 // 30 top spacing + 10 bottom spacing + 1 divider line
         }

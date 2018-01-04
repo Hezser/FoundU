@@ -27,27 +27,33 @@ class NewPostController: UIViewController {
 
         // Questions in order
         let question1 = "To put it as a title, what would you like to talk about?"
-        let question2 = "Where would you like to meet? You can leave it blank if you'd meet anywhere."
-        let question3 = "Is there any time in particular that suits you best?"
-        let question4 = "Why this topic? Is there anything else you want to say?"
+        let question2 = "Which topics will you be addressing? Choose you tags."
+        let question3 = "Where would you like to meet? You can leave it blank if you'd meet anywhere."
+        let question4 = "Is there any time in particular that suits you best?"
+        let question5 = "Why this topic? Is there anything else you want to say?"
         
         // Initializing the QAViews with their questions
         let menu = MenuController()
         menu.itemToDisplay = 3
-        let qa4 = QAOneFieldController()
+        let qa5 = QAOneFieldController()
+        qa5.situation = .postCreation
+        qa5.variable = .details
+        qa5.lastView = true
+        qa5.question = question5
+        qa5.nextView = menu
+        let qa4 = QADatePickController()
         qa4.situation = .postCreation
-        qa4.variable = .details
-        qa4.lastView = true
+        qa4.variable = .time
         qa4.question = question4
-        qa4.nextView = menu
-        let qa3 = QADatePickController()
+        qa4.nextView = qa5
+        let qa3 = QAOneFieldController()
         qa3.situation = .postCreation
-        qa3.variable = .time
+        qa3.variable = .place
         qa3.question = question3
         qa3.nextView = qa4
-        let qa2 = QAOneFieldController()
+        let qa2 = QATagController()
         qa2.situation = .postCreation
-        qa2.variable = .place
+        qa2.variable = .title
         qa2.question = question2
         qa2.nextView = qa3
         let qa1 = QAOneFieldController()

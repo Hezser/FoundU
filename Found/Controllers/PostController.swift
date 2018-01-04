@@ -126,9 +126,9 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         return textView
     }()
     
-    var hashtagField: HashtagField = {
-        let hashtagField = HashtagField()
-        return hashtagField
+    var tagField: TagField = {
+        let tagField = TagField()
+        return tagField
     }()
     
     var userContainer: UIView = {
@@ -246,7 +246,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         detailsTextView.text = post.details
         userImageView.image = post.userPicture
         userNameTextView.text = post.userName
-        hashtagField.setHashtags(["Football", "Ski", "Basketball", "Skate", "Swimming", "Chess", "Running", "Eating"])
+        tagField.setTags(["Football", "Ski", "Basketball", "Skate", "Swimming", "Chess", "Running", "Eating"])
         
     }
     
@@ -312,19 +312,19 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         
         setUpUserSectionView()
         
-        scrollView.addSubview(hashtagField)
+        scrollView.addSubview(tagField)
         scrollView.addSubview(detailsTextView)
         
         // Hashtag Field Constraints
-        hashtagField.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
-        hashtagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
-        hashtagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
-        hashtagField.configure()
-        hashtagField.heightAnchor.constraint(equalToConstant: hashtagField.getHeight()).isActive = true
+        tagField.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
+        tagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
+        tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+        tagField.configure()
+        tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
 
         // Details Label Constraints
         detailsTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
-        detailsTextView.topAnchor.constraint(equalTo: hashtagField.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
+        detailsTextView.topAnchor.constraint(equalTo: tagField.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
         detailsTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
         if post.userID != uid {
@@ -519,7 +519,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         sum += titleTextView.frame.size.height
         sum += placeTextView.frame.size.height > (dateLabel.frame.size.height + timeLabel.frame.size.height) ? placeTextView.frame.size.height : (dateLabel.frame.size.height + timeLabel.frame.size.height)
         sum += userContainer.frame.size.height
-        sum += hashtagField.getHeight()
+        sum += tagField.getHeight()
         sum += detailsTextView.frame.size.height
         return sum
     }

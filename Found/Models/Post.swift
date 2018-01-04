@@ -19,6 +19,7 @@ class Post: NSObject {
     var place: String!
     var time: String!
     var details: String!
+    
     // Convenience variables, only set in postListController
     var userDescription: String?
     var userName: String?

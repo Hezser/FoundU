@@ -49,7 +49,7 @@ class MessagesListController: UITableViewController {
         
         tableView.register(ConversationCell.self, forCellReuseIdentifier: cellId)
         
-        tableView.allowsMultipleSelectionDuringEditing = true
+        tableView.allowsMultipleSelectionDuringEditing = false
         
         // For security reasons
         messages.removeAll()
