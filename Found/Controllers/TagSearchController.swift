@@ -49,6 +49,7 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
             // Make sure the that the search bar is visible within the navigation bar.
             self.searchController.searchBar.delegate = self
             self.searchController.searchBar.sizeToFit()
+            self.searchController.searchBar.tintColor = Color.lightOrange
             self.searchController.searchBar.placeholder = "Search your tags"
             self.searchController.searchBar.returnKeyType = .send
             self.searchController.searchBar.searchBarStyle = .minimal
@@ -153,7 +154,7 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
                 // Add to database
                 FIRDatabase.database().reference().child("tags").observeSingleEvent(of: .value, with: { (snapshot) in
                     if !snapshot.hasChild(text) {
-                        FIRDatabase.database().reference().child("tags").updateChildValues([text: "1"])
+                        FIRDatabase.database().reference().child("tags").updateChildValues([text: 1])
                     }
                 })
             }

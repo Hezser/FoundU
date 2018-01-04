@@ -14,7 +14,7 @@ class QADatePickController: QAController {
     
     var iAmFlexibleButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitleColor(Color.strongOrange, for: .normal)
+        button.setTitleColor(Color.lightOrange, for: .normal)
         button.addTarget(self, action: #selector(iAmFlexiblePressed), for: .touchUpInside)
         button.setTitle("I am flexible", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
