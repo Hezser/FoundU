@@ -832,7 +832,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine1.topAnchor.constraint(equalTo: privateInformationLabel.bottomAnchor).isActive = true
         dividerLine1.leftAnchor.constraint(equalTo: scrollView.leftAnchor).isActive = true
         dividerLine1.rightAnchor.constraint(equalTo: scrollView.rightAnchor).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 2).isActive = true
+        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Email Label Constraints
         emailLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 5).isActive = true
@@ -850,7 +850,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine2.topAnchor.constraint(equalTo: emailLabel.bottomAnchor).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
 
         // Password Label Constraints
         passwordLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
@@ -892,7 +892,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine5.topAnchor.constraint(equalTo: nameLabel.bottomAnchor).isActive = true
         dividerLine5.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine5.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine5.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine5.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Date Of Birth Label Constraints
         dateOfBirthLabel.topAnchor.constraint(equalTo: dividerLine5.bottomAnchor).isActive = true
@@ -910,7 +910,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine6.topAnchor.constraint(equalTo: dateOfBirthLabel.bottomAnchor).isActive = true
         dividerLine6.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine6.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine6.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine6.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Home Place Label Constraints
         homePlaceLabel.topAnchor.constraint(equalTo: dividerLine6.bottomAnchor).isActive = true
@@ -928,7 +928,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLine7.topAnchor.constraint(equalTo: homePlaceLabel.bottomAnchor).isActive = true
         dividerLine7.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine7.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine7.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine7.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Bio Label Constraints
         bioLabel.topAnchor.constraint(equalTo: dividerLine7.bottomAnchor).isActive = true
@@ -945,7 +945,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         dividerLineWork1.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
         dividerLineWork1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLineWork1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLineWork1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLineWork1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Work Label Constraints
         workLabel.topAnchor.constraint(equalTo: dividerLineWork1.bottomAnchor).isActive = true
@@ -966,7 +966,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         studiesDividerTopConstraint.isActive = true
         dividerLineStudies1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLineStudies1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLineStudies1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLineStudies1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Studies Label Constraints
         studiesLabel.topAnchor.constraint(equalTo: dividerLineStudies1.bottomAnchor).isActive = true
@@ -1083,7 +1083,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
             dividerLine.topAnchor.constraint(equalTo: topView.bottomAnchor).isActive = true
             dividerLine.leftAnchor.constraint(equalTo: titleLabel.rightAnchor, constant: 10).isActive = true
             dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-            dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+            dividerLine.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
             
         } else if whereLabel == whereWorkLabel1 {
             studiesDividerTopConstraint.constant += 30 // 40-10 because of the bottom textfield (the upper one is not counted since we are already under workLabel, and -10 because we supperpose the textfields)

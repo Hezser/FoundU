@@ -226,8 +226,9 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
             }
             
             let postListController = self.navigationController?.viewControllers[0] as! PostListController
-            postListController.loadPostsOnce()
-            self.navigationController?.popToRootViewController(animated: true)
+            postListController.loadPostsOnce(completion: {
+                self.navigationController?.popToRootViewController(animated: true)
+            })
         })
     }
     
@@ -262,10 +263,11 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
                 let postController = self.navigationController?.viewControllers[1] as! PostController
                 postController.post = self.post
                 let postListController = self.navigationController?.viewControllers[0] as! PostListController
-                postListController.loadPostsOnce()
-                // Assuming the EditProfileController is presented and not pushed
-                // Otherwise do: dismiss(animated: true, completion: nil)
-                self.navigationController?.popViewController(animated: true)
+                postListController.loadPostsOnce(completion: {
+                    // Assuming the EditProfileController is presented and not pushed
+                    // Otherwise do: dismiss(animated: true, completion: nil)
+                    self.navigationController?.popViewController(animated: true)
+                })
             })
         }
     }
@@ -372,7 +374,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         dividerLine2.topAnchor.constraint(equalTo: titleTextView.bottomAnchor).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Place Label Constraints
         placeLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
@@ -389,7 +391,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         dividerLine3.topAnchor.constraint(equalTo: placeTextView.bottomAnchor).isActive = true
         dividerLine3.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine3.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine3.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
 
         // Date Time Label Constraints
         dateTimeLabel.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor).isActive = true
@@ -407,7 +409,7 @@ class EditPostController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         dividerLine4.topAnchor.constraint(equalTo: dateTimeLabel.bottomAnchor).isActive = true
         dividerLine4.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine4.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine4.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine4.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Details Label Constraints
         detailsLabel.topAnchor.constraint(equalTo: dividerLine4.bottomAnchor).isActive = true

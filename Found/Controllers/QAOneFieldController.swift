@@ -22,14 +22,38 @@ class QAOneFieldController: QAController, UITextViewDelegate {
         return textView
     }()
     
+    func presentInvalidDataAlert(withMessage message: String) {
+        let alert = UIAlertController(title: "\(message).", message: nil, preferredStyle: .alert)
+        let alertAction = UIAlertAction(title: "Ok", style: .default) { (alert: UIAlertAction!) -> Void in
+            // Alert is dismissed
+        }
+        alert.addAction(alertAction)
+        self.present(alert, animated: true, completion:nil)
+    }
+    
+    func dataIsValid() -> Bool {
+        
+        // Check that title of post is long enough (5 chars)
+        if variable == .title {
+            if answerTextView.text.count < 5 {
+                presentInvalidDataAlert(withMessage: "The title is not long enough")
+                return false
+            }
+        }
+        
+        return true
+    }
+    
     override func nextPressed(sender: UIButton!) {
-        if situation == .profileCreation {
-            addDataToProfile(data: answerTextView.text ?? "")
+        if dataIsValid() {
+            if situation == .profileCreation {
+                addDataToProfile(data: answerTextView.text ?? "")
+            }
+            else if situation == .postCreation {
+                addDataToPost(data: answerTextView.text)
+            }
+            goToNextView()
         }
-        else if situation == .postCreation {
-            addDataToPost(data: answerTextView.text)
-        }
-        goToNextView()
     }
     
     override func viewDidLoad() {
@@ -40,7 +64,7 @@ class QAOneFieldController: QAController, UITextViewDelegate {
         super.setUpUI()
         
         answerTextView.delegate = self
-        answerTextView.font = questionLabel.font
+        answerTextView.font = questionTextView.font
         view.addSubview(answerTextView)
         
         let margins = view.layoutMarginsGuide

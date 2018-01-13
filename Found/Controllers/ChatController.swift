@@ -30,6 +30,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     var blurEffectView: UIVisualEffectView = {
         let blurEffect = UIBlurEffect(style: .dark)
         let effectView = UIVisualEffectView(effect: blurEffect)
+        effectView.isHidden = true
         effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return effectView
     }()
@@ -37,6 +38,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     var vibrancyEffectView: UIVisualEffectView = {
         let vibrancyEffect = UIVibrancyEffect(blurEffect: UIBlurEffect(style: .dark))
         let effectView = UIVisualEffectView(effect: vibrancyEffect)
+        effectView.isHidden = true
         effectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         return effectView
     }()
@@ -128,7 +130,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
         print("id = \(proposal.postID!)")
         
-//        let postID = FIRDatabase.database().reference().child("messages").child(proposal.messageID!).value(forKey: "postID")
         FIRDatabase.database().reference().child("posts").child(proposal.postID!).observeSingleEvent(of: .value, with: { (snapshot) in
         
             if snapshot.value as? [String : String] == nil {
@@ -194,6 +195,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         
         let touch: UITouch? = touches.first
         if (touch?.view != proposalPopUpView) && (blurEffectView.isHidden == false) {
+            print("\n\(blurEffectView.isHidden)\n")
             dismissPopUp()
         } else if (touch?.view == proposalPopUpView) && (blurEffectView.isHidden == false) {
             self.view.endEditing(true)
@@ -617,8 +619,9 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
         }
     }
     
-    //my custom zooming logic
     func performZoomInForStartingImageView(_ startingImageView: UIImageView) {
+        
+        inputContainerView.hideKeyboard()
         
         self.startingImageView = startingImageView
         self.startingImageView?.isHidden = true
@@ -654,7 +657,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
                 zoomingImageView.center = keyWindow.center
                 
                 }, completion: { (completed) in
-//                    do nothing
+                   // 
             })
             
         }

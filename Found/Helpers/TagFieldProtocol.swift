@@ -10,5 +10,7 @@ protocol TagFieldHandler {
     
     var tagField: TagField! { get set }
     
-    func handleTagSelection(forTag tag: String)
+    func handleTagSingleTap(forTag tag: String)
+    
+    func handleTagDoubleTap(forTag tag: String)
 }

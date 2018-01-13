@@ -12,17 +12,42 @@ class TagCreationController: UIViewController, TagFieldHandler, TagSearchHandler
     
     internal var tagSearcher: TagSearchController!
     internal var tagField: TagField!
+    private var distanceFromTop: CGFloat! {
+        didSet {
+            setUpUI()
+        }
+    }
     
-    func handleTagSelection(forTag tag: String) {
+    func handleTagSingleTap(forTag tag: String) {
         tagField.removeTag(tag)
+    }
+    
+    func handleTagDoubleTap(forTag tag: String) {
+        //
     }
     
     func handleCellSelection(forTag tag: String) {
         tagField.addTag(tag)
     }
     
+    public func setDistanceFromTop(to distance: CGFloat) {
+        distanceFromTop = distance
+    }
+    
+    public func getTags() -> [String] {
+        return tagField.getTags()
+    }
+    
     public func configureTagField() {
         tagField.configure()
+    }
+    
+    public func deactivateSearchBar() {
+        tagSearcher.deactivateSearchBar()
+    }
+    
+    public func activateSearchBar() {
+        tagSearcher.activateSearchBar()
     }
     
     private func setUpUI() {
@@ -31,18 +56,15 @@ class TagCreationController: UIViewController, TagFieldHandler, TagSearchHandler
         view.addSubview(tagSearcher.view)
         view.addSubview(tagField)
         
-        let margins = view.layoutMarginsGuide
-        
-        tagField.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
-        tagField.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        tagField.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        tagField.heightAnchor.constraint(equalTo: margins.heightAnchor, multiplier: 1/4).isActive = true
-        
-        tagSearcher.view.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 10).isActive = true
+        tagSearcher.view.topAnchor.constraint(equalTo: view.centerYAnchor, constant: -distanceFromTop).isActive = true
         tagSearcher.view.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         tagSearcher.view.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         tagSearcher.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
+        tagField.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        tagField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 20).isActive = true
+        tagField.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -20).isActive = true
+        tagField.bottomAnchor.constraint(equalTo: tagSearcher.view.topAnchor, constant: -10).isActive = true
     }
     
     override func viewDidLoad() {
@@ -56,9 +78,18 @@ class TagCreationController: UIViewController, TagFieldHandler, TagSearchHandler
         // Set Up Tag Field
         tagField = TagField()
         tagField.isScrollable()
+        tagField.setDoubleTapEnabled(to: false)
         tagField.handler = self
-        
-        setUpUI()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        activateSearchBar()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        deactivateSearchBar()
     }
     
 }

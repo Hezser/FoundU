@@ -8,6 +8,10 @@
 
 import UIKit
 
+// IMPORTANT
+/*  The left and right constraints for the tag field cannot be with respect to layoutMarginsGuide. There is an error where the field would get the frame/bounds width as if the constraint was based on view, but it would still visually conserve the width as if it was based on layoutMarginsGuide. This means that originalWidth gets a width which is greater than the one available on screen. This also affects the contentSize of the scroll view, which would allow you to scroll horizontally.
+ */
+
 class TagField: UIView {
     
     private let height: CGFloat = 40
@@ -30,6 +34,8 @@ class TagField: UIView {
     private var rowsWidthConstraints = [NSLayoutConstraint]()  // God made this. You are welcome.
     private var tagViews = [UIButton]()
     private var tags = [String]()
+    private var upvotedTags = [String]()
+    private var doubleTapEnabled = false
     
     public func isScrollable() {
         scrollView.isScrollEnabled = true
@@ -38,6 +44,9 @@ class TagField: UIView {
     public func isNotScrollable() {
         scrollView.isScrollEnabled = false
         scrollView.showsVerticalScrollIndicator = false
+    }
+    public func setDoubleTapEnabled(to boolean: Bool) {
+        doubleTapEnabled = boolean
     }
     public func getNumberOfRows() -> Int {
         return self.rows.count
@@ -48,10 +57,20 @@ class TagField: UIView {
     public func getTags() -> [String] {
         return tags
     }
-    public func setTags(_ tags: [String]) {
-        self.tags = tags
-        if (availableWidth != nil) {
-            addTagViews()
+    public func setTags(_ tags: [String]?) {
+        if let initialTags = tags {
+            self.tags = initialTags
+            if (availableWidth != nil) {
+                addTagViews()
+            }
+        }
+    }
+    public func setUpvotedTags(_ tags: [String]?) {
+        if let initialTags = tags {
+            self.upvotedTags = initialTags
+            if (availableWidth != nil) {
+                addTagViews()
+            }
         }
     }
     public func addTag(_ tag: String) {
@@ -65,6 +84,23 @@ class TagField: UIView {
     public func removeTag(_ tag: String) {
         if let index = tags.index(of: tag) {
             tags.remove(at: index)
+            if (availableWidth != nil) {
+                addTagViews()
+            }
+        }
+    }
+    public func addUpvotedTag(_ tag: String) {
+        if !upvotedTags.contains(tag) {
+            upvotedTags.append(tag)
+            if (availableWidth != nil) {
+                addTagViews()
+            }
+        }
+    
+    }
+    public func removeUpvotedTag(_ tag: String) {
+        if let index = upvotedTags.index(of: tag) {
+            upvotedTags.remove(at: index)
             if (availableWidth != nil) {
                 addTagViews()
             }
@@ -105,7 +141,19 @@ class TagField: UIView {
             button.backgroundColor = Color.lightOrange
             button.titleLabel?.textAlignment = .center
             button.titleLabel?.sizeToFit()
-            button.addTarget(self, action: #selector(handleTagSelection), for: .touchUpInside)
+            let singleTap = UITapGestureRecognizer(target: self, action: #selector(handleTagSingleTap))
+            singleTap.numberOfTapsRequired = 1
+            if doubleTapEnabled {
+                let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleTagDoubleTap))
+                doubleTap.numberOfTapsRequired = 2
+                singleTap.require(toFail: doubleTap)
+                button.addGestureRecognizer(doubleTap)
+            }
+            if upvotedTags.contains(tag) {
+                button.layer.borderWidth = 4
+                button.layer.borderColor = Color.strongOrange.cgColor
+            }
+            button.addGestureRecognizer(singleTap)
             button.translatesAutoresizingMaskIntoConstraints = false
             return button
         }()
@@ -133,7 +181,7 @@ class TagField: UIView {
             rowsWidthConstraints.append(stackView.widthAnchor.constraint(equalToConstant: width))
             rowsWidthConstraints.last?.isActive = true
             rows.append(stackView)
-            scrollView.contentSize = CGSize(width: frame.size.width, height: calculateScrollViewHeight())
+            scrollView.contentSize = CGSize(width: originalWidth, height: calculateScrollViewHeight())
             availableWidth = availableWidth - width
         // Contiguous to previous button
         } else if (width + 5 + 10) < availableWidth {  // 5 of horizontal spacing with contiguous button // +10 because of imprecisions I cannot find in the code (it should be the exact width I am calculating here, but it isn't, so the +10 is an error margin)
@@ -156,7 +204,7 @@ class TagField: UIView {
             rowsWidthConstraints.append(stackView.widthAnchor.constraint(equalToConstant: width))
             rowsWidthConstraints.last?.isActive = true
             rows.append(stackView)
-            scrollView.contentSize = CGSize(width: frame.size.width, height: calculateScrollViewHeight())
+            scrollView.contentSize = CGSize(width: originalWidth, height: calculateScrollViewHeight())
             availableWidth = originalWidth - width
         }
         
@@ -174,9 +222,17 @@ class TagField: UIView {
         return contentHeight
     }
     
-    @objc func handleTagSelection(_ sender: UIButton) {
+    @objc func handleTagSingleTap(_ gesture: UITapGestureRecognizer) {
+        let sender = gesture.view as! UIButton
         if let handler = handler {
-            handler.handleTagSelection(forTag: (sender.titleLabel?.text)!)
+            handler.handleTagSingleTap(forTag: (sender.titleLabel?.text)!)
+        }
+    }
+    
+    @objc func handleTagDoubleTap(_ gesture: UITapGestureRecognizer) {
+        let sender = gesture.view as! UIButton
+        if let handler = handler {
+            handler.handleTagDoubleTap(forTag: (sender.titleLabel?.text)!)
         }
     }
     

@@ -27,7 +27,7 @@ class NewPostController: UIViewController {
 
         // Questions in order
         let question1 = "To put it as a title, what would you like to talk about?"
-        let question2 = "Which topics will you be addressing? Choose you tags."
+        let question2 = "Which topics will you be addressing? Choose your tags."
         let question3 = "Where would you like to meet? You can leave it blank if you'd meet anywhere."
         let question4 = "Is there any time in particular that suits you best?"
         let question5 = "Why this topic? Is there anything else you want to say?"
@@ -53,7 +53,7 @@ class NewPostController: UIViewController {
         qa3.nextView = qa4
         let qa2 = QATagController()
         qa2.situation = .postCreation
-        qa2.variable = .title
+        qa2.variable = .tags
         qa2.question = question2
         qa2.nextView = qa3
         let qa1 = QAOneFieldController()

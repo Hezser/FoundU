@@ -18,7 +18,8 @@ class Post: NSObject {
     var title: String!
     var place: String!
     var time: String!
-    var details: String!
+    var tags: [String]?
+    var details: String?
     
     // Convenience variables, only set in postListController
     var userDescription: String?
@@ -38,6 +39,7 @@ class Post: NSObject {
         title = post.childSnapshot(forPath: "title").value as? String
         place = post.childSnapshot(forPath: "place").value as? String
         time = post.childSnapshot(forPath: "time").value as? String
+        tags = post.childSnapshot(forPath: "tags").value as? [String]
         details = post.childSnapshot(forPath: "details").value as? String
         
     }

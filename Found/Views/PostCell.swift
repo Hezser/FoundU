@@ -157,7 +157,7 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         
         // Divider Line Constraints
         dividerLine.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         dividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         

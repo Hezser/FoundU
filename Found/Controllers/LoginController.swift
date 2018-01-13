@@ -225,7 +225,7 @@ class LoginController: UIViewController {
         nameSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         nameSeparatorView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor).isActive = true
         nameSeparatorView.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        nameSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        nameSeparatorView.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         nameSeparatorView.backgroundColor = .lightGray
         
         //need x, y, width, height constraints
@@ -242,7 +242,7 @@ class LoginController: UIViewController {
         emailSeparatorView.leftAnchor.constraint(equalTo: inputsContainerView.leftAnchor).isActive = true
         emailSeparatorView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor).isActive = true
         emailSeparatorView.widthAnchor.constraint(equalTo: inputsContainerView.widthAnchor).isActive = true
-        emailSeparatorView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        emailSeparatorView.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         emailSeparatorView.backgroundColor = .lightGray
         
         //need x, y, width, height constraints

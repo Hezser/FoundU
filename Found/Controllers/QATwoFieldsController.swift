@@ -51,16 +51,16 @@ class QATwoFieldsController: QAController, UITextViewDelegate {
         super.setUpUI()
         
         titleTextView.delegate = self
-        titleTextView.font = questionLabel.font
+        titleTextView.font = questionTextView.font
         contentTextView.delegate = self
-        contentTextView.font = questionLabel.font
+        contentTextView.font = questionTextView.font
         view.addSubview(titleTextView)
         view.addSubview(contentTextView)
         
         let margins = view.layoutMarginsGuide
         
         // Title Text View Constraints
-        titleTextView.topAnchor.constraint(equalTo: questionLabel.bottomAnchor, constant: 20).isActive = true
+        titleTextView.topAnchor.constraint(equalTo: questionTextView.bottomAnchor, constant: 20).isActive = true
         titleTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         titleTextView.widthAnchor.constraint(greaterThanOrEqualToConstant: 50).isActive = true
         

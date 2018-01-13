@@ -51,6 +51,7 @@
 		D6E6B7571F82A35E005BE722 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7561F82A35D005BE722 /* Post.swift */; };
 		D6E6B7591F82A52F005BE722 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E6B7581F82A52F005BE722 /* User.swift */; };
 		D6E8A6111FBFAD3E002E972F /* ChangePasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */; };
+		D6EA5DBC200566EB0087E28B /* ExistingTagSearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6EA5DBB200566EB0087E28B /* ExistingTagSearchController.swift */; };
 		D6F523661FC9A52B00F0684C /* QATwoFieldsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F523651FC9A52B00F0684C /* QATwoFieldsController.swift */; };
 		D6F523681FC9B47A00F0684C /* ProfileCreatorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F523671FC9B47A00F0684C /* ProfileCreatorController.swift */; };
 		D6F5DDA31F9C093700633A0F /* PostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F5DDA21F9C093700633A0F /* PostController.swift */; };
@@ -108,6 +109,7 @@
 		D6E6B7561F82A35D005BE722 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		D6E6B7581F82A52F005BE722 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		D6E8A6101FBFAD3E002E972F /* ChangePasswordController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordController.swift; sourceTree = "<group>"; };
+		D6EA5DBB200566EB0087E28B /* ExistingTagSearchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistingTagSearchController.swift; sourceTree = "<group>"; };
 		D6F523651FC9A52B00F0684C /* QATwoFieldsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QATwoFieldsController.swift; sourceTree = "<group>"; };
 		D6F523671FC9B47A00F0684C /* ProfileCreatorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileCreatorController.swift; sourceTree = "<group>"; };
 		D6F5DDA21F9C093700633A0F /* PostController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostController.swift; sourceTree = "<group>"; };
@@ -196,6 +198,7 @@
 				D658ED411F8527F100A1407D /* QAImageController.swift */,
 				D696C1221FEFD5B600233566 /* TagSearchController.swift */,
 				D6AC1EBD1FF935A600B22427 /* TagCreationController.swift */,
+				D6EA5DBB200566EB0087E28B /* ExistingTagSearchController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -394,6 +397,7 @@
 				D6F5DDA31F9C093700633A0F /* PostController.swift in Sources */,
 				D696C1231FEFD5B600233566 /* TagSearchController.swift in Sources */,
 				D6C875F01FB487CA004C3C57 /* ConversationCell.swift in Sources */,
+				D6EA5DBC200566EB0087E28B /* ExistingTagSearchController.swift in Sources */,
 				D6E6B7571F82A35E005BE722 /* Post.swift in Sources */,
 				D6B9B6861FFD66A0004695FA /* TagFieldProtocol.swift in Sources */,
 				D6F523681FC9B47A00F0684C /* ProfileCreatorController.swift in Sources */,

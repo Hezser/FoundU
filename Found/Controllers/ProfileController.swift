@@ -10,7 +10,7 @@ import UIKit
 import Foundation
 import Firebase
 
-class ProfileController: UIViewController {
+class ProfileController: UIViewController, TagFieldHandler {
     
     var user: User!
     var mainProfile: Bool! // Tells if the profile is the user's one (main, as part of the menu), or a profile of some other user
@@ -27,6 +27,15 @@ class ProfileController: UIViewController {
         view.isUserInteractionEnabled = true
         view.isScrollEnabled = true
         view.showsVerticalScrollIndicator = true
+        return view
+    }()
+    
+    var upvotePopup: UIImageView = {
+        let view = UIImageView()
+        view.alpha = 0
+        view.contentMode = .scaleAspectFit
+        view.image = UIImage(named: "upvoteImage")
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -119,10 +128,9 @@ class ProfileController: UIViewController {
         return label
     }()
     
-    var tagField: TagField = {
-        let tagField = TagField()
-        return tagField
-    }()
+    var tagField: TagField!
+    
+    var fullTagListButton: UIButton?
     
     var studiesLabel: UILabel = {
         let label = UILabel()
@@ -146,9 +154,16 @@ class ProfileController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .white
         scrollView.backgroundColor = Color.veryLightOrange
+        
+        // Tag Field Set Up
+        tagField = TagField()
+        tagField.handler = self
+        tagField.isNotScrollable()
+        if !mainProfile {
+            tagField.setDoubleTapEnabled(to: true)
+        }
         
         setUserData()
 
@@ -172,7 +187,7 @@ class ProfileController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         
         if !mainProfile {
-            title = user.name
+            title = user.firstName()
             tabBarController?.tabBar.isHidden = true
         }
     }
@@ -184,7 +199,22 @@ class ProfileController: UIViewController {
         placeLabel.text = "From " + user.place!
         bioTextView.text = user.bio!
         bioTextView.font = placeLabel.font
-        tagField.setTags(["Football", "Reading", "Netflix", "Football", "Reading", "Netflix","Football", "Reading", "Netflix"])
+        if !user.tags.isEmpty {
+            if user.tags.count > 7 {
+                tagField.setTags(Array(user.tags.prefix(upTo: 7)))
+                tagField.setUpvotedTags(User.getCurrentUser()?.upvotedTags[user.id!])
+                // Full Tag List Button Set Up
+                fullTagListButton = UIButton(type: .system)
+                fullTagListButton?.setTitle("Full List", for: .normal)
+                fullTagListButton?.titleLabel?.font = .systemFont(ofSize: 18)
+                fullTagListButton?.setTitleColor(Color.lightOrange, for: .normal)
+                fullTagListButton?.translatesAutoresizingMaskIntoConstraints = false
+                fullTagListButton?.addTarget(self, action: #selector(handleFullTagList), for: .touchUpInside)
+            } else {
+                tagField.setTags(user.tags)
+                tagField.setUpvotedTags(User.getCurrentUser()?.upvotedTags[user.id!])
+            }
+        }
         
         for studies in user.studies! {
             if studies != "" {
@@ -214,6 +244,12 @@ class ProfileController: UIViewController {
         let data = try? Data(contentsOf: url!)
         pictureView.image = UIImage(data: data!)
         
+    }
+    
+    @objc func handleFullTagList(_ sender: UIButton) {
+        let existingTagSearchController = ExistingTagSearchController()
+        existingTagSearchController.setInitialTags(to: user.tags)
+        navigationController?.pushViewController(existingTagSearchController, animated: true)
     }
     
     func transformURLIntoImage(urlString: String) {
@@ -271,20 +307,18 @@ class ProfileController: UIViewController {
         let dividerLine4 = DividerLine()
         
         view.addSubview(scrollView)
+        view.addSubview(upvotePopup)
         scrollView.addSubview(basicInformationContainer)
         scrollView.addSubview(dividerLine1)
         scrollView.addSubview(bioLabel)
         scrollView.addSubview(startQuotations)
         scrollView.addSubview(endQuotations)
         scrollView.addSubview(bioTextView)
-        scrollView.addSubview(tagLabel)
-        scrollView.addSubview(tagField)
         scrollView.addSubview(dividerLine2)
         scrollView.addSubview(studiesLabel)
         for studies in studiesFields {
             scrollView.addSubview(studies)
         }
-        scrollView.addSubview(dividerLine3)
         scrollView.addSubview(workLabel)
         for work in workFields {
             scrollView.addSubview(work)
@@ -296,7 +330,12 @@ class ProfileController: UIViewController {
         dividerLine4.isHidden = true
         workLabel.isHidden = true
 //        dividerLine5.isHidden = true
-    
+        
+        upvotePopup.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        upvotePopup.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        upvotePopup.widthAnchor.constraint(equalToConstant: 150).isActive = true
+        upvotePopup.heightAnchor.constraint(equalToConstant: 150).isActive = true
+        
         let margins = scrollView.layoutMarginsGuide
         
         setUpBasicInformationContainer()
@@ -309,7 +348,7 @@ class ProfileController: UIViewController {
         dividerLine1.topAnchor.constraint(equalTo: basicInformationContainer.bottomAnchor).isActive = true
         dividerLine1.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         dividerLine1.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         bioLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor).isActive = true
         bioLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
@@ -333,26 +372,45 @@ class ProfileController: UIViewController {
         dividerLine2.topAnchor.constraint(equalTo: bioTextView.bottomAnchor, constant: 10).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
-        tagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
-        tagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
-        tagLabel.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        tagLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
-        
-        tagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
-        tagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
-        tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
-        tagField.configure()
-        tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
-        
-        dividerLine3.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 20).isActive = true
-        dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        dividerLine3.heightAnchor.constraint(equalToConstant: 1).isActive = true
-        
-        var lastDividerLine: DividerLine = dividerLine3
+        var lastDividerLine: DividerLine = dividerLine2
         var lastView: UIView = lastDividerLine
+        
+        if !user.tags.isEmpty {
+            scrollView.addSubview(tagLabel)
+            scrollView.addSubview(tagField)
+            scrollView.addSubview(dividerLine3)
+            tagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor).isActive = true
+            tagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 5).isActive = true
+            tagLabel.widthAnchor.constraint(equalToConstant: 50).isActive = true
+            tagLabel.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            
+            tagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
+            tagField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+            tagField.configure()
+            tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
+            
+            var lastTagView: UIView = tagField
+            
+            if let button = fullTagListButton {
+                lastTagView = button
+                view.addSubview(button)
+                button.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 20).isActive = true
+                button.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+                button.widthAnchor.constraint(equalToConstant: 75).isActive = true
+                button.heightAnchor.constraint(equalToConstant: 30).isActive = true
+            }
+            
+            dividerLine3.topAnchor.constraint(equalTo: lastTagView.bottomAnchor, constant: 20).isActive = true
+            dividerLine3.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+            dividerLine3.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+            dividerLine3.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
+            
+            lastDividerLine = dividerLine3
+            lastView = lastDividerLine
+        }
         
         if !studiesFields.isUseless() {
             
@@ -390,7 +448,7 @@ class ProfileController: UIViewController {
             dividerLine4.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
             dividerLine4.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
             dividerLine4.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-            dividerLine4.heightAnchor.constraint(equalToConstant: 1).isActive = true
+            dividerLine4.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
             lastDividerLine = dividerLine4
             lastView = lastDividerLine
             
@@ -432,11 +490,76 @@ class ProfileController: UIViewController {
 //            dividerLine5.topAnchor.constraint(equalTo: lastView.bottomAnchor, constant: 10).isActive = true
 //            dividerLine5.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
 //            dividerLine5.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-//            dividerLine5.heightAnchor.constraint(equalToConstant: 1).isActive = true
+//            dividerLine5.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
 //            lastDividerLine = dividerLine5
 //            lastView = lastDividerLine
         }
         
+    }
+    
+    func handleTagSingleTap(forTag tag: String) {
+        // Send to tag page
+    }
+    
+    // Upvote/Downvote (only if not you)
+    func handleTagDoubleTap(forTag tag: String) {
+        
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        
+        if !mainProfile {
+            FIRDatabase.database().reference().child("users").child(uid).child("upvoted tags").child(self.user.id!).observeSingleEvent(of: .value, with: { (snapshot) in
+                // If this tag has not already been upvoted
+                if !snapshot.hasChild(tag) {
+                    
+                    self.upvoteAnimation()
+                    self.tagField.addUpvotedTag(tag)
+                    FIRDatabase.database().reference().child("users").child(self.user.id!).child("tags").child(tag).observeSingleEvent(of: .value, with: { (snapshot) in
+                        
+                        // Increase score
+                        let score = snapshot.value as! Int
+                        FIRDatabase.database().reference().child("users").child(self.user.id!).child("tags").child(tag).setValue(score + 1)
+                        
+                        // Add to the list of +1ed tags
+                        FIRDatabase.database().reference().child("users").child(uid).child("upvoted tags").child(self.user.id!).child(tag).setValue(1)
+                        
+                        
+                    })
+                } else {
+                    
+                    self.tagField.removeUpvotedTag(tag)
+                    FIRDatabase.database().reference().child("users").child(self.user.id!).child("tags").child(tag).observeSingleEvent(of: .value, with: { (snapshot) in
+                        
+                        // Decrease score
+                        let score = snapshot.value as! Int
+                        FIRDatabase.database().reference().child("users").child(self.user.id!).child("tags").child(tag).setValue(score - 1)
+                        
+                        // Remove from the list of +1ed tags
+                        FIRDatabase.database().reference().child("users").child(uid).child("upvoted tags").child(self.user.id!).child(tag).removeValue()
+                        
+                    })
+                }
+            })
+        }
+    }
+    
+    func upvoteAnimation() {
+        UIView.animate(withDuration: 0.3, delay: 0, options: .allowUserInteraction, animations: {() -> Void in
+            self.upvotePopup.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+            self.upvotePopup.alpha = 1.0
+        }, completion: {(_ finished: Bool) -> Void in
+            UIView.animate(withDuration: 0.1, delay: 0, options: .allowUserInteraction, animations: {() -> Void in
+                self.upvotePopup.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            }, completion: {(_ finished: Bool) -> Void in
+                UIView.animate(withDuration: 0.3, delay: 0, options: .allowUserInteraction, animations: {() -> Void in
+                    self.upvotePopup.transform = CGAffineTransform(scaleX: 1.3, y: 1.3)
+                    self.upvotePopup.alpha = 0.0
+                }, completion: {(_ finished: Bool) -> Void in
+                    self.upvotePopup.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+                })
+            })
+        })
     }
     
     func separateInformation(for string: String) -> [String] {
@@ -464,6 +587,9 @@ class ProfileController: UIViewController {
         sum += basicInformationContainer.frame.size.height
         sum += bioTextView.frame.size.height
         sum += tagField.getHeight()
+        if let button = fullTagListButton {
+            sum += button.frame.size.height + 20 // 20 of vertical spacing with tagField
+        }
         if studiesFields.count > 0 {
             sum += 41 // 30 top spacing + 10 bottom spacing + 1 divider line
         }
@@ -492,6 +618,8 @@ class ProfileController: UIViewController {
         } catch let logoutError {
             print(logoutError)
         }
+        
+        User.dismissCurrentUser()
         let loginController = LoginController()
         present(loginController, animated: true, completion: nil)
     }

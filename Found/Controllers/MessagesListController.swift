@@ -71,6 +71,16 @@ class MessagesListController: UITableViewController {
         return true
     }
     
+    // Animation
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        cell.alpha = 0
+        cell.layer.transform = CATransform3DMakeScale(0.5, 0.5, 0.5)
+        UIView.animate(withDuration: 0.4, animations: { () -> Void in
+            cell.alpha = 1
+            cell.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1)
+        })
+    }
+    
     // To delete conversations
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         
@@ -147,6 +157,7 @@ class MessagesListController: UITableViewController {
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
+        
         FIRDatabase.database().reference().child("user-messages").child(uid).observe(.childAdded, with: { (snapshot) in
             let partnerID = snapshot.key
             FIRDatabase.database().reference().child("user-messages").child(uid).child(partnerID).observe(.childAdded, with: { (snapshot) in
@@ -155,32 +166,42 @@ class MessagesListController: UITableViewController {
                     
                     let newMessage = Message(withID: messageID, snapshot: snapshot)
                     let oldMessage = self.messagesDictionary[partnerID]
-                    if newMessage.timestamp?.int32Value > oldMessage?.timestamp?.int32Value {
-                        
-                        let ref = FIRDatabase.database().reference().child("users").child(partnerID)
-                        ref.observeSingleEvent(of: .value, with: { (snapshot) in
-                            
-                            if let dictionary = snapshot.value as? [String: AnyObject] {
-                                newMessage.userName = dictionary["name"] as? String
-                                
-                                if let profileImageURL = dictionary["pictureURL"] as? String {
-                                    self.downloadPicture(withURL: profileImageURL, toMessage: newMessage, completion: {
-                                        self.messagesDictionary[partnerID] = newMessage
-                                        self.messages = Array(self.messagesDictionary.values)
-                                        // This will crash because of background thread, so lets call this on dispatch_async main thread
-                                        DispatchQueue.main.async(execute: {
-                                            self.tableView.reloadData()
-                                        })
-                                    })
-                                }
-                            }
-                            
-                        })
+                    
+                    if oldMessage?.timestamp == nil {
+                        self.messagesDictionary[partnerID] = newMessage
+                        self.messages = Array(self.messagesDictionary.values)
+                    } else {
+                        if newMessage.timestamp?.int32Value > oldMessage?.timestamp?.int32Value {
+                            self.messagesDictionary[partnerID] = newMessage
+                            self.messages = Array(self.messagesDictionary.values)
+                        }
                     }
+                    
+                    self.setUpConvenienceData(for: newMessage, completion: {
+                        DispatchQueue.main.async(execute: {
+                            self.tableView.reloadData()
+                        })
+                    })
                 })
             })
         })
         
+    }
+    
+    private func setUpConvenienceData(for message: Message, completion completed: @escaping FinishedDownload) {
+        let ref = FIRDatabase.database().reference().child("users").child(message.chatPartnerID()!)
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+            
+            if let dictionary = snapshot.value as? [String: AnyObject] {
+                message.userName = dictionary["name"] as? String
+                
+                if let profileImageURL = dictionary["pictureURL"] as? String {
+                    self.downloadPicture(withURL: profileImageURL, toMessage: message, completion: {
+                        completed()
+                    })
+                }
+            }
+        })
     }
     
     func listenForDeletedConversations() {

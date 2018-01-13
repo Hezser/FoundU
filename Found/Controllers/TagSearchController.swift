@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class TagSearchController: UITableViewController, UISearchResultsUpdating, UISearchBarDelegate {
+class TagSearchController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchBarDelegate {
     
     typealias FinishedDownload = () -> ()
     
@@ -18,55 +18,78 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
     public var handler: TagSearchHandler!
     
     private var searchController: UISearchController!
+    private var tableview: UITableView!
     
     private var numberOfResults = 10  // Maximum number of results
     private var tags = [String]()
     private var filteredTags = [String]()
     
+    public func deactivateSearchBar() {
+        DispatchQueue.main.async {
+            self.searchController.searchBar.isHidden = true
+        }
+    }
+    
+    public func activateSearchBar() {
+        DispatchQueue.main.async {
+            self.searchController.searchBar.isHidden = false
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .singleLine
-        tableView.tableFooterView = UIView(frame: CGRect.zero)
         view.translatesAutoresizingMaskIntoConstraints = false
-        tableView.allowsMultipleSelectionDuringEditing = true
+        
+        // Table View Set Up
+        tableview = UITableView()
+        tableview.delegate = self
+        tableview.dataSource = self
+        tableview.backgroundColor = .clear
+        tableview.separatorStyle = .singleLine
+        tableview.tableFooterView = UIView(frame: CGRect.zero)
+        tableview.allowsMultipleSelectionDuringEditing = true
+        tableview.register(ConversationCell.self, forCellReuseIdentifier: cellId)
+        
+        // Search Controller Set Up
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
 
-        tableView.register(ConversationCell.self, forCellReuseIdentifier: cellId)
+        // Search Bar Set Up
+        searchController.searchBar.delegate = self
+        searchController.searchBar.sizeToFit()
+        searchController.searchBar.tintColor = Color.lightOrange
+        searchController.searchBar.placeholder = "Search your tags"
+        searchController.searchBar.returnKeyType = .send
+        searchController.searchBar.searchBarStyle = .minimal
+        
+        setUpUI()
         
         retrieveTags(completion: {
-            
-            self.searchController = UISearchController(searchResultsController: nil)
-            self.searchController.hidesNavigationBarDuringPresentation = false
-            
-            // The object responsible for updating the contents of the search results controller.
-            self.searchController.searchResultsUpdater = self
-            
-            // Determines whether the underlying content is dimmed during a search.
-            // if we are presenting the display results in the same view, this should be false
-            self.searchController.dimsBackgroundDuringPresentation = false
-            
-            // Make sure the that the search bar is visible within the navigation bar.
-            self.searchController.searchBar.delegate = self
-            self.searchController.searchBar.sizeToFit()
-            self.searchController.searchBar.tintColor = Color.lightOrange
-            self.searchController.searchBar.placeholder = "Search your tags"
-            self.searchController.searchBar.returnKeyType = .send
-            self.searchController.searchBar.searchBarStyle = .minimal
-    
-            // Include the search controller's search bar within the table's header view.
-            self.tableView.tableHeaderView = self.searchController.searchBar
-            
-            self.definesPresentationContext = true
-            
             return
         })
         
     }
     
+    private func setUpUI() {
+        
+        view.addSubview(searchController.searchBar)  // Constraints for the search bar result in strange behaviour when it is tapped
+        
+        view.addSubview(tableview)
+        tableview.translatesAutoresizingMaskIntoConstraints = false
+        
+        tableview.topAnchor.constraint(equalTo: view.topAnchor, constant: searchController.searchBar.frame.size.height).isActive = true
+        tableview.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        tableview.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        tableview.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         // To eliminate the gray color of the bouncing area
-        for view in tableView.subviews {
+        for view in tableview.subviews {
             view.backgroundColor = .clear
         }
     }
@@ -89,6 +112,15 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
         
         let search = searchController.searchBar.text?.lowercased()
         filteredTags = []
+        
+        if search == "" {
+            filteredTags = tags
+            DispatchQueue.main.async(execute: {
+                self.tableview.reloadData()
+            })
+            return
+        }
+        
         for tag in tags {
             let lowercasedTag = tag.lowercased()
             if lowercasedTag.contains(search!) {
@@ -96,24 +128,24 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
             }
         }
         
-        print(filteredTags)
         DispatchQueue.main.async{
-            self.tableView.reloadData()
+            self.tableview.reloadData()
         }
+        return
 
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return filteredTags.count > numberOfResults ? numberOfResults : filteredTags.count
     }
     
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath)
+        let cell = tableview.dequeueReusableCell(withIdentifier: cellId, for: indexPath)
         
         numberOfResults = filteredTags.count > 10 ? 10 : filteredTags.count
         if indexPath.row < filteredTags.count {
@@ -124,13 +156,13 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
     
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         if let handler = handler {
             handler.handleCellSelection(forTag: filteredTags[indexPath.row])
         }
         
-        tableView.deselectRow(at: indexPath, animated: true)
+        tableview.deselectRow(at: indexPath, animated: true)
         
         return
     }
@@ -162,7 +194,7 @@ class TagSearchController: UITableViewController, UISearchResultsUpdating, UISea
         
     }
     
-    override func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         searchController.searchBar.endEditing(true)
     }
     

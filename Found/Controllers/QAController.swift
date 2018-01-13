@@ -23,12 +23,16 @@ class QAController: UIViewController {
     var nextView: UIViewController!
     var question: String!
     
-    var questionLabel: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.numberOfLines = 7
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
+    var questionTextView: UITextView = {
+        let textView = UITextView()
+        textView.textAlignment = .center
+        textView.backgroundColor = .clear
+        textView.font = .systemFont(ofSize: 18)
+        textView.isSelectable = false
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        return textView
     }()
     
     var nextButton: UIButton = {
@@ -72,17 +76,16 @@ class QAController: UIViewController {
     
     func setUpUI() {
         
-        questionLabel.text = question
-        view.addSubview(questionLabel)
+        questionTextView.text = question
+        view.addSubview(questionTextView)
         view.addSubview(nextButton)
         
         let margins = view.layoutMarginsGuide
         
         // Question Label Constraints
-        questionLabel.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -10).isActive = true
-        questionLabel.heightAnchor.constraint(equalTo: margins.heightAnchor, multiplier: 1/4).isActive = true
-        questionLabel.topAnchor.constraint(equalTo: margins.topAnchor, constant: 20).isActive = true
-        questionLabel.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
+        questionTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -20).isActive = true
+        questionTextView.topAnchor.constraint(equalTo: margins.topAnchor, constant: 30).isActive = true
+        questionTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
 
         // Next Button Constraints
         nextButton.widthAnchor.constraint(equalTo: margins.widthAnchor, multiplier: 2/5).isActive = true
@@ -113,6 +116,9 @@ class QAController: UIViewController {
         else if variable == .place {
             profileCreatorController.user.place = data as? String
         }
+        else if variable == .tags {
+            profileCreatorController.user.tags = data as! [String]
+        }
         else if variable == .work {
             profileCreatorController.user.work = data as? [String]
         }
@@ -134,6 +140,9 @@ class QAController: UIViewController {
         
         if variable == .title {
             newPost.title = data as? String
+        }
+        else if variable == .tags {
+            newPost.tags = data as? [String]
         }
         else if variable == .place {
             if data as? String == "" {
@@ -166,9 +175,10 @@ class QAController: UIViewController {
         let newPostRef = ref.child("posts").childByAutoId() // Also returns the autoID given to the new post
         let data = ["userID": post.userID!,
                     "title": post.title!,
+                    "tags" : post.tags!,
                     "place": post.place!,
                     "time": post.time!,
-                    "details": post.details!]
+                    "details": post.details!] as [String : Any]
         newPostRef.updateChildValues(data, withCompletionBlock: { (err, ref) in
             if err != nil {
                 print(err!)

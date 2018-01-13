@@ -9,7 +9,7 @@
 import UIKit
 import Firebase
 
-class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate, UIScrollViewDelegate {
+class PostController: UIViewController, ProposalPopUpController, UITextViewDelegate, UIScrollViewDelegate, TagFieldHandler {
     
     typealias FinishedDownload = () -> ()
     
@@ -126,10 +126,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         return textView
     }()
     
-    var tagField: TagField = {
-        let tagField = TagField()
-        return tagField
-    }()
+    var tagField: TagField!
     
     var userContainer: UIView = {
         let containerView = UIView()
@@ -191,6 +188,15 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         navigationController?.setToolbarHidden(true, animated: false)
     }
     
+    
+    func handleTagSingleTap(forTag tag: String) {
+        // Go to tag page
+    }
+    
+    func handleTagDoubleTap(forTag tag: String) {
+        // Upvote/Downvote (only if not your post)
+    }
+    
     @objc func handleEdit(_ sender: UIButton) {
         let editPostController = EditPostController()
         editPostController.post = post
@@ -199,6 +205,11 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     
     public func configure() {
         
+        // Set Up Tag Field
+        tagField = TagField()
+        tagField.isNotScrollable()
+        tagField.setDoubleTapEnabled(to: true)
+    
         scrollView.delegate = self
         titleTextView.delegate = self
         detailsTextView.delegate = self
@@ -246,7 +257,9 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         detailsTextView.text = post.details
         userImageView.image = post.userPicture
         userNameTextView.text = post.userName
-        tagField.setTags(["Football", "Ski", "Basketball", "Skate", "Swimming", "Chess", "Running", "Eating"])
+        if let tags = post.tags {
+            tagField.setTags(tags)
+        }
         
     }
     
@@ -312,16 +325,17 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         
         setUpUserSectionView()
         
-        scrollView.addSubview(tagField)
-        scrollView.addSubview(detailsTextView)
-        
-        // Hashtag Field Constraints
-        tagField.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
-        tagField.centerXAnchor.constraint(equalTo: view.layoutMarginsGuide.centerXAnchor).isActive = true
-        tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
-        tagField.configure()
-        tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
+        if let _ = post.tags {
+            scrollView.addSubview(tagField)
+            // Hashtag Field Constraints
+            tagField.topAnchor.constraint(equalTo: userContainer.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
+            tagField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
+            tagField.configure()
+            tagField.heightAnchor.constraint(equalToConstant: tagField.getHeight()).isActive = true
+        }
 
+        scrollView.addSubview(detailsTextView)
         // Details Label Constraints
         detailsTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
         detailsTextView.topAnchor.constraint(equalTo: tagField.layoutMarginsGuide.bottomAnchor, constant: 30).isActive = true
@@ -393,7 +407,7 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         dividerLine.topAnchor.constraint(equalTo: userNameTextView.bottomAnchor).isActive = true
         dividerLine.centerXAnchor.constraint(equalTo: userNameTextView.centerXAnchor).isActive = true
         dividerLine.widthAnchor.constraint(equalTo: userNameTextView.widthAnchor).isActive = true
-        dividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // User Description Label Constraints
         userDescriptionTextView.topAnchor.constraint(equalTo: userNameTextView.bottomAnchor, constant: 10).isActive = true

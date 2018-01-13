@@ -180,7 +180,7 @@ class QAThreeFieldsController: QAController, UITextFieldDelegate {
         dividerLine1.bottomAnchor.constraint(equalTo: atLabel2.topAnchor, constant: -10).isActive = true
         dividerLine1.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dividerLine1.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // As Label 1 Constraints
         asLabel1.bottomAnchor.constraint(equalTo: dividerLine1.topAnchor, constant: -10).isActive = true
@@ -210,13 +210,13 @@ class QAThreeFieldsController: QAController, UITextFieldDelegate {
         topDividerLine.bottomAnchor.constraint(equalTo: atLabel1.topAnchor, constant: -10).isActive = true
         topDividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         topDividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        topDividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        topDividerLine.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Divider Line Between Sections 2 and 3 Constraints
         dividerLine2.topAnchor.constraint(equalTo: asLabel2.bottomAnchor, constant: 10).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // At Label 3 Constraints
         atLabel3.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 10).isActive = true
@@ -246,7 +246,7 @@ class QAThreeFieldsController: QAController, UITextFieldDelegate {
         bottomDividerLine.topAnchor.constraint(equalTo: asLabel3.bottomAnchor, constant: 10).isActive = true
         bottomDividerLine.leftAnchor.constraint(equalTo: margins.leftAnchor).isActive = true
         bottomDividerLine.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
-        bottomDividerLine.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        bottomDividerLine.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
     
     }
     

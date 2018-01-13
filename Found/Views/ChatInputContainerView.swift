@@ -32,6 +32,10 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         return uploadImageView
     }()
     
+    public func hideKeyboard() {
+        inputTextField.resignFirstResponder()
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -73,7 +77,7 @@ class ChatInputContainerView: UIView, UITextFieldDelegate {
         separatorLineView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
         separatorLineView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         separatorLineView.widthAnchor.constraint(equalTo: widthAnchor).isActive = true
-        separatorLineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        separatorLineView.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
     }
     
     // Make return key to start new line (and increase text field height, look at Whatsapp) 

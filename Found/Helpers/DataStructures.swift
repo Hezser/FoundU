@@ -24,6 +24,7 @@ enum Variable {
     case title
     case time
     case details
+    case tags
 }
 
 enum PostListType {

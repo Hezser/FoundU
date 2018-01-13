@@ -30,17 +30,34 @@ class ConversationCell: UITableViewCell {
     
     func setUpContent() {
         
+        guard let uid = FIRAuth.auth()?.currentUser?.uid else {
+            return
+        }
+        
         if let text = message?.text {
             detailTextLabel?.text = text
         } else if message?.postID != nil {
-            guard let uid = FIRAuth.auth()?.currentUser?.uid else {
-                return
-            }
             if uid == message?.fromID {
                 self.detailTextLabel?.text = "You made a proposal!"
             } else {
                 user = User(id: (message?.fromID)!, completion: {
                     self.detailTextLabel?.text = (self.user.firstName() + " made a proposal!")
+                })
+            }
+        } else if message?.videoURL != nil {
+            if uid == message?.fromID {
+                self.detailTextLabel?.text = "You sent a video"
+            } else {
+                user = User(id: (message?.fromID)!, completion: {
+                    self.detailTextLabel?.text = (self.user.firstName() + " sent you a video")
+                })
+            }
+        } else if message?.imageURL != nil {
+            if uid == message?.fromID {
+                self.detailTextLabel?.text = "You sent a photo"
+            } else {
+                user = User(id: (message?.fromID)!, completion: {
+                    self.detailTextLabel?.text = (self.user.firstName() + " sent you a photo")
                 })
             }
         }

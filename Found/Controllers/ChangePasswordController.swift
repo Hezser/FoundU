@@ -172,7 +172,7 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
         dividerLine1.topAnchor.constraint(equalTo: currentPasswordTextField.bottomAnchor, constant: 10).isActive = true
         dividerLine1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Current Password Label Constraints
         newPasswordLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 10).isActive = true
@@ -190,7 +190,7 @@ class ChangePasswordController: UIViewController, UITextFieldDelegate {
         dividerLine2.topAnchor.constraint(equalTo: newPasswordLabel.bottomAnchor, constant: 10).isActive = true
         dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 1).isActive = true
+        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
         // Current Password Label Constraints
         repeatNewPasswordLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 10).isActive = true

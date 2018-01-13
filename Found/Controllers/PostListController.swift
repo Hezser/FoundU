@@ -9,16 +9,19 @@
 import UIKit
 import Firebase
 
-class PostListController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class PostListController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UISearchResultsUpdating, UISearchBarDelegate {
     
     typealias FinishedDownload = () -> ()
         
     private let cellId = "cellId"
     private var timer: Timer?
+    private var searchController: UISearchController!
     private var collectionview: UICollectionView!
     final var type: PostListType!
     private var posts = [Post]()
+    private var filteredPosts = [Post]()
     private var sizesOfCells = [CGFloat]()
+    private var sizesOfFilteredCells = [CGFloat]()
     private var initialLoad = true
     private var refreshControl = UIRefreshControl()
     private var locked = false // Prevents many postControllers to be pushed if several taps are made very quickly
@@ -39,6 +42,15 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         collectionview.backgroundColor = Color.veryLightOrange
         collectionview.alwaysBounceVertical = true
         
+        // Search Controller Set Up
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchResultsUpdater = self
+        searchController.dimsBackgroundDuringPresentation = false
+        
+        // Search Bar Set Up
+        configureSearchBar()
+        
         collectionview.register(PostCell.self, forCellWithReuseIdentifier: self.cellId)
         
         if type == .feed {
@@ -46,7 +58,13 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
             listenForEditedPosts()
             listenForDeletedPosts()
         } else {
-            loadPostsOnce()
+            loadPostsOnce(completion: {
+                self.filteredPosts = self.posts
+                self.sizesOfFilteredCells = self.sizesOfCells
+                DispatchQueue.main.async {
+                    self.collectionview.reloadData()
+                }
+            })
         }
         
     }
@@ -57,25 +75,131 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         navigationController?.navigationBar.prefersLargeTitles = true
     }
     
-    func loadPostsOnce() {
+    private func configureSearchBar() {
+        
+        searchController.searchBar.delegate = self
+        searchController.searchBar.sizeToFit()
+        searchController.searchBar.returnKeyType = .send
+        searchController.searchBar.searchBarStyle = .minimal
+        
+        // Buttons color
+        searchController.searchBar.tintColor = .white
+        
+        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = [NSAttributedStringKey.foregroundColor.rawValue: UIColor.white]
+        
+        UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).attributedPlaceholder = NSAttributedString(string: "Search posts", attributes: [NSAttributedStringKey.foregroundColor: UIColor.white])
+        
+        if let textfield = searchController.searchBar.value(forKey: "searchField") as? UITextField {
+            
+//            // Text Color
+//            textfield.defaultTextAttributes = [NSAttributedStringKey.foregroundColor.rawValue: UIColor.white]
+//            
+//            // Placeholder text and color
+//            textfield.attributedPlaceholder = NSAttributedString(string: "Search posts", attributes: [NSAttributedStringKey.foregroundColor: UIColor.white])
+            
+            if let backgroundview = textfield.subviews.first {
+                
+                // Eliminate shaders from background
+                for subview in backgroundview.subviews {
+                    subview.removeFromSuperview()
+                }
+                
+                // Background color
+                backgroundview.backgroundColor = Color.shadowOrange
+                
+                // Rounded corner
+                backgroundview.layer.cornerRadius = 10
+                backgroundview.clipsToBounds = true
+            }
+        }
+        
+        navigationItem.hidesSearchBarWhenScrolling = true
+        navigationItem.searchController = searchController
+    }
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        if !searchController.isActive {
+            return
+        }
+        
+        let search = searchController.searchBar.text?.lowercased()
+        filteredPosts = []
+        sizesOfFilteredCells = []
+        
+        if search == "" {
+            filteredPosts = posts
+            sizesOfFilteredCells = sizesOfCells
+            refreshData()
+            return
+        }
+        
+        for post in posts {
+            
+            // Compare search with name
+            if post.userName!.lowercased().contains(search!) {
+                filteredPosts.append(post)
+                let index = posts.index(of: post)
+                sizesOfFilteredCells.append(sizesOfCells[index!])
+                continue
+            }
+            
+            // Compare search with title
+            if post.title.lowercased().contains(search!) {
+                filteredPosts.append(post)
+                let index = posts.index(of: post)
+                sizesOfFilteredCells.append(sizesOfCells[index!])
+                continue
+            }
+            
+            // Compare search with tags
+            if let tags = post.tags {
+                for tag in tags {
+                    let lowercasedTag = tag.lowercased()
+                    if lowercasedTag.contains(search!) {
+                        filteredPosts.append(post)
+                        let index = posts.index(of: post)
+                        sizesOfFilteredCells.append(sizesOfCells[index!])
+                    }
+                }
+            }
+            
+        }
+        
+        refreshData()
+        return
+    }
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        searchController.searchBar.endEditing(true)
+    }
+    
+    func loadPostsOnce(completion completed: @escaping FinishedDownload) {
         
         posts = [] // Because when posts are edited or deleted I call this function again, and it would show posts twice (or more times) otherwise
         guard let uid = FIRAuth.auth()?.currentUser?.uid else {
             return
         }
         FIRDatabase.database().reference().child("posts").observeSingleEvent(of: .value, with: { (snapshot) in
+            var userPosts = [Post]()
             for postData in snapshot.children.allObjects as! [FIRDataSnapshot] {
                 let post = Post(postData)
                 if post.userID! == uid {
-                    post.setUpConvenienceData {
-                        self.posts.insert(post, at: 0)
-                        let cell = PostCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 300))
-                        let configuredCell = self.configure(cell, withDataFrom: post)
-                        let height = configuredCell.calculateHeight()
-                        self.sizesOfCells.insert(height, at: 0)
-                        DispatchQueue.main.async(execute: {
-                            self.collectionview.reloadData()
-                        })
+                    userPosts.append(post)
+                }
+            }
+            
+            var count = 0
+            for post in userPosts {
+                count += 1
+                post.setUpConvenienceData {
+                    self.posts.insert(post, at: 0)
+                    let cell = PostCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 300))
+                    let configuredCell = self.configure(cell, withDataFrom: post)
+                    let height = configuredCell.calculateHeight()
+                    self.sizesOfCells.insert(height, at: 0)
+                    if count == userPosts.count {
+                        completed()
                     }
                 }
             }
@@ -94,10 +218,12 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                 let post = Post(snapshot)
                 post.setUpConvenienceData {
                     self.posts.insert(post, at: 0)
+                    self.filteredPosts.insert(post, at: 0)
                     let cell = PostCell(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 300))
                     let configuredCell = self.configure(cell, withDataFrom: post)
                     let height = configuredCell.calculateHeight()
                     self.sizesOfCells.insert(height, at: 0)
+                    self.sizesOfFilteredCells.insert(height, at: 0)
                     if self.initialLoad {
                         DispatchQueue.main.async(execute: {
                             self.collectionview.reloadData()
@@ -139,6 +265,11 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
                         let index = self.posts.index(of: post)
                         self.posts.remove(at: index!)
                         self.sizesOfCells.remove(at: index!)
+                        if self.filteredPosts.contains(post) {
+                            let filteredIndex = self.filteredPosts.index(of: post)
+                            self.filteredPosts.remove(at: filteredIndex!)
+                            self.sizesOfFilteredCells.remove(at: filteredIndex!)
+                        }
                     }
                 }
             }
@@ -155,15 +286,33 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
             if snapshot.childSnapshot(forPath: "userID").value as? String != uid {
                 for post in self.posts {
                     if post.id == snapshot.key {
+                        
+                        var postInFiltered = false
+                        
+                        // Remove old
                         let index = self.posts.index(of: post)
                         self.posts.remove(at: index!)
                         self.sizesOfCells.remove(at: index!)
+                        var filteredIndex = -1
+                        if self.filteredPosts.contains(post) {
+                            postInFiltered = true
+                            filteredIndex = self.filteredPosts.index(of: post)!
+                            self.filteredPosts.remove(at: filteredIndex)
+                            self.sizesOfFilteredCells.remove(at: filteredIndex)
+                        }
+                        
+                        // Add new
                         let editedPost = Post(snapshot)
                         editedPost.setUpConvenienceData {
                             self.posts.insert(editedPost, at: index!)
                             let cell = PostCell()
                             let configuredCell = self.configure(cell, withDataFrom: post)
-                            self.sizesOfCells.insert(configuredCell.calculateHeight(), at: 0)
+                            let height = configuredCell.calculateHeight()
+                            self.sizesOfCells.insert(height, at: 0)
+                            if postInFiltered {
+                                self.filteredPosts.insert(editedPost, at: filteredIndex)
+                                self.sizesOfFilteredCells.insert(height, at: filteredIndex)
+                            }
                         }
                     }
                 }
@@ -179,13 +328,23 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
         refreshControl.endRefreshing()
     }
     
+    // Animation
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        cell.alpha = 0
+        cell.layer.transform = CATransform3DMakeScale(0.5, 0.5, 0.5)
+        UIView.animate(withDuration: 0.4, animations: { () -> Void in
+            cell.alpha = 1
+            cell.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1)
+        })
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return posts.count
+        return filteredPosts.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionview.dequeueReusableCell(withReuseIdentifier: cellId, for: indexPath as IndexPath) as! PostCell
-        let configuredCell = configure(cell, withDataFrom: posts[indexPath.row])
+        let configuredCell = configure(cell, withDataFrom: filteredPosts[indexPath.row])
         return configuredCell
     }
     
@@ -228,15 +387,14 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: view.frame.width, height: sizesOfCells[indexPath.row])
+        return CGSize(width: view.frame.width, height: sizesOfFilteredCells[indexPath.row])
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         if !locked {
             self.locked = true
-            let post = posts[indexPath.row]
-            
+            let post = filteredPosts[indexPath.row]
             let postController = PostController()
             postController.user = User(id: post.userID, completion: { () -> () in
                 postController.post = post
