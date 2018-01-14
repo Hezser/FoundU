@@ -171,7 +171,6 @@ class MenuController: UITabBarController {
             perform(#selector(handleLogout), with: nil, afterDelay: 0)
         } else {
             print("\nUser is successfully logged in\n")
-            print("\n\(FIRAuth.auth()?.currentUser?.uid)\n")
             User.setCurrentUser(forID: (FIRAuth.auth()?.currentUser?.uid)!)
             user = User(id: (FIRAuth.auth()?.currentUser?.uid)!, completion: {
                 self.addControllers()

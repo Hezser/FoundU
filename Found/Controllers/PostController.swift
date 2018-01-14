@@ -317,14 +317,12 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         let dividerLine1 = DividerLine()
         let dividerLine2 = DividerLine()
         let dividerLine3 = DividerLine()
-        let dividerLine4 = DividerLine()
         
         scrollView.addSubview(dividerLine1)
         scrollView.addSubview(dividerLine2)
         scrollView.addSubview(dividerLine3)
-        scrollView.addSubview(dividerLine4)
+        dividerLine2.isHidden = true
         dividerLine3.isHidden = true
-        dividerLine4.isHidden = true
         
         var spacing: CGFloat = 0
         let uid = FIRAuth.auth()?.currentUser?.uid
@@ -352,15 +350,10 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         titleTextView.widthAnchor.constraint(equalTo: margins.widthAnchor, constant: -40).isActive = true
         titleTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         
-        dividerLine1.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 20).isActive = true
-        dividerLine1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        dividerLine1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
-        
         // Date Label Constraints
         dateLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         dateLabel.widthAnchor.constraint(equalTo: titleTextView.widthAnchor, multiplier: 1/2).isActive = true
-        dateLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 20).isActive = true
+        dateLabel.topAnchor.constraint(equalTo: titleTextView.bottomAnchor, constant: 20).isActive = true
         dateLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
         // Time Label Constraints
@@ -380,36 +373,36 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         anytimeExceptionalLabel.centerYAnchor.constraint(equalTo: placeTextView.centerYAnchor).isActive = true
         anytimeExceptionalLabel.leftAnchor.constraint(equalTo: titleTextView.leftAnchor).isActive = true
         
-        dividerLine2.topAnchor.constraint(equalTo: placeTextView.bottomAnchor, constant: 20).isActive = true
-        dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-        dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-        dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
+        dividerLine1.topAnchor.constraint(equalTo: placeTextView.bottomAnchor, constant: 20).isActive = true
+        dividerLine1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        dividerLine1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+        dividerLine1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
         
-        userLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 5).isActive = true
+        userLabel.topAnchor.constraint(equalTo: dividerLine1.bottomAnchor, constant: 5).isActive = true
         userLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         userLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
         userLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
-        setUpUserSectionView(withTopView: dividerLine2)
+        setUpUserSectionView(withTopView: dividerLine1)
         
         if let _ = post.tags {
             
-            dividerLine3.isHidden = false
+            dividerLine2.isHidden = false
             tagLabel.isHidden = false
             tagField.isHidden = false
             
-            dividerLine3.topAnchor.constraint(equalTo: userContainer.bottomAnchor, constant: 20).isActive = true
-            dividerLine3.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-            dividerLine3.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-            dividerLine3.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
+            dividerLine2.topAnchor.constraint(equalTo: userContainer.bottomAnchor, constant: 20).isActive = true
+            dividerLine2.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+            dividerLine2.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+            dividerLine2.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
             
-            tagLabel.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 5).isActive = true
+            tagLabel.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 5).isActive = true
             tagLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
             tagLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
             tagLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
             
             // Hashtag Field Constraints
-            tagField.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 40).isActive = true
+            tagField.topAnchor.constraint(equalTo: dividerLine2.bottomAnchor, constant: 40).isActive = true
             tagField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
             tagField.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 4/5).isActive = true
             tagField.configure()
@@ -419,24 +412,24 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
         
         if post.details != "" {
             
-            dividerLine4.isHidden = false
+            dividerLine3.isHidden = false
             detailsLabel.isHidden = false
             detailsTextView.isHidden = false
             
-            dividerLine4.isHidden = false
-            dividerLine4.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 20).isActive = true
-            dividerLine4.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
-            dividerLine4.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
-            dividerLine4.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
+            dividerLine3.isHidden = false
+            dividerLine3.topAnchor.constraint(equalTo: tagField.bottomAnchor, constant: 20).isActive = true
+            dividerLine3.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+            dividerLine3.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+            dividerLine3.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
             
-            detailsLabel.topAnchor.constraint(equalTo: dividerLine4.bottomAnchor, constant: 5).isActive = true
+            detailsLabel.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 5).isActive = true
             detailsLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
             detailsLabel.widthAnchor.constraint(equalToConstant: 100).isActive = true
             detailsLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
 
             // Details Label Constraints
             detailsTextView.widthAnchor.constraint(equalTo: titleTextView.widthAnchor).isActive = true
-            detailsTextView.topAnchor.constraint(equalTo: dividerLine4.bottomAnchor, constant: 40).isActive = true
+            detailsTextView.topAnchor.constraint(equalTo: dividerLine3.bottomAnchor, constant: 40).isActive = true
             detailsTextView.centerXAnchor.constraint(equalTo: margins.centerXAnchor).isActive = true
         }
         
@@ -636,12 +629,18 @@ class PostController: UIViewController, ProposalPopUpController, UITextViewDeleg
     
     func calculateScrollViewHeight() -> CGFloat {
         view.layoutIfNeeded()
-        var sum: CGFloat = 160 // Sum of spacing (130 of spacing between views + 30 bottom spacing)
+        var sum: CGFloat = 140  // Sum of spacing (110 of spacing between views + 30 bottom spacing) (without counting the optional fields, ie: tagField and detailsTextView)
         sum += titleTextView.frame.size.height
         sum += placeTextView.frame.size.height > (dateLabel.frame.size.height + timeLabel.frame.size.height) ? placeTextView.frame.size.height : (dateLabel.frame.size.height + timeLabel.frame.size.height)
         sum += userContainer.frame.size.height
-        sum += tagField.getHeight()
-        sum += detailsTextView.frame.size.height
+        if !tagField.isHidden {
+            sum += tagField.getHeight()
+            sum += 60  // Vertical spacing
+        }
+        if !detailsTextView.isHidden {
+            sum += detailsTextView.frame.size.height
+            sum += 60  // Vertical spacing
+        }
         return sum
     }
     
