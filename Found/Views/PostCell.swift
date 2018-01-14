@@ -48,6 +48,15 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         return textView
     }()
     
+    var clockIcon: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "Clock")
+        view.tintColor = Color.lightOrange
+        view.contentMode = .center
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     var dateLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
@@ -62,6 +71,15 @@ class PostCell: UICollectionViewCell, UITextViewDelegate {
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
+    }()
+    
+    var placeIcon: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "Place")
+        view.tintColor = Color.lightOrange
+        view.contentMode = .center
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     var placeTextView: UITextView = {

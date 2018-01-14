@@ -18,7 +18,7 @@ class Message: NSObject {
     var imageWidth: NSNumber?
     var imageHeight: NSNumber?
     var postID: String?
-    var decision: String?
+    var status: String?
     var title: String?
     var place: String?
     var time: String?
@@ -48,7 +48,7 @@ class Message: NSObject {
         
         // Proposal
         self.postID = snapshot.childSnapshot(forPath: "postID").value as? String
-        self.decision = snapshot.childSnapshot(forPath: "decision").value as? String
+        self.status = snapshot.childSnapshot(forPath: "status").value as? String
         self.title = snapshot.childSnapshot(forPath: "title").value as? String
         self.place = snapshot.childSnapshot(forPath: "place").value as? String
         self.time = snapshot.childSnapshot(forPath: "time").value as? String

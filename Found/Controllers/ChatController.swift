@@ -128,7 +128,6 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     }
     
     func setPost(forProposal proposal: Message, completion completed: @escaping FinishedDownload) {
-        print("id = \(proposal.postID!)")
         
         FIRDatabase.database().reference().child("posts").child(proposal.postID!).observeSingleEvent(of: .value, with: { (snapshot) in
         
@@ -204,7 +203,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
     
     func sendProposal(forPost post: Post, time: String, date: String, place: String) {
         
-        let properties: [String:AnyObject] = [ "postID" : post.id as AnyObject, "decision" : "" as AnyObject, "title" : post.title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
+        let properties: [String:AnyObject] = [ "postID" : post.id as AnyObject, "status" : "Ongoing" as AnyObject, "title" : post.title as AnyObject, "place" : place as AnyObject, "time" : time as AnyObject, "date" : date as AnyObject ]
         sendMessageWithProperties(properties)
         
     }
@@ -551,7 +550,7 @@ class ChatController: UICollectionViewController, UITextFieldDelegate, UICollect
             
         } else if let date = message.date, let title = message.title, let place = message.place {
             height = estimateFrameForText(date).height + estimateFrameForText(title).height + estimateFrameForText(place).height + 20
-            if message.decision == "" && message.toID == uid {
+            if message.status == "Ongoing" && message.toID == uid {
                 height += 40 // Account for the buttons
             }
         }

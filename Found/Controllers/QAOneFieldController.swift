@@ -15,9 +15,11 @@ class QAOneFieldController: QAController, UITextViewDelegate {
         textView.returnKeyType = .done
         textView.textContainer.lineBreakMode = .byWordWrapping
         textView.isScrollEnabled = false
-        textView.layer.borderWidth = 1
-        textView.layer.borderColor = UIColor.lightGray.cgColor
-        textView.layer.cornerRadius = 5
+        textView.textColor = Color.white
+        textView.tintColor = Color.white
+        textView.backgroundColor = Color.lightOrange
+        textView.alpha = 0.75
+        textView.layer.cornerRadius = 10
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()

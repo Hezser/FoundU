@@ -34,7 +34,8 @@ class ProfileController: UIViewController, TagFieldHandler {
         let view = UIImageView()
         view.alpha = 0
         view.contentMode = .scaleAspectFit
-        view.image = UIImage(named: "upvoteImage")
+        view.image = UIImage(named: "upvoteImage")?.withRenderingMode(.alwaysTemplate)
+        view.tintColor = Color.strongOrange
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -248,6 +249,8 @@ class ProfileController: UIViewController, TagFieldHandler {
     
     @objc func handleFullTagList(_ sender: UIButton) {
         let existingTagSearchController = ExistingTagSearchController()
+        existingTagSearchController.setUser(to: user)
+        existingTagSearchController.isMainProfile(mainProfile)
         existingTagSearchController.setInitialTags(to: user.tags)
         navigationController?.pushViewController(existingTagSearchController, animated: true)
     }

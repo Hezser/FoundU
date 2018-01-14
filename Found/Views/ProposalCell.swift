@@ -96,9 +96,12 @@ class ProposalCell: UICollectionViewCell {
         return button
     }()
     
-    func changeDecisionStatus(to decision: String) {
-        let ref = FIRDatabase.database().reference().child("messages").child(message.messageID)
-        ref.updateChildValues(["decision" : decision])
+    private func changeDecisionStatus(to decision: String) {
+        // Change proposal status as a message
+        FIRDatabase.database().reference().child("messages").child(message.messageID).updateChildValues(["status" : decision])
+        
+        // Change proposal status in the user section
+        FIRDatabase.database().reference().child("users").child(message.fromID).child("proposals").updateChildValues([message.postID! : decision])
     }
     
     @objc func handleAcceptance(_ sender: UIButton) {
@@ -110,13 +113,19 @@ class ProposalCell: UICollectionViewCell {
         // Set image of messagescontroller cell to acceptance one (white tick on green background with circle shape)
         
         containerView.backgroundColor = Color.green
+        titleLabel.textColor = Color.white
+        timeLabel.textColor = Color.white
+        dateLabel.textColor = Color.white
+        placeLabel.textColor = Color.white
         acceptButton.isHidden = true
         counterButton.isHidden = true
         declineButton.isHidden = true
         
         frame.size.height = frame.size.height - acceptButton.frame.height
         
-        changeDecisionStatus(to: "Accepted") // Posibly do this with uploading time accounting (the app wouldn't crash, but if the user goes back to messages and then back to the conversation quicker than the data is uplaoded, the decision wouldn't have changed
+        changeDecisionStatus(to: "Accepted") // Posibly do this with uploading time accounting (the app wouldn't crash, but if the user goes back to messages and then back to the conversation quicker than the data is uploaded, the decision wouldn't have changed
+        
+//        chatController.collectionView?.reloadData()
     }
     
     @objc func handleCountering(_ sender: UIButton) {
@@ -142,12 +151,14 @@ class ProposalCell: UICollectionViewCell {
         frame.size.height = frame.size.height - acceptButton.frame.height
         
         changeDecisionStatus(to: "Countered") // Posibly do this with uploading time accounting (the app wouldn't crash, but if the user goes back to messages and then back to the conversation quicker than the data is uplaoded, the decision wouldn't have changed
+        
+        chatController.collectionView?.reloadData()
     }
     
     @objc func handleDeclination(_ sender: UIButton) {
         
         print("\nProposal Declined\n")
-        
+
         // Notification actions (but only if user clicks yes on alert, of course)
         
         // Delete conversation upon confirming (a confirmation PopUp comes up to confirm you understand the consecuences of declining -> deleting the conversation, if you want to keep talking don't decline yet)
@@ -190,7 +201,7 @@ class ProposalCell: UICollectionViewCell {
         containerView.addSubview(timeLabel)
         
         let uid = FIRAuth.auth()?.currentUser?.uid
-        if message.decision == "" && message.toID == uid {
+        if message.status == "Ongoing" && message.toID == uid {
 
             containerView.addSubview(acceptButton)
             containerView.addSubview(counterButton)
@@ -236,7 +247,7 @@ class ProposalCell: UICollectionViewCell {
         timeLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         
         let uid = FIRAuth.auth()?.currentUser?.uid
-        if message.decision == "" && message.toID == uid {
+        if message.status == "Ongoing" && message.toID == uid {
         
             // Accept Button Constraints
             acceptButton.widthAnchor.constraint(equalTo: containerView.widthAnchor, multiplier: 1/3).isActive = true
@@ -265,11 +276,11 @@ class ProposalCell: UICollectionViewCell {
         timeLabel.text = message.time
         dateLabel.text = message.date
         
-        setBackgroundColor(for: message.decision)
+        setBackgroundColor(for: message.status)
         
         addSubview(containerView)
         
-        setUpUI(for: message.decision)
+        setUpUI(for: message.status)
     }
     
     override func prepareForReuse() {

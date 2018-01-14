@@ -20,9 +20,9 @@ class MenuController: UITabBarController {
         super.viewDidLoad()
         
         view.backgroundColor = Color.veryLightOrange
-        tabBar.barTintColor = Color.lightOrange
-        tabBar.tintColor = .white
-        tabBar.unselectedItemTintColor = .black
+        tabBar.barTintColor = Color.veryLightOrange
+        tabBar.tintColor = Color.lightOrange
+        tabBar.unselectedItemTintColor = .gray
         
         checkIfUserIsLoggedIn()
     }
@@ -37,8 +37,8 @@ class MenuController: UITabBarController {
         feedNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         feed.title = "Feed"
         feed.type = .feed
-        feed.tabBarItem = UITabBarItem(title: "Feed", image: nil, tag: 0)
-        feed.tabBarItem.titlePositionAdjustment = UIOffsetMake(0.0, -10.0)
+        feed.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "Feed"), tag: 0)
+        feed.tabBarItem.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0)
         
         let messages = MessagesListController()
         let messagesNavigationController = UINavigationController(rootViewController: messages)
@@ -47,7 +47,8 @@ class MenuController: UITabBarController {
         messagesNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         messagesNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         messages.title = "Messages"
-        messages.tabBarItem = UITabBarItem(title: "Messages", image: nil, tag: 1)
+        messages.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "Message"), tag: 1)
+        messages.tabBarItem.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0)
         
         let newPost = NewPostController()
         let newPostNavigationController = UINavigationController(rootViewController: newPost)
@@ -56,8 +57,8 @@ class MenuController: UITabBarController {
         newPostNavigationController.navigationBar.titleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         newPostNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         newPost.user = user
-        newPost.title = "+"
-        newPost.tabBarItem = UITabBarItem(title: "+", image: nil, tag: 2)
+        newPost.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "Add"), tag: 2)
+        newPost.tabBarItem.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0)
         
         let userPosts = PostListController()
         let userPostsNavigationController = UINavigationController(rootViewController: userPosts)
@@ -67,7 +68,8 @@ class MenuController: UITabBarController {
         userPostsNavigationController.navigationBar.largeTitleTextAttributes = [NSAttributedStringKey.foregroundColor: UIColor.white]
         userPosts.title = "Your Posts"
         userPosts.type = .user
-        userPosts.tabBarItem = UITabBarItem(title: "Your Posts", image: nil, tag: 3)
+        userPosts.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "UserPosts"), tag: 3)
+        userPosts.tabBarItem.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0)
         
         let profile = ProfileController()
         let profileNavigationController = UINavigationController(rootViewController: profile)
@@ -78,7 +80,8 @@ class MenuController: UITabBarController {
         profile.user = user
         profile.mainProfile = true
         profile.title = "You"
-        profile.tabBarItem = UITabBarItem(title: "Profile", image: nil, tag: 4)
+        profile.tabBarItem = UITabBarItem(title: nil, image: UIImage(named: "User"), tag: 4)
+        profile.tabBarItem.imageInsets = UIEdgeInsetsMake(6, 0, -6, 0)
             
         viewControllers = [ feedNavigationController, messagesNavigationController, newPostNavigationController, userPostsNavigationController, profileNavigationController ]
         
@@ -168,6 +171,7 @@ class MenuController: UITabBarController {
             perform(#selector(handleLogout), with: nil, afterDelay: 0)
         } else {
             print("\nUser is successfully logged in\n")
+            print("\n\(FIRAuth.auth()?.currentUser?.uid)\n")
             User.setCurrentUser(forID: (FIRAuth.auth()?.currentUser?.uid)!)
             user = User(id: (FIRAuth.auth()?.currentUser?.uid)!, completion: {
                 self.addControllers()

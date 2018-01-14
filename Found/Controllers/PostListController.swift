@@ -330,12 +330,15 @@ class PostListController: UIViewController, UICollectionViewDataSource, UICollec
     
     // Animation
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        cell.alpha = 0
-        cell.layer.transform = CATransform3DMakeScale(0.5, 0.5, 0.5)
-        UIView.animate(withDuration: 0.4, animations: { () -> Void in
-            cell.alpha = 1
-            cell.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1)
-        })
+        
+        if !searchController.searchBar.isFirstResponder {
+            cell.alpha = 0
+            cell.layer.transform = CATransform3DMakeScale(0.5, 0.5, 0.5)
+            UIView.animate(withDuration: 0.4, animations: { () -> Void in
+                cell.alpha = 1
+                cell.layer.transform = CATransform3DScale(CATransform3DIdentity, 1, 1, 1)
+            })
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
