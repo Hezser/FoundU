@@ -205,6 +205,23 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         return textView
     }()
     
+    var tagsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Tags"
+        label.backgroundColor = .clear
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    var tagsButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Edit your tags", for: .normal)
+        button.contentHorizontalAlignment = .left
+        button.setTitleColor(Color.lightOrange, for: .normal)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+    
     var workLabel: UILabel = {
         let label = UILabel()
         label.text = "Work"
@@ -502,6 +519,16 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         navigationController?.pushViewController(changePasswordController, animated: true)
     }
     
+    @objc func handleEditTags(_ sender: UIButton) {
+        let editTagsController = TagCreationController()
+        editTagsController.setDistanceFromTop(to: 0)
+        editTagsController.setTags(to: user.tags)
+        editTagsController.setID(user.id!, of: .user)
+        editTagsController.configureTagField()
+        editTagsController.configureNavigationBar()
+        navigationController?.pushViewController(editTagsController, animated: true)
+    }
+    
     // This method should not execute unless a different image has been chosen. The way I have done it (using the var imageWasChanged) is probaby not the most efficient
     func saveImage(completion completed: @escaping FinishedDownload) {
         
@@ -605,10 +632,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
                         } else {
                             self.user.email = self.emailTextField.text!
                             FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-//                                let profile = self.navigationController?.viewControllers.first as! ProfileController
-//                                profile.user = self.user
-//                                self.navigationController?.popViewController(animated: true)
-                                // In order to instantly update, we need to present, not pop (if we add studies/work fields, how do you create new ExperienceFields in viewDidAppear?
                                 let menu = MenuController()
                                 menu.user = self.user
                                 menu.itemToDisplay = 4
@@ -619,10 +642,6 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
                     })
                 } else {
                     FIRDatabase.database().reference().child("users").child(self.user.id!).updateChildValues(data, withCompletionBlock: { (err, ref) in
-                        // let profile = self.navigationController?.viewControllers.first as! ProfileController
-                        // profile.user = self.user
-                        // self.navigationController?.popViewController(animated: true)
-                        // In order to instantly update, we need to present, not pop (if we add studies/work fields, how do you create new ExperienceFields in viewDidAppear?
                         let menu = MenuController()
                         menu.user = self.user
                         menu.itemToDisplay = 4
@@ -765,6 +784,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         let dividerLine5 = DividerLine()
         let dividerLine6 = DividerLine()
         let dividerLine7 = DividerLine()
+        let dividerLine8 = DividerLine()
         dividerLineWork1 = DividerLine()
         dividerLineWork2 = DividerLine()
         dividerLineWork3 = DividerLine()
@@ -784,6 +804,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         scrollView.addSubview(homePlaceLabel)
         scrollView.addSubview(dateOfBirthLabel)
         scrollView.addSubview(bioLabel)
+        scrollView.addSubview(tagsLabel)
+        scrollView.addSubview(tagsButton)
         scrollView.addSubview(workLabel)
         scrollView.addSubview(studiesLabel)
         scrollView.addSubview(addWorkButton)
@@ -800,6 +822,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         scrollView.addSubview(dividerLine5)
         scrollView.addSubview(dividerLine6)
         scrollView.addSubview(dividerLine7)
+        scrollView.addSubview(dividerLine8)
         scrollView.addSubview(dividerLineWork1)
         scrollView.addSubview(dividerLineStudies1)
         
@@ -942,7 +965,25 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         bioTextView.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
         
         // Short Divider Line After Bio Constraints
-        dividerLineWork1.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
+        dividerLine8.topAnchor.constraint(equalTo: bioTextView.bottomAnchor).isActive = true
+        dividerLine8.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        dividerLine8.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
+        dividerLine8.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
+        
+        // Tags Label Constraints
+        tagsLabel.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
+        tagsLabel.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
+        tagsLabel.widthAnchor.constraint(equalToConstant: scrollView.frame.size.width/4).isActive = true
+        tagsLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // Password Button Constraints
+        tagsButton.topAnchor.constraint(equalTo: dividerLine8.bottomAnchor).isActive = true
+        tagsButton.leftAnchor.constraint(equalTo: tagsLabel.rightAnchor, constant: 5).isActive = true
+        tagsButton.rightAnchor.constraint(equalTo: margins.rightAnchor).isActive = true
+        tagsButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        
+        // Short Divider Line After Tags Constraints
+        dividerLineWork1.topAnchor.constraint(equalTo: tagsButton.bottomAnchor).isActive = true
         dividerLineWork1.leftAnchor.constraint(equalTo: margins.leftAnchor, constant: 10).isActive = true
         dividerLineWork1.rightAnchor.constraint(equalTo: margins.rightAnchor, constant: -10).isActive = true
         dividerLineWork1.heightAnchor.constraint(equalToConstant: 0.4).isActive = true
@@ -1135,6 +1176,8 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         changePasswordButton.addTarget(self, action: #selector(handleChangePassword), for: .touchUpInside)
 
         dateOfBirthButton.addTarget(self, action: #selector(handleDateOfBirthPickerAppearance), for: .touchUpInside)
+        
+        tagsButton.addTarget(self, action: #selector(handleEditTags), for: .touchUpInside)
     }
     
     override func viewDidLoad() {
@@ -1185,6 +1228,7 @@ class EditProfileController: UIViewController, UITextFieldDelegate, UITextViewDe
         sum += dateOfBirthLabel.frame.size.height
         sum += homePlaceTextField.frame.size.height
         sum += bioTextView.frame.size.height
+        sum += tagsLabel.frame.size.height
         sum += workHeight
         sum += studiesHeight
         return sum

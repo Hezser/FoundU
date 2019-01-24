@@ -27,6 +27,11 @@ enum Variable {
     case tags
 }
 
+enum Entity {
+    case user
+    case post
+}
+
 enum PostListType {
     case feed
     case user
